@@ -10,15 +10,29 @@ import (
 )
 
 const (
-	BaseURLEnv = "GOPACT_LLM_BASEURL"
-	TokenEnv   = "GOPACT_LLM_TOKEN"
-	ModelEnv   = "GOPACT_LLM_MODEL"
+	BaseURLEnv        = "GOPACT_LLM_BASEURL"
+	TokenEnv          = "GOPACT_LLM_TOKEN"
+	ModelEnv          = "GOPACT_LLM_MODEL"
+	ArkAccessKeyEnv   = "GOPACT_ARK_ACCESS_KEY"
+	ArkSecretKeyEnv   = "GOPACT_ARK_SECRET_KEY"
+	ArkRegionEnv      = "GOPACT_ARK_REGION"
+	ArkDefaultBaseURL = "https://ark.cn-beijing.volces.com"
+	ArkDefaultRegion  = "cn-beijing"
 )
 
 type Config struct {
 	BaseURL string
 	Token   string
 	Model   string
+}
+
+type ArkConfig struct {
+	BaseURL   string
+	APIKey    string
+	AccessKey string
+	SecretKey string
+	Region    string
+	Model     string
 }
 
 func LoadConfig() (Config, error) {
@@ -43,6 +57,39 @@ func LoadConfig() (Config, error) {
 	}
 	if len(missing) > 0 {
 		return Config{}, fmt.Errorf("missing required environment variables: %s", strings.Join(missing, ", "))
+	}
+	return cfg, nil
+}
+
+func LoadArkConfig() (ArkConfig, error) {
+	if err := LoadDotEnv(); err != nil {
+		return ArkConfig{}, err
+	}
+
+	cfg := ArkConfig{
+		BaseURL:   strings.TrimSpace(os.Getenv(BaseURLEnv)),
+		APIKey:    strings.TrimSpace(os.Getenv(TokenEnv)),
+		AccessKey: strings.TrimSpace(os.Getenv(ArkAccessKeyEnv)),
+		SecretKey: strings.TrimSpace(os.Getenv(ArkSecretKeyEnv)),
+		Region:    strings.TrimSpace(os.Getenv(ArkRegionEnv)),
+		Model:     strings.TrimSpace(os.Getenv(ModelEnv)),
+	}
+	if cfg.BaseURL == "" {
+		cfg.BaseURL = ArkDefaultBaseURL
+	}
+	if cfg.Region == "" {
+		cfg.Region = ArkDefaultRegion
+	}
+
+	var missing []string
+	if cfg.Model == "" {
+		missing = append(missing, ModelEnv)
+	}
+	if cfg.APIKey == "" && (cfg.AccessKey == "" || cfg.SecretKey == "") {
+		missing = append(missing, TokenEnv+" or both "+ArkAccessKeyEnv+" and "+ArkSecretKeyEnv)
+	}
+	if len(missing) > 0 {
+		return ArkConfig{}, fmt.Errorf("missing required environment variables: %s", strings.Join(missing, ", "))
 	}
 	return cfg, nil
 }
