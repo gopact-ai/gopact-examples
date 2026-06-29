@@ -37,10 +37,7 @@ func run(ctx context.Context, out io.Writer) error {
 	}
 
 	for event, err := range model.Stream(ctx, gopact.NewModelRequest(
-		gopact.WithMessages(gopact.Message{
-			Role:    gopact.RoleUser,
-			Content: "Count from one to three, separated by commas.",
-		}),
+		gopact.WithMessages(gopact.UserMessage("Count from one to three, separated by commas.")),
 		gopact.WithMaxOutputTokens(64),
 		gopact.WithTemperature(0.2),
 	)) {

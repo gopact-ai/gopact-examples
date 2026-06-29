@@ -38,8 +38,8 @@ func run(ctx context.Context, out io.Writer) error {
 	}
 
 	messages := []gopact.Message{
-		{Role: gopact.RoleSystem, Content: "Use tools when they are available, then answer briefly."},
-		{Role: gopact.RoleUser, Content: "Use the uppercase tool on the text gopact."},
+		gopact.SystemMessage("Use tools when they are available, then answer briefly."),
+		gopact.UserMessage("Use the uppercase tool on the text gopact."),
 	}
 	first, err := model.Generate(ctx, gopact.NewModelRequest(
 		gopact.WithMessages(messages...),
@@ -63,11 +63,7 @@ func run(ctx context.Context, out io.Writer) error {
 		if err != nil {
 			return err
 		}
-		messages = append(messages, gopact.Message{
-			Role:       gopact.RoleTool,
-			ToolCallID: call.ID,
-			Content:    result,
-		})
+		messages = append(messages, gopact.ToolMessage(call.ID, result))
 	}
 
 	final, err := model.Generate(ctx, gopact.NewModelRequest(gopact.WithMessages(messages...)))

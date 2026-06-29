@@ -36,8 +36,8 @@ func run(ctx context.Context, out io.Writer) error {
 
 	response, err := model.Generate(ctx, gopact.NewModelRequest(
 		gopact.WithMessages(
-			gopact.Message{Role: gopact.RoleSystem, Content: "You are a concise assistant."},
-			gopact.Message{Role: gopact.RoleUser, Content: "Say hello from gopact in one sentence."},
+			gopact.SystemMessage("You are a concise assistant."),
+			gopact.UserMessage("Say hello from gopact in one sentence."),
 		),
 		gopact.WithTemperature(0.2),
 	))
