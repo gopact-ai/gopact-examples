@@ -43,17 +43,11 @@ func run(ctx context.Context, out io.Writer) error {
 	}
 	first, err := model.Generate(ctx, gopact.NewModelRequest(
 		gopact.WithMessages(messages...),
-		gopact.WithTools(gopact.ToolSpec{
-			Name:        "uppercase",
-			Description: "Uppercase a text string.",
-			InputSchema: gopact.JSONSchema{
-				"type":     "object",
-				"required": []any{"text"},
-				"properties": map[string]any{
-					"text": map[string]any{"type": "string"},
-				},
-			},
-		}),
+		gopact.WithTools(gopact.ObjectToolSpec(
+			"uppercase",
+			"Uppercase a text string.",
+			gopact.RequiredStringField("text", "Text to uppercase."),
+		)),
 	))
 	if err != nil {
 		return err
