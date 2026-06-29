@@ -30,7 +30,8 @@ func run(ctx context.Context, out io.Writer) error {
 		openai.ProviderOpenAI,
 		cfg.BaseURL,
 		cfg.Token,
-		openai.WithModel(cfg.Model, openai.CapabilityToolCalling),
+		openai.WithModel(cfg.Model),
+		openai.EnableToolCalling(),
 	)
 	if err != nil {
 		return err
@@ -41,7 +42,6 @@ func run(ctx context.Context, out io.Writer) error {
 		{Role: gopact.RoleUser, Content: "Use the uppercase tool on the text gopact."},
 	}
 	first, err := model.Generate(ctx, gopact.ModelRequest{
-		Model:    cfg.Model,
 		Messages: messages,
 		Tools: []gopact.ToolSpec{{
 			Name:        "uppercase",
@@ -77,7 +77,6 @@ func run(ctx context.Context, out io.Writer) error {
 	}
 
 	final, err := model.Generate(ctx, gopact.ModelRequest{
-		Model:    cfg.Model,
 		Messages: messages,
 	})
 	if err != nil {

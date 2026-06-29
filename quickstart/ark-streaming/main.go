@@ -29,19 +29,19 @@ func run(ctx context.Context, out io.Writer) error {
 		cfg.BaseURL,
 		cfg.Token,
 		openai.WithResponsesAPI(),
-		openai.WithModel(cfg.Model, openai.CapabilityStreaming),
+		openai.WithModel(cfg.Model),
+		openai.EnableStreaming(),
 	)
 	if err != nil {
 		return err
 	}
 
 	for event, err := range model.Stream(ctx, gopact.ModelRequest{
-		Model: cfg.Model,
 		Messages: []gopact.Message{{
 			Role:    gopact.RoleUser,
 			Content: "Count from one to three, separated by commas.",
 		}},
-	}) {
+	}, openai.WithMaxOutputTokens(64), openai.WithTemperature(0.2)) {
 		if err != nil {
 			return err
 		}
