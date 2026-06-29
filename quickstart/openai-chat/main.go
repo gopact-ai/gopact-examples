@@ -28,18 +28,19 @@ func run(ctx context.Context, out io.Writer) error {
 		openai.ProviderOpenAI,
 		cfg.BaseURL,
 		cfg.Token,
-		openai.WithModel(cfg.Model),
+		gopact.WithModel(cfg.Model),
 	)
 	if err != nil {
 		return err
 	}
 
-	response, err := model.Generate(ctx, gopact.ModelRequest{
-		Messages: []gopact.Message{
-			{Role: gopact.RoleSystem, Content: "You are a concise assistant."},
-			{Role: gopact.RoleUser, Content: "Say hello from gopact in one sentence."},
-		},
-	}, openai.WithTemperature(0.2))
+	response, err := model.Generate(ctx, gopact.NewModelRequest(
+		gopact.WithMessages(
+			gopact.Message{Role: gopact.RoleSystem, Content: "You are a concise assistant."},
+			gopact.Message{Role: gopact.RoleUser, Content: "Say hello from gopact in one sentence."},
+		),
+		gopact.WithTemperature(0.2),
+	))
 	if err != nil {
 		return err
 	}

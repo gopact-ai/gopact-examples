@@ -1,4 +1,8 @@
 github.com/gopact-ai/gopact v0.0.2 h1:1wowfUjniMzTWDRiazG8iFEXBU2VABuXLP9FFLYKEzo=
 github.com/gopact-ai/gopact v0.0.2/go.mod h1:lozSDuCDxwNrJpJnIOUensxOeEG9roEemegbzjpb4YU=
+github.com/gopact-ai/gopact v0.0.3 h1:GG1mUtZekfAI+Z6d77bECwKiAS2TrYjndSHlPGm1aSM=
+github.com/gopact-ai/gopact v0.0.3/go.mod h1:lozSDuCDxwNrJpJnIOUensxOeEG9roEemegbzjpb4YU=
 github.com/gopact-ai/gopact-ext/models/openai v0.4.0 h1:px6xde91QQ/zEGsWfFsCsOpto64iVYrOHK/Bwr5PC6s=
 github.com/gopact-ai/gopact-ext/models/openai v0.4.0/go.mod h1:si9P7fzFMTe+DNh3US0u+bW6AHDYTVOJrS6594s+ESM=
+github.com/gopact-ai/gopact-ext/models/openai v0.5.0 h1:Qt9ITSVxg257oLVO+23xCIIXch6vz/y3/P+VyrRbtPc=
+github.com/gopact-ai/gopact-ext/models/openai v0.5.0/go.mod h1:4wSSGTyo1PtU5/Pf+To21UFLrz2DDsmGSZmb5lt2pyY=

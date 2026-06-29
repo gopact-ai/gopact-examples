@@ -30,8 +30,8 @@ func run(ctx context.Context, out io.Writer) error {
 		openai.ProviderOpenAI,
 		cfg.BaseURL,
 		cfg.Token,
-		openai.WithModel(cfg.Model),
-		openai.EnableToolCalling(),
+		gopact.WithModel(cfg.Model),
+		gopact.EnableToolCalling(),
 	)
 	if err != nil {
 		return err
@@ -41,9 +41,9 @@ func run(ctx context.Context, out io.Writer) error {
 		{Role: gopact.RoleSystem, Content: "Use tools when they are available, then answer briefly."},
 		{Role: gopact.RoleUser, Content: "Use the uppercase tool on the text gopact."},
 	}
-	first, err := model.Generate(ctx, gopact.ModelRequest{
-		Messages: messages,
-		Tools: []gopact.ToolSpec{{
+	first, err := model.Generate(ctx, gopact.NewModelRequest(
+		gopact.WithMessages(messages...),
+		gopact.WithTools(gopact.ToolSpec{
 			Name:        "uppercase",
 			Description: "Uppercase a text string.",
 			InputSchema: gopact.JSONSchema{
@@ -53,8 +53,8 @@ func run(ctx context.Context, out io.Writer) error {
 					"text": map[string]any{"type": "string"},
 				},
 			},
-		}},
-	})
+		}),
+	))
 	if err != nil {
 		return err
 	}
@@ -76,9 +76,7 @@ func run(ctx context.Context, out io.Writer) error {
 		})
 	}
 
-	final, err := model.Generate(ctx, gopact.ModelRequest{
-		Messages: messages,
-	})
+	final, err := model.Generate(ctx, gopact.NewModelRequest(gopact.WithMessages(messages...)))
 	if err != nil {
 		return err
 	}
