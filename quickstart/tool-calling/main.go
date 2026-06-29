@@ -30,11 +30,7 @@ func run(ctx context.Context, out io.Writer) error {
 		openai.ProviderOpenAI,
 		cfg.BaseURL,
 		cfg.Token,
-		openai.WithModels(openai.ProviderModel(
-			openai.ProviderOpenAI,
-			cfg.Model,
-			openai.CapabilityToolCalling,
-		)),
+		openai.WithModel(cfg.Model, openai.CapabilityToolCalling),
 	)
 	if err != nil {
 		return err

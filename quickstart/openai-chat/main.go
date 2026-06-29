@@ -28,7 +28,7 @@ func run(ctx context.Context, out io.Writer) error {
 		openai.ProviderOpenAI,
 		cfg.BaseURL,
 		cfg.Token,
-		openai.WithModels(openai.ProviderModel(openai.ProviderOpenAI, cfg.Model)),
+		openai.WithModel(cfg.Model),
 	)
 	if err != nil {
 		return err

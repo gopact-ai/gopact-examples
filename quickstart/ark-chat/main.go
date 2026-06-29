@@ -29,7 +29,7 @@ func run(ctx context.Context, out io.Writer) error {
 		cfg.BaseURL,
 		cfg.Token,
 		openai.WithResponsesAPI(),
-		openai.WithModels(openai.ProviderModel(openai.ProviderArk, cfg.Model)),
+		openai.WithModel(cfg.Model),
 	)
 	if err != nil {
 		return err
