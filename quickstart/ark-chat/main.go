@@ -9,7 +9,6 @@ import (
 	"github.com/gopact-ai/gopact"
 	"github.com/gopact-ai/gopact-examples/internal/exampleenv"
 	"github.com/gopact-ai/gopact-ext/models/openai"
-	"github.com/gopact-ai/gopact/provider"
 )
 
 func main() {
@@ -25,16 +24,13 @@ func run(ctx context.Context, out io.Writer) error {
 		return err
 	}
 
-	model, err := openai.New(openai.Options{
-		Provider: "ark",
-		BaseURL:  cfg.BaseURL,
-		APIKey:   cfg.Token,
-		API:      openai.APIResponses,
-		Models: []provider.ModelInfo{{
-			Name:     cfg.Model,
-			Provider: "ark",
-		}},
-	})
+	model, err := openai.NewClient(
+		openai.ProviderArk,
+		cfg.BaseURL,
+		cfg.Token,
+		openai.WithResponsesAPI(),
+		openai.WithModels(openai.ProviderModel(openai.ProviderArk, cfg.Model)),
+	)
 	if err != nil {
 		return err
 	}

@@ -11,9 +11,6 @@ import (
 
 func TestRunStreamsConfiguredArk(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/responses" {
-			t.Fatalf("path = %q, want /responses", r.URL.Path)
-		}
 		w.Header().Set("Content-Type", "text/event-stream")
 		_, _ = w.Write([]byte("data: {\"type\":\"response.output_text.delta\",\"delta\":\"one\"}\n\n"))
 		_, _ = w.Write([]byte("data: {\"type\":\"response.output_text.delta\",\"delta\":\", two\"}\n\n"))

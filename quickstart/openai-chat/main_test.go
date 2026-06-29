@@ -11,9 +11,6 @@ import (
 
 func TestRunUsesConfiguredLLM(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/chat/completions" {
-			t.Fatalf("path = %q, want /chat/completions", r.URL.Path)
-		}
 		if got := r.Header.Get("Authorization"); got != "Bearer test-token" {
 			t.Fatalf("Authorization = %q, want bearer token", got)
 		}

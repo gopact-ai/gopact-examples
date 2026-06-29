@@ -24,12 +24,13 @@ func run(ctx context.Context, out io.Writer) error {
 		return err
 	}
 
-	model, err := openai.New(openai.Options{
-		Provider: "ark",
-		BaseURL:  cfg.BaseURL,
-		APIKey:   cfg.Token,
-		API:      openai.APIResponses,
-	})
+	model, err := openai.NewClient(
+		openai.ProviderArk,
+		cfg.BaseURL,
+		cfg.Token,
+		openai.WithResponsesAPI(),
+		openai.WithModels(openai.ProviderModel(openai.ProviderArk, cfg.Model, openai.CapabilityStreaming)),
+	)
 	if err != nil {
 		return err
 	}
