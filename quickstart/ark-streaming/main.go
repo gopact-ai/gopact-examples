@@ -19,7 +19,7 @@ func main() {
 }
 
 func run(ctx context.Context, out io.Writer) error {
-	cfg, err := exampleenv.LoadArkConfig()
+	cfg, err := exampleenv.LoadArkOpenAIConfig()
 	if err != nil {
 		return err
 	}

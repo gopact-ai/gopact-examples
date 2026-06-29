@@ -60,29 +60,74 @@ func TestLoadConfigRequiresLLMEnv(t *testing.T) {
 	}
 }
 
-func TestLoadArkConfigDefaultsRegionAndBaseURL(t *testing.T) {
+func TestLoadArkOpenAIConfigDefaultsRegionAndBaseURL(t *testing.T) {
 	chdir(t, t.TempDir())
 	t.Setenv("GOPACT_LLM_BASEURL", "")
 	t.Setenv("GOPACT_LLM_TOKEN", "token")
 	t.Setenv("GOPACT_LLM_MODEL", "ep-test")
 
-	cfg, err := LoadArkConfig()
+	cfg, err := LoadArkOpenAIConfig()
 	if err != nil {
-		t.Fatalf("LoadArkConfig() error = %v", err)
+		t.Fatalf("LoadArkOpenAIConfig() error = %v", err)
 	}
 	if cfg.BaseURL != ArkDefaultBaseURL {
 		t.Fatalf("BaseURL = %q, want %q", cfg.BaseURL, ArkDefaultBaseURL)
 	}
 }
 
-func TestLoadArkConfigRequiresModelAndCredentials(t *testing.T) {
+func TestLoadArkOpenAIConfigRequiresModelAndCredentials(t *testing.T) {
 	chdir(t, t.TempDir())
 	t.Setenv("GOPACT_LLM_BASEURL", "")
 	t.Setenv("GOPACT_LLM_TOKEN", "")
 	t.Setenv("GOPACT_LLM_MODEL", "")
 
-	if _, err := LoadArkConfig(); err == nil {
-		t.Fatal("LoadArkConfig() error = nil, want missing env error")
+	if _, err := LoadArkOpenAIConfig(); err == nil {
+		t.Fatal("LoadArkOpenAIConfig() error = nil, want missing env error")
+	}
+}
+
+func TestLoadArkSDKConfigUsesArkSpecificEnv(t *testing.T) {
+	chdir(t, t.TempDir())
+	t.Setenv("GOPACT_LLM_TOKEN", "openai-compatible-token")
+	t.Setenv("GOPACT_ARK_API_KEY", "ark-sdk-token")
+	t.Setenv("GOPACT_ARK_MODEL", "ep-test")
+
+	cfg, err := LoadArkSDKConfig()
+	if err != nil {
+		t.Fatalf("LoadArkSDKConfig() error = %v", err)
+	}
+	if cfg.APIKey != "ark-sdk-token" {
+		t.Fatalf("APIKey = %q, want ark-specific token", cfg.APIKey)
+	}
+	if cfg.BaseURL != ArkDefaultBaseURL || cfg.Region != ArkDefaultRegion {
+		t.Fatalf("defaults = %q/%q, want %q/%q", cfg.BaseURL, cfg.Region, ArkDefaultBaseURL, ArkDefaultRegion)
+	}
+}
+
+func TestLoadArkSDKConfigSupportsAkSk(t *testing.T) {
+	chdir(t, t.TempDir())
+	t.Setenv("GOPACT_ARK_ACCESS_KEY", "ak")
+	t.Setenv("GOPACT_ARK_SECRET_KEY", "sk")
+	t.Setenv("GOPACT_ARK_MODEL", "ep-test")
+
+	cfg, err := LoadArkSDKConfig()
+	if err != nil {
+		t.Fatalf("LoadArkSDKConfig() error = %v", err)
+	}
+	if cfg.AccessKey != "ak" || cfg.SecretKey != "sk" {
+		t.Fatalf("ak/sk = %q/%q, want ak/sk", cfg.AccessKey, cfg.SecretKey)
+	}
+}
+
+func TestLoadArkSDKConfigRequiresModelAndCredentials(t *testing.T) {
+	chdir(t, t.TempDir())
+	t.Setenv("GOPACT_ARK_API_KEY", "")
+	t.Setenv("GOPACT_ARK_ACCESS_KEY", "")
+	t.Setenv("GOPACT_ARK_SECRET_KEY", "")
+	t.Setenv("GOPACT_ARK_MODEL", "")
+
+	if _, err := LoadArkSDKConfig(); err == nil {
+		t.Fatal("LoadArkSDKConfig() error = nil, want missing env error")
 	}
 }
 

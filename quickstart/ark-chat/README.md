@@ -1,10 +1,11 @@
 # Ark Chat
 
-Run a single Ark Responses call through `gopact-ext/models/openai`.
+Run a single Ark Chat Completions call through `gopact-ext/models/ark` and the official Ark SDK.
 
 ```bash
-GOPACT_LLM_BASEURL=https://ark.cn-beijing.volces.com/api/v3 \
-GOPACT_LLM_TOKEN=your-ark-api-key \
-GOPACT_LLM_MODEL=ep-20260624181107-glhd6 \
+GOPACT_ARK_API_KEY=your-ark-api-key \
+GOPACT_ARK_MODEL=ep-20260624181107-glhd6 \
 go run ./quickstart/ark-chat
 ```
+
+Optional: set `GOPACT_ARK_BASEURL`, `GOPACT_ARK_REGION`, or use `GOPACT_ARK_ACCESS_KEY` + `GOPACT_ARK_SECRET_KEY` instead of `GOPACT_ARK_API_KEY`.

@@ -10,6 +10,8 @@ Examples read these environment variables:
 - `GOPACT_LLM_TOKEN`: API token.
 - `GOPACT_LLM_MODEL`: model name.
 
+`quickstart/ark-chat` uses Ark SDK variables instead: `GOPACT_ARK_API_KEY` or `GOPACT_ARK_ACCESS_KEY` + `GOPACT_ARK_SECRET_KEY`, plus `GOPACT_ARK_MODEL`.
+
 By default examples load a `.env` file from the current directory or a parent directory. `.env` is ignored by git.
 
 ```bash

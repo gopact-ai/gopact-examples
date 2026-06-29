@@ -14,12 +14,29 @@ const (
 	TokenEnv          = "GOPACT_LLM_TOKEN"
 	ModelEnv          = "GOPACT_LLM_MODEL"
 	ArkDefaultBaseURL = "https://ark.cn-beijing.volces.com/api/v3"
+	ArkDefaultRegion  = "cn-beijing"
+
+	ArkBaseURLEnv   = "GOPACT_ARK_BASEURL"
+	ArkRegionEnv    = "GOPACT_ARK_REGION"
+	ArkAPIKeyEnv    = "GOPACT_ARK_API_KEY"
+	ArkAccessKeyEnv = "GOPACT_ARK_ACCESS_KEY"
+	ArkSecretKeyEnv = "GOPACT_ARK_SECRET_KEY"
+	ArkModelEnv     = "GOPACT_ARK_MODEL"
 )
 
 type Config struct {
 	BaseURL string
 	Token   string
 	Model   string
+}
+
+type ArkSDKConfig struct {
+	BaseURL   string
+	Region    string
+	APIKey    string
+	AccessKey string
+	SecretKey string
+	Model     string
 }
 
 func LoadConfig() (Config, error) {
@@ -48,7 +65,7 @@ func LoadConfig() (Config, error) {
 	return cfg, nil
 }
 
-func LoadArkConfig() (Config, error) {
+func LoadArkOpenAIConfig() (Config, error) {
 	if err := LoadDotEnv(); err != nil {
 		return Config{}, err
 	}
@@ -71,6 +88,39 @@ func LoadArkConfig() (Config, error) {
 	}
 	if len(missing) > 0 {
 		return Config{}, fmt.Errorf("missing required environment variables: %s", strings.Join(missing, ", "))
+	}
+	return cfg, nil
+}
+
+func LoadArkSDKConfig() (ArkSDKConfig, error) {
+	if err := LoadDotEnv(); err != nil {
+		return ArkSDKConfig{}, err
+	}
+
+	cfg := ArkSDKConfig{
+		BaseURL:   strings.TrimSpace(os.Getenv(ArkBaseURLEnv)),
+		Region:    strings.TrimSpace(os.Getenv(ArkRegionEnv)),
+		APIKey:    strings.TrimSpace(os.Getenv(ArkAPIKeyEnv)),
+		AccessKey: strings.TrimSpace(os.Getenv(ArkAccessKeyEnv)),
+		SecretKey: strings.TrimSpace(os.Getenv(ArkSecretKeyEnv)),
+		Model:     strings.TrimSpace(os.Getenv(ArkModelEnv)),
+	}
+	if cfg.BaseURL == "" {
+		cfg.BaseURL = ArkDefaultBaseURL
+	}
+	if cfg.Region == "" {
+		cfg.Region = ArkDefaultRegion
+	}
+
+	var missing []string
+	if cfg.Model == "" {
+		missing = append(missing, ArkModelEnv)
+	}
+	if cfg.APIKey == "" && (cfg.AccessKey == "" || cfg.SecretKey == "") {
+		missing = append(missing, ArkAPIKeyEnv+" or "+ArkAccessKeyEnv+"+"+ArkSecretKeyEnv)
+	}
+	if len(missing) > 0 {
+		return ArkSDKConfig{}, fmt.Errorf("missing required environment variables: %s", strings.Join(missing, ", "))
 	}
 	return cfg, nil
 }
