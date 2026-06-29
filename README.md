@@ -9,9 +9,6 @@ Examples read these environment variables:
 - `GOPACT_LLM_BASEURL`: OpenAI-shaped `/v1` API base URL.
 - `GOPACT_LLM_TOKEN`: API token.
 - `GOPACT_LLM_MODEL`: model name.
-- `GOPACT_ARK_ACCESS_KEY`: Ark access key for the Ark quickstart.
-- `GOPACT_ARK_SECRET_KEY`: Ark secret key for the Ark quickstart.
-- `GOPACT_ARK_REGION`: Ark region, defaults to `cn-beijing`.
 
 By default examples load a `.env` file from the current directory or a parent directory. `.env` is ignored by git.
 

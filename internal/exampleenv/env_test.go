@@ -50,6 +50,7 @@ GOPACT_LLM_MODEL='test-model'
 }
 
 func TestLoadConfigRequiresLLMEnv(t *testing.T) {
+	chdir(t, t.TempDir())
 	t.Setenv("GOPACT_LLM_BASEURL", "")
 	t.Setenv("GOPACT_LLM_TOKEN", "")
 	t.Setenv("GOPACT_LLM_MODEL", "")
@@ -60,12 +61,10 @@ func TestLoadConfigRequiresLLMEnv(t *testing.T) {
 }
 
 func TestLoadArkConfigDefaultsRegionAndBaseURL(t *testing.T) {
+	chdir(t, t.TempDir())
 	t.Setenv("GOPACT_LLM_BASEURL", "")
-	t.Setenv("GOPACT_LLM_TOKEN", "")
+	t.Setenv("GOPACT_LLM_TOKEN", "token")
 	t.Setenv("GOPACT_LLM_MODEL", "ep-test")
-	t.Setenv("GOPACT_ARK_ACCESS_KEY", "ak")
-	t.Setenv("GOPACT_ARK_SECRET_KEY", "sk")
-	t.Setenv("GOPACT_ARK_REGION", "")
 
 	cfg, err := LoadArkConfig()
 	if err != nil {
@@ -74,19 +73,31 @@ func TestLoadArkConfigDefaultsRegionAndBaseURL(t *testing.T) {
 	if cfg.BaseURL != ArkDefaultBaseURL {
 		t.Fatalf("BaseURL = %q, want %q", cfg.BaseURL, ArkDefaultBaseURL)
 	}
-	if cfg.Region != ArkDefaultRegion {
-		t.Fatalf("Region = %q, want %q", cfg.Region, ArkDefaultRegion)
-	}
 }
 
 func TestLoadArkConfigRequiresModelAndCredentials(t *testing.T) {
+	chdir(t, t.TempDir())
 	t.Setenv("GOPACT_LLM_BASEURL", "")
 	t.Setenv("GOPACT_LLM_TOKEN", "")
 	t.Setenv("GOPACT_LLM_MODEL", "")
-	t.Setenv("GOPACT_ARK_ACCESS_KEY", "")
-	t.Setenv("GOPACT_ARK_SECRET_KEY", "")
 
 	if _, err := LoadArkConfig(); err == nil {
 		t.Fatal("LoadArkConfig() error = nil, want missing env error")
+	}
+}
+
+func chdir(t *testing.T, dir string) {
+	t.Helper()
+	originalDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Getwd() error = %v", err)
+	}
+	t.Cleanup(func() {
+		if err := os.Chdir(originalDir); err != nil {
+			t.Fatalf("Chdir() cleanup error = %v", err)
+		}
+	})
+	if err := os.Chdir(dir); err != nil {
+		t.Fatalf("Chdir() error = %v", err)
 	}
 }
