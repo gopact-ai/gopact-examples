@@ -1,7 +1,8 @@
 # Ark Streaming
 
 Stream an Ark OpenAI-compatible Responses call through `gopact-ext/models/openai`.
-The example disables Ark thinking so small `max_output_tokens` budgets produce visible text deltas instead of reasoning-only output.
+The example runs both `thinking=disabled` and `thinking=enabled` with `max_output_tokens=1024`.
+Reasoning tokens count against the output budget, so tiny values like `64` can finish with reasoning-only output on thinking models.
 
 ```bash
 GOPACT_LLM_BASEURL=https://ark.cn-beijing.volces.com/api/v3 \

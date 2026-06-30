@@ -11,6 +11,11 @@ import (
 	"github.com/gopact-ai/gopact-ext/models/openai"
 )
 
+const (
+	arkStreamingMaxOutputTokens = 1024
+	arkStreamingPrompt          = "Count from one to three, separated by commas."
+)
+
 func main() {
 	if err := run(context.Background(), os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -36,19 +41,31 @@ func run(ctx context.Context, out io.Writer) error {
 		return err
 	}
 
+	if err := stream(ctx, out, model, "thinking=disabled", openai.DisableThinking()); err != nil {
+		return err
+	}
+	return stream(ctx, out, model, "thinking=enabled", openai.EnableThinking())
+}
+
+func stream(ctx context.Context, out io.Writer, model gopact.StreamingModel, label string, thinking gopact.ModelRequestOption) error {
+	if _, err := fmt.Fprintf(out, "%s: ", label); err != nil {
+		return err
+	}
 	for event, err := range model.Stream(ctx, gopact.NewModelRequest(
-		gopact.WithMessages(gopact.UserMessage("Count from one to three, separated by commas.")),
-		gopact.WithMaxOutputTokens(64),
+		gopact.WithMessages(gopact.UserMessage(arkStreamingPrompt)),
+		gopact.WithMaxOutputTokens(arkStreamingMaxOutputTokens),
 		gopact.WithTemperature(0.2),
-		openai.DisableThinking(),
+		thinking,
 	)) {
 		if err != nil {
 			return err
 		}
-		if event.Message != nil {
-			_, _ = io.WriteString(out, event.Message.Text())
+		if event.Message != nil && event.Message.Text() != "" {
+			if _, err := io.WriteString(out, event.Message.Text()); err != nil {
+				return err
+			}
 		}
 	}
-	_, err = fmt.Fprintln(out)
+	_, err := fmt.Fprintln(out)
 	return err
 }
