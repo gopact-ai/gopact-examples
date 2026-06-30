@@ -22,6 +22,7 @@ cp .env.example .env
 
 ```bash
 go run ./quickstart/openai-chat
+go run ./quickstart/openai-streaming
 go run ./quickstart/ark-chat
 go run ./quickstart/ark-streaming
 go run ./quickstart/tool-calling
