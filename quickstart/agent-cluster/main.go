@@ -83,7 +83,7 @@ func run(ctx context.Context, out io.Writer) error {
 		if err != nil {
 			return err
 		}
-		discovered, err := registry.Discover(ctx, remote, a2a.DiscoveryQuery{URL: server.URL})
+		discovered, err := remote.Discover(ctx, a2a.DiscoveryQuery{URL: server.URL})
 		if err != nil {
 			return err
 		}
