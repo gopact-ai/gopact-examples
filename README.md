@@ -21,6 +21,9 @@ cp .env.example .env
 ## Examples
 
 ```bash
+go run ./quickstart/workflow-graph
+go run ./quickstart/react-agent
+go run ./quickstart/plan-exec
 go run ./quickstart/openai-chat
 go run ./quickstart/openai-streaming
 go run ./quickstart/ark-chat
