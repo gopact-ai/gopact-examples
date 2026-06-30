@@ -7,7 +7,7 @@ require (
 	github.com/gopact-ai/gopact-ext/agents/planexec v0.1.0
 	github.com/gopact-ai/gopact-ext/agents/react v0.1.1
 	github.com/gopact-ai/gopact-ext/models/ark v0.2.0
-	github.com/gopact-ai/gopact-ext/models/openai v0.5.0
+	github.com/gopact-ai/gopact-ext/models/openai v0.5.1
 )
 
 require (

@@ -39,6 +39,8 @@ github.com/gopact-ai/gopact-ext/models/ark v0.2.0 h1:kT5rFhomHSUo3uqWHK1ICKWQANS
 github.com/gopact-ai/gopact-ext/models/ark v0.2.0/go.mod h1:gnlK5YmBW63cBWfEYzfwocso+TrLYBYkDqglFfwvymY=
 github.com/gopact-ai/gopact-ext/models/openai v0.5.0 h1:Qt9ITSVxg257oLVO+23xCIIXch6vz/y3/P+VyrRbtPc=
 github.com/gopact-ai/gopact-ext/models/openai v0.5.0/go.mod h1:4wSSGTyo1PtU5/Pf+To21UFLrz2DDsmGSZmb5lt2pyY=
+github.com/gopact-ai/gopact-ext/models/openai v0.5.1 h1:jG0EiqTckL+zqN7w5L7qWkxgJtaZhmlmgo1iJkJBr0g=
+github.com/gopact-ai/gopact-ext/models/openai v0.5.1/go.mod h1:4wSSGTyo1PtU5/Pf+To21UFLrz2DDsmGSZmb5lt2pyY=
 github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9YPoQUg=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1 h1:shLQSRRSCCPj3f2gpwzGwWFoC7ycTf1rcQZHOlsJ6N8=

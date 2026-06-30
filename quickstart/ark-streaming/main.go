@@ -40,6 +40,7 @@ func run(ctx context.Context, out io.Writer) error {
 		gopact.WithMessages(gopact.UserMessage("Count from one to three, separated by commas.")),
 		gopact.WithMaxOutputTokens(64),
 		gopact.WithTemperature(0.2),
+		openai.DisableThinking(),
 	)) {
 		if err != nil {
 			return err
