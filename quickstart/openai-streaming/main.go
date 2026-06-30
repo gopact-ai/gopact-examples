@@ -11,6 +11,8 @@ import (
 	"github.com/gopact-ai/gopact-ext/models/openai"
 )
 
+const openAIStreamingMaxOutputTokens = 512
+
 func main() {
 	if err := run(context.Background(), os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -55,7 +57,7 @@ func stream(ctx context.Context, out io.Writer, cfg exampleenv.Config, api opena
 
 	for event, err := range model.Stream(ctx, gopact.NewModelRequest(
 		gopact.WithMessages(gopact.UserMessage("Count from one to three, separated by commas.")),
-		gopact.WithMaxOutputTokens(64),
+		gopact.WithMaxOutputTokens(openAIStreamingMaxOutputTokens),
 		gopact.WithTemperature(0.2),
 	)) {
 		if err != nil {

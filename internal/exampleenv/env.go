@@ -1,3 +1,4 @@
+// Package exampleenv loads shared environment configuration for runnable examples.
 package exampleenv
 
 import (
@@ -10,11 +11,13 @@ import (
 )
 
 const (
-	BaseURLEnv        = "GOPACT_LLM_BASEURL"
-	TokenEnv          = "GOPACT_LLM_TOKEN"
-	ModelEnv          = "GOPACT_LLM_MODEL"
-	ArkDefaultBaseURL = "https://ark.cn-beijing.volces.com/api/v3"
-	ArkDefaultRegion  = "cn-beijing"
+	BaseURLEnv          = "GOPACT_LLM_BASEURL"
+	TokenEnv            = "GOPACT_LLM_TOKEN"
+	ModelEnv            = "GOPACT_LLM_MODEL"
+	ArkDefaultBaseURL   = "https://ark.cn-beijing.volces.com/api/v3"
+	ArkDefaultRegion    = "cn-beijing"
+	AgnesDefaultBaseURL = "https://apihub.agnes-ai.com/v1"
+	AgnesDefaultModel   = "agnes-2.0-flash"
 
 	ArkBaseURLEnv   = "GOPACT_ARK_BASEURL"
 	ArkRegionEnv    = "GOPACT_ARK_REGION"
@@ -22,6 +25,11 @@ const (
 	ArkAccessKeyEnv = "GOPACT_ARK_ACCESS_KEY"
 	ArkSecretKeyEnv = "GOPACT_ARK_SECRET_KEY"
 	ArkModelEnv     = "GOPACT_ARK_MODEL"
+
+	AgnesBaseURLEnv = "GOPACT_AGNES_BASEURL"
+	AgnesAPIKeyEnv  = "GOPACT_AGNES_API_KEY"
+	AgnesSKEnv      = "GOPACT_AGNES_SK"
+	AgnesModelEnv   = "GOPACT_AGNES_MODEL"
 )
 
 type Config struct {
@@ -88,6 +96,31 @@ func LoadArkOpenAIConfig() (Config, error) {
 	}
 	if len(missing) > 0 {
 		return Config{}, fmt.Errorf("missing required environment variables: %s", strings.Join(missing, ", "))
+	}
+	return cfg, nil
+}
+
+func LoadAgnesConfig() (Config, error) {
+	if err := LoadDotEnv(); err != nil {
+		return Config{}, err
+	}
+
+	apiKey := firstEnv(AgnesAPIKeyEnv, AgnesSKEnv)
+	if apiKey != "" {
+		return Config{
+			BaseURL: envOrDefault(AgnesBaseURLEnv, AgnesDefaultBaseURL),
+			Token:   apiKey,
+			Model:   envOrDefault(AgnesModelEnv, AgnesDefaultModel),
+		}, nil
+	}
+
+	cfg := Config{
+		BaseURL: envOrDefault(BaseURLEnv, AgnesDefaultBaseURL),
+		Token:   strings.TrimSpace(os.Getenv(TokenEnv)),
+		Model:   envOrDefault(ModelEnv, AgnesDefaultModel),
+	}
+	if cfg.Token == "" {
+		return Config{}, fmt.Errorf("missing required environment variables: %s or %s", AgnesAPIKeyEnv, TokenEnv)
 	}
 	return cfg, nil
 }
@@ -184,4 +217,20 @@ func loadDotEnvFile(path string) error {
 		}
 	}
 	return scanner.Err()
+}
+
+func firstEnv(keys ...string) string {
+	for _, key := range keys {
+		if value := strings.TrimSpace(os.Getenv(key)); value != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func envOrDefault(key, fallback string) string {
+	if value := strings.TrimSpace(os.Getenv(key)); value != "" {
+		return value
+	}
+	return fallback
 }

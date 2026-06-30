@@ -86,6 +86,51 @@ func TestLoadArkOpenAIConfigRequiresModelAndCredentials(t *testing.T) {
 	}
 }
 
+func TestLoadAgnesConfigUsesAgnesSpecificEnv(t *testing.T) {
+	chdir(t, t.TempDir())
+	t.Setenv("GOPACT_LLM_BASEURL", "https://ark.example.test/api/v3")
+	t.Setenv("GOPACT_LLM_TOKEN", "shared-token")
+	t.Setenv("GOPACT_LLM_MODEL", "shared-model")
+	t.Setenv("GOPACT_AGNES_API_KEY", "agnes-token")
+	t.Setenv("GOPACT_AGNES_MODEL", "agnes-model")
+
+	cfg, err := LoadAgnesConfig()
+	if err != nil {
+		t.Fatalf("LoadAgnesConfig() error = %v", err)
+	}
+	if cfg.BaseURL != AgnesDefaultBaseURL {
+		t.Fatalf("BaseURL = %q, want Agnes default", cfg.BaseURL)
+	}
+	if cfg.Token != "agnes-token" || cfg.Model != "agnes-model" {
+		t.Fatalf("config = %+v, want Agnes-specific token/model", cfg)
+	}
+}
+
+func TestLoadAgnesConfigSupportsSharedLLMEnv(t *testing.T) {
+	chdir(t, t.TempDir())
+	t.Setenv("GOPACT_LLM_BASEURL", "https://agnes.example.test/v1")
+	t.Setenv("GOPACT_LLM_TOKEN", "shared-token")
+	t.Setenv("GOPACT_LLM_MODEL", "shared-model")
+
+	cfg, err := LoadAgnesConfig()
+	if err != nil {
+		t.Fatalf("LoadAgnesConfig() error = %v", err)
+	}
+	if cfg.BaseURL != "https://agnes.example.test/v1" || cfg.Token != "shared-token" || cfg.Model != "shared-model" {
+		t.Fatalf("config = %+v, want shared LLM config", cfg)
+	}
+}
+
+func TestLoadAgnesConfigRequiresCredential(t *testing.T) {
+	chdir(t, t.TempDir())
+	t.Setenv("GOPACT_AGNES_API_KEY", "")
+	t.Setenv("GOPACT_LLM_TOKEN", "")
+
+	if _, err := LoadAgnesConfig(); err == nil {
+		t.Fatal("LoadAgnesConfig() error = nil, want missing credential error")
+	}
+}
+
 func TestLoadArkSDKConfigUsesArkSpecificEnv(t *testing.T) {
 	chdir(t, t.TempDir())
 	t.Setenv("GOPACT_LLM_TOKEN", "openai-compatible-token")

@@ -15,6 +15,10 @@ jobs:
         with:
           go-version: '1.25.11'
           cache-dependency-path: go.sum
+      - name: Install tools
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
+          go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.8.0
       - name: Configure private module access
         run: |
           if [ -n "${GOPACT_GITHUB_TOKEN:-}" ]; then
@@ -24,7 +28,19 @@ jobs:
           GOPACT_GITHUB_TOKEN: ${{ secrets.GOPACT_GITHUB_TOKEN || github.token }}
       - name: Check whitespace
         run: git diff --check
+      - name: Check module tidiness
+        run: |
+          go mod tidy
+          git diff --exit-code
       - name: Test
         run: go test -count=1 ./...
+      - name: Race
+        run: go test -race -count=1 ./...
       - name: Vet
         run: go vet ./...
+      - name: Lint
+        run: golangci-lint run ./...
+      - name: Coverage
+        run: go test -coverprofile=coverage.out ./...
+      - name: Security
+        run: govulncheck ./...

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -13,12 +14,25 @@ import (
 func TestRunStreamsBothOpenAIAPIs(t *testing.T) {
 	var mu sync.Mutex
 	seen := map[string]bool{}
+	tokenBudgets := map[string]int{}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if got := r.Header.Get("Authorization"); got != "Bearer test-token" {
 			t.Fatalf("Authorization = %q, want bearer token", got)
 		}
+		var body struct {
+			MaxTokens       int `json:"max_tokens"`
+			MaxOutputTokens int `json:"max_output_tokens"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatalf("Decode() error = %v", err)
+		}
 		mu.Lock()
 		seen[r.URL.Path] = true
+		if body.MaxOutputTokens != 0 {
+			tokenBudgets[r.URL.Path] = body.MaxOutputTokens
+		} else {
+			tokenBudgets[r.URL.Path] = body.MaxTokens
+		}
 		mu.Unlock()
 
 		w.Header().Set("Content-Type", "text/event-stream")
@@ -47,6 +61,10 @@ func TestRunStreamsBothOpenAIAPIs(t *testing.T) {
 	defer mu.Unlock()
 	if !seen["/chat/completions"] || !seen["/responses"] {
 		t.Fatalf("seen paths = %#v, want both openai APIs", seen)
+	}
+	if tokenBudgets["/chat/completions"] != openAIStreamingMaxOutputTokens ||
+		tokenBudgets["/responses"] != openAIStreamingMaxOutputTokens {
+		t.Fatalf("token budgets = %#v, want %d for both APIs", tokenBudgets, openAIStreamingMaxOutputTokens)
 	}
 	if got := out.String(); !strings.Contains(got, "chat_completions: hello from chat") || !strings.Contains(got, "responses: hello from responses") {
 		t.Fatalf("output = %q, want both stream outputs", got)
