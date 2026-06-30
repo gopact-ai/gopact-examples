@@ -4,7 +4,7 @@ Run a single Ark Chat Completions call through `gopact-ext/models/ark` and the o
 
 ```bash
 GOPACT_ARK_API_KEY=your-ark-api-key \
-GOPACT_ARK_MODEL=ep-20260624181107-glhd6 \
+GOPACT_ARK_MODEL=your-ark-endpoint-id \
 go run ./quickstart/ark-chat
 ```
 
