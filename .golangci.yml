@@ -1,0 +1,29 @@
+version: "2"
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - misspell
+    - revive
+    - staticcheck
+    - unused
+  exclusions:
+    rules:
+      - linters:
+          - revive
+        text: "^exported:"
+      - path: _test\.go$
+        linters:
+          - revive
+        text: "^unused-parameter:"
+      - path: ^quickstart/
+        linters:
+          - revive
+        text: "^package-comments:"
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
