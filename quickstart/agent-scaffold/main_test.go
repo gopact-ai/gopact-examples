@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"os"
 	"strings"
 	"testing"
 )
@@ -24,6 +25,25 @@ func TestRunShowsScaffoldApprovalResume(t *testing.T) {
 	} {
 		if !strings.Contains(got, want) {
 			t.Fatalf("output = %q, want %q", got, want)
+		}
+	}
+}
+
+func TestReadmePointsScaffoldAtReleaseGatePath(t *testing.T) {
+	raw, err := os.ReadFile("README.md")
+	if err != nil {
+		t.Fatalf("read README.md: %v", err)
+	}
+
+	got := string(raw)
+	for _, want := range []string{
+		"RunExport",
+		"verification report",
+		"self-bootstrap release gate",
+		"quickstart/agent-cluster",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("README.md = %q, want %q", got, want)
 		}
 	}
 }
