@@ -16,6 +16,7 @@ This matrix is the examples repository contract for expected runnable capabiliti
 | A2A local cluster + multi-source discovery + tag route + fallback + cancel | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
 | A2A local cluster run export golden trajectory | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
 | A2A local cluster policy deny and review | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
+| Dev Agent test and review evidence | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
 | OpenAI-compatible chat | `quickstart/openai-chat` | `go test -count=1 ./quickstart/openai-chat` | - |
 | OpenAI-compatible streaming | `quickstart/openai-streaming` | `go test -count=1 ./quickstart/openai-streaming` | - |
 | tool calling | `quickstart/tool-calling` | `go test -count=1 ./quickstart/tool-calling` | - |
