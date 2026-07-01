@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	gopactVersion = "v0.0.26"
+	gopactVersion = "v0.0.27"
 	agentName     = "generated-agent"
 	modulePath    = "example.com/generated-agent"
 )

@@ -10,7 +10,7 @@ This matrix is the examples repository contract for expected runnable capabiliti
 | checkpoint approval resume | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |
 | verification bundle | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |
 | A2A file registry scaffold | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |
-| core agent init scaffold | `quickstart/generated-agent` | `go test -count=1 ./quickstart/generated-agent` | - |
+| core agent init/run scaffold | `quickstart/generated-agent` | `go test -count=1 ./quickstart/generated-agent` | - |
 | Plan-Execute workflow with approval resume and cancel | `quickstart/plan-exec` | `go test -count=1 ./quickstart/plan-exec` | - |
 | agent as tool success and failure evidence | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | - |
 | A2A local cluster + multi-source discovery + tag route | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
