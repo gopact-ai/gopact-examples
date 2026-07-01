@@ -56,6 +56,17 @@ func main() {
 }
 
 func run(ctx context.Context, out io.Writer) error {
+	_, err := runCluster(ctx, out)
+	return err
+}
+
+func runCluster(ctx context.Context, out io.Writer) (gopact.RunExport, error) {
+	var export gopact.RunExport
+	err := runClusterInto(ctx, out, &export)
+	return export, err
+}
+
+func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExport) error {
 	if err := exampleenv.LoadDotEnv(); err != nil {
 		return err
 	}
@@ -157,6 +168,9 @@ func run(ctx context.Context, out io.Writer) error {
 		return err
 	}
 	export = releaseGate.RunExport
+	if exportOut != nil {
+		*exportOut = export
+	}
 	resumeEvents, resumed, err := checkpointResume(ctx, workflow, checkpoints, ids)
 	if err != nil {
 		return err
