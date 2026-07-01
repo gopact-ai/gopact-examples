@@ -8,9 +8,11 @@ import (
 	"iter"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gopact-ai/gopact"
+	"github.com/gopact-ai/gopact-ext/devagent/filesnapshot"
 	"github.com/gopact-ai/gopact-ext/devagent/gitdiff"
 	"github.com/gopact-ai/gopact/a2a"
 	"github.com/gopact-ai/gopact/gopacttest"
@@ -146,9 +148,13 @@ func run(ctx context.Context, out io.Writer) error {
 	if err != nil {
 		return err
 	}
+	fileChecks, fileSummary, err := fileSnapshotChecks(ctx, "go.mod")
+	if err != nil {
+		return err
+	}
 	releaseGate, err := gopacttest.BuildSelfBootstrapReleaseGateBundle(
 		export,
-		gopacttest.WithSelfBootstrapAdditionalChecks(diffChecks...),
+		gopacttest.WithSelfBootstrapAdditionalChecks(append(diffChecks, fileChecks...)...),
 	)
 	if err != nil {
 		return err
@@ -169,6 +175,9 @@ func run(ctx context.Context, out io.Writer) error {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "git diff evidence: %s\n", diffSummary); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "file snapshot evidence: %s\n", fileSummary); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "release gate: %s checks=%d requirements=%d\n", releaseGate.Report.Status, len(releaseGate.Report.Checks), len(gopacttest.SelfBootstrapReleaseGateRequirements())); err != nil {
@@ -225,10 +234,52 @@ func worktreeDiffChecks(ctx context.Context, dir string) ([]gopact.VerificationC
 	if len(checks) != 1 {
 		return nil, "", fmt.Errorf("git diff checks=%d, want 1", len(checks))
 	}
-	return checks, diffCheckSummary(checks[0]), nil
+	return checks, checkEvidenceSummary(checks[0]), nil
 }
 
-func diffCheckSummary(check gopact.VerificationCheck) string {
+func fileSnapshotChecks(ctx context.Context, path string) ([]gopact.VerificationCheck, string, error) {
+	actualPath, err := findUp(path)
+	if err != nil {
+		return nil, "", err
+	}
+	snapshot, err := filesnapshot.Scan(ctx, actualPath)
+	if err != nil {
+		return nil, "", err
+	}
+	snapshot.Path = path
+
+	recorder := gopact.NewVerificationRecorder()
+	if err := gopacttest.RecordFileSnapshotCheck(recorder, snapshot); err != nil {
+		return nil, "", err
+	}
+	checks := recorder.Checks()
+	if len(checks) != 1 {
+		return nil, "", fmt.Errorf("file snapshot checks=%d, want 1", len(checks))
+	}
+	return checks, checkEvidenceSummary(checks[0]), nil
+}
+
+func findUp(name string) (string, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	for {
+		candidate := filepath.Join(dir, name)
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate, nil
+		} else if !errors.Is(err, os.ErrNotExist) {
+			return "", err
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return "", fmt.Errorf("%s not found", name)
+		}
+		dir = parent
+	}
+}
+
+func checkEvidenceSummary(check gopact.VerificationCheck) string {
 	if len(check.Evidence) > 0 && check.Evidence[0].Summary != "" {
 		return check.Evidence[0].Summary
 	}

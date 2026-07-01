@@ -7,6 +7,7 @@ require (
 	github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.1
 	github.com/gopact-ai/gopact-ext/agents/planexec v0.2.1
 	github.com/gopact-ai/gopact-ext/agents/react v0.2.1
+	github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.0
 	github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.0
 	github.com/gopact-ai/gopact-ext/models/agnes v0.1.1
 	github.com/gopact-ai/gopact-ext/models/ark v0.2.1
