@@ -25,7 +25,7 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 		"feature coverage evidence: sha256 ",
 		"a2a task evidence: planner-agent completed -> research-agent completed -> code-agent completed -> review-agent completed",
 		"release gate: passed checks=",
-		"requirements=12",
+		"requirements=13",
 		"checkpoint resume: loaded review-agent step=4 events=run_started -> checkpoint_loaded(review-agent) -> run_completed",
 		"planner-agent: plan: research -> code -> review",
 		"research-agent: research: graph, a2a, examples",
