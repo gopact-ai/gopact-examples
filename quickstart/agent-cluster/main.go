@@ -75,7 +75,7 @@ func run(ctx context.Context, out io.Writer) error {
 			artifacts: []gopact.ArtifactRef{{ID: "research-notes", Name: "research.md", URI: "memory://research-notes"}},
 		},
 		{
-			card:      a2a.AgentCard{Name: "code-agent", Capabilities: []string{"code.write"}},
+			card:      a2a.AgentCard{Name: "code-agent", Capabilities: []string{"code.write"}, Tags: []string{"code", "local"}},
 			output:    "code: prepare a small tested patch",
 			artifacts: []gopact.ArtifactRef{{ID: "code-patch", Name: "patch.diff", URI: "memory://code-patch"}},
 		},
@@ -383,9 +383,9 @@ func requireSelfBootstrapReleaseGate(ctx context.Context, gate gopacttest.SelfBo
 
 func newAgentClusterWorkflow(mesh *a2a.Mesh) (*graph.Runnable[clusterState], error) {
 	g := graph.New[clusterState]()
-	for _, name := range []string{"planner-agent", "research-agent", "code-agent"} {
-		g.AddNode(name, agentCallNode(mesh, name))
-	}
+	g.AddNode("planner-agent", agentCallNode(mesh, "planner-agent"))
+	g.AddNode("research-agent", agentCallNode(mesh, "research-agent"))
+	g.AddNode("code-agent", agentCallNode(mesh, "code-agent", "code", "local"))
 	g.AddNode("review-agent", func(ctx context.Context, state clusterState) (clusterState, error) {
 		policy := gopact.PolicyFunc(func(context.Context, gopact.PolicyRequest) (gopact.PolicyDecision, error) {
 			return gopact.PolicyDecision{Action: gopact.PolicyAllow, Reason: "local demo allow"}, nil
@@ -462,10 +462,19 @@ func missingAgentFailureAttribution(ctx context.Context, mesh *a2a.Mesh, ids gop
 	return fmt.Sprintf("%s %s check=%s", attribution.Kind, attribution.Node, checks[0].ID), nil
 }
 
-func agentCallNode(mesh *a2a.Mesh, name string) graph.NodeFunc[clusterState] {
+func agentCallNode(mesh *a2a.Mesh, name string, tags ...string) graph.NodeFunc[clusterState] {
 	return func(ctx context.Context, state clusterState) (clusterState, error) {
 		task := a2a.Task{ID: name + "-task", IDs: runtimeIDs(ctx), Input: state.Input}
-		result, err := mesh.Call(ctx, name, task)
+		var result a2a.Result
+		var err error
+		if len(tags) > 0 {
+			result, err = mesh.Route(ctx, a2a.RouteQuery{Tags: tags, Task: task})
+			if errors.Is(err, a2a.ErrAgentNotFound) {
+				result, err = mesh.Call(ctx, name, task)
+			}
+		} else {
+			result, err = mesh.Call(ctx, name, task)
+		}
 		if err != nil {
 			return state, err
 		}
