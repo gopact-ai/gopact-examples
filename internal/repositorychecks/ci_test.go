@@ -85,10 +85,13 @@ func TestAgnesLocalIntegrationCommandIsDocumented(t *testing.T) {
 	}
 }
 
-func TestAgentClusterRegistryFileEnvIsDocumented(t *testing.T) {
+func TestAgentClusterDiscoveryEnvIsDocumented(t *testing.T) {
 	for _, path := range []string{"../../README.md", "../../.env.example", "../../quickstart/agent-cluster/README.md"} {
-		if text := readText(t, path); !strings.Contains(text, "GOPACT_A2A_REGISTRY_FILE") {
-			t.Fatalf("%s missing GOPACT_A2A_REGISTRY_FILE", path)
+		text := readText(t, path)
+		for _, key := range []string{"GOPACT_A2A_REGISTRY_FILE", "GOPACT_A2A_ENDPOINTS"} {
+			if !strings.Contains(text, key) {
+				t.Fatalf("%s missing %s", path, key)
+			}
 		}
 	}
 }

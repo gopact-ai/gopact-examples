@@ -12,6 +12,7 @@ Examples read these environment variables:
 - `GOPACT_LLM_TOKEN`: API token.
 - `GOPACT_LLM_MODEL`: model name.
 - `GOPACT_A2A_REGISTRY_FILE`: optional A2A agent-card JSON file for `quickstart/agent-cluster`.
+- `GOPACT_A2A_ENDPOINTS`: optional comma-separated A2A HTTP agent endpoints for `quickstart/agent-cluster`.
 
 `quickstart/ark-chat` uses Ark SDK variables instead: `GOPACT_ARK_API_KEY` or `GOPACT_ARK_ACCESS_KEY` + `GOPACT_ARK_SECRET_KEY`, plus `GOPACT_ARK_MODEL`.
 

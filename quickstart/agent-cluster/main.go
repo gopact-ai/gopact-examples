@@ -21,7 +21,10 @@ import (
 	"github.com/gopact-ai/gopact/graph"
 )
 
-const a2aRegistryFileEnv = "GOPACT_A2A_REGISTRY_FILE"
+const (
+	a2aRegistryFileEnv = "GOPACT_A2A_REGISTRY_FILE"
+	a2aEndpointsEnv    = "GOPACT_A2A_ENDPOINTS"
+)
 
 type localAgent struct {
 	card      a2a.AgentCard
@@ -222,6 +225,17 @@ func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []local
 		}
 		return bootstrap.Cards, "configured file registry", func() {}, nil
 	}
+	if endpoints := envList(a2aEndpointsEnv); len(endpoints) > 0 {
+		listers, err := a2a.NewHTTPCardListers(endpoints)
+		if err != nil {
+			return nil, "", func() {}, err
+		}
+		bootstrap, err := mesh.Bootstrap(ctx, listers...)
+		if err != nil {
+			return nil, "", func() {}, err
+		}
+		return bootstrap.Cards, "configured HTTP endpoints", func() {}, nil
+	}
 
 	servers := make([]*httptest.Server, 0, len(agents))
 	cleanup := func() {
@@ -262,6 +276,16 @@ func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []local
 		return nil, "", cleanupFile, err
 	}
 	return bootstrap.Cards, "file registry", cleanupFile, nil
+}
+
+func envList(key string) []string {
+	var values []string
+	for _, part := range strings.Split(os.Getenv(key), ",") {
+		if value := strings.TrimSpace(part); value != "" {
+			values = append(values, value)
+		}
+	}
+	return values
 }
 
 func worktreeDiffChecks(ctx context.Context, dir string) ([]gopact.VerificationCheck, string, error) {
