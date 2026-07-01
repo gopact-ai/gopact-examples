@@ -3,11 +3,17 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
+
+	"github.com/gopact-ai/gopact/a2a"
 )
 
 func TestRunShowsLocalAgentCluster(t *testing.T) {
+	t.Setenv("GOPACT_A2A_REGISTRY_FILE", " ")
 	var out bytes.Buffer
 	if err := run(context.Background(), &out); err != nil {
 		t.Fatalf("run() error = %v", err)
@@ -35,6 +41,61 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 		"policy events: policy_requested -> policy_decided",
 		"failure attribution: external missing-agent check=failure-attribution:missing-agent",
 		"agent trace: planner-agent -> research-agent -> code-agent -> review-agent",
+		"summary: local agent cluster completed 4 calls",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("output = %q, want %q", got, want)
+		}
+	}
+}
+
+func TestRunBootstrapsConfiguredFileRegistry(t *testing.T) {
+	agents := []localAgent{
+		{card: a2a.AgentCard{Name: "planner-agent", Capabilities: []string{"planning"}}, output: "plan: research -> code -> review"},
+		{card: a2a.AgentCard{Name: "research-agent", Capabilities: []string{"research"}}, output: "research: graph, a2a, examples"},
+		{card: a2a.AgentCard{Name: "code-agent", Capabilities: []string{"code.write"}}, output: "code: prepare a small tested patch"},
+		{
+			card:   a2a.AgentCard{Name: "review-agent", Capabilities: []string{"code.review"}},
+			output: "review: pass",
+			events: []a2a.TaskEvent{
+				{Status: a2a.TaskStatusRunning, Message: "reviewing evidence"},
+				{Status: a2a.TaskStatusCompleted, Result: &a2a.Result{Output: "review: pass"}},
+			},
+		},
+	}
+	servers := make([]*httptest.Server, 0, len(agents))
+	t.Cleanup(func() {
+		for _, server := range servers {
+			server.Close()
+		}
+	})
+	cards := make([]a2a.AgentCard, 0, len(agents))
+	for _, agent := range agents {
+		server := httptest.NewServer(a2a.NewHTTPHandler(agent))
+		servers = append(servers, server)
+		card := agent.Card()
+		card.URL = server.URL
+		cards = append(cards, card)
+	}
+	raw, err := json.Marshal(cards)
+	if err != nil {
+		t.Fatalf("Marshal(cards) error = %v", err)
+	}
+	path := t.TempDir() + "/agents.json"
+	if err := os.WriteFile(path, raw, 0o600); err != nil {
+		t.Fatalf("WriteFile(registry) error = %v", err)
+	}
+	t.Setenv("GOPACT_A2A_REGISTRY_FILE", path)
+
+	var out bytes.Buffer
+	if err := run(context.Background(), &out); err != nil {
+		t.Fatalf("run() error = %v", err)
+	}
+
+	got := out.String()
+	for _, want := range []string{
+		"bootstrap discovery: 4 configured file registry agent cards",
+		"cards: planner-agent, research-agent, code-agent, review-agent",
 		"summary: local agent cluster completed 4 calls",
 	} {
 		if !strings.Contains(got, want) {
