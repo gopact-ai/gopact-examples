@@ -146,9 +146,13 @@ func run(ctx context.Context, out io.Writer) error {
 	if err != nil {
 		return err
 	}
+	featureChecks, featureSummary, err := fileSnapshotChecks(ctx, "FEATURES.md")
+	if err != nil {
+		return err
+	}
 	releaseGate, err := gopacttest.BuildSelfBootstrapReleaseGateBundle(
 		export,
-		gopacttest.WithSelfBootstrapAdditionalChecks(append(append(diffChecks, fileChecks...), state.A2AChecks...)...),
+		gopacttest.WithSelfBootstrapAdditionalChecks(append(append(append(diffChecks, fileChecks...), featureChecks...), state.A2AChecks...)...),
 	)
 	if err != nil {
 		return err
@@ -172,6 +176,9 @@ func run(ctx context.Context, out io.Writer) error {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "file snapshot evidence: %s\n", fileSummary); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "feature coverage evidence: %s\n", featureSummary); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "a2a task evidence: %s\n", a2aTaskEvidenceSummary(state.A2AChecks)); err != nil {
