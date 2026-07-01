@@ -11,6 +11,7 @@ import (
 
 	"github.com/gopact-ai/gopact"
 	"github.com/gopact-ai/gopact/checkpoint"
+	"github.com/gopact-ai/gopact/gopacttest"
 	"github.com/gopact-ai/gopact/graph"
 )
 
@@ -37,7 +38,7 @@ func run(ctx context.Context, out io.Writer) error {
 	store := checkpoint.NewMemory[agentState]()
 	threadID := "scaffold-thread"
 
-	firstEvents, _, interrupted, err := collectRun(workflow.Run(ctx,
+	firstEvents, _, interrupted, _, err := collectRun(workflow.Run(ctx,
 		agentState{Task: "add a README example"},
 		graph.WithRuntimeIDs(gopact.RuntimeIDs{RunID: "scaffold-first", ThreadID: threadID}),
 		graph.WithCheckpointStore(store),
@@ -55,7 +56,7 @@ func run(ctx context.Context, out io.Writer) error {
 	}
 	pending := checkpoints[len(checkpoints)-1]
 
-	resumeEvents, final, interrupted, err := collectRun(workflow.Run(ctx,
+	resumeEvents, final, interrupted, export, err := collectRun(workflow.Run(ctx,
 		agentState{},
 		graph.WithRuntimeIDs(gopact.RuntimeIDs{RunID: "scaffold-resume", ThreadID: threadID}),
 		graph.WithCheckpointStore(store),
@@ -71,6 +72,10 @@ func run(ctx context.Context, out io.Writer) error {
 	if interrupted {
 		return errors.New("agent scaffold: resume should complete")
 	}
+	report, err := scaffoldVerificationReport(export, pending.Pending.ID)
+	if err != nil {
+		return err
+	}
 
 	if _, err := fmt.Fprintf(out, "first_events: %s\n", strings.Join(firstEvents, " -> ")); err != nil {
 		return err
@@ -79,6 +84,9 @@ func run(ctx context.Context, out io.Writer) error {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "resume_events: %s\n", strings.Join(resumeEvents, " -> ")); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "verification: %s checks=%d\n", report.Status, len(report.Checks)); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "trace: %s\n", strings.Join(final.Trace, " -> ")); err != nil {
@@ -121,11 +129,15 @@ func newAgentWorkflow() (*graph.Runnable[agentState], error) {
 	return g.Compile()
 }
 
-func collectRun(events iter.Seq2[gopact.Event, error]) ([]string, agentState, bool, error) {
+func collectRun(events iter.Seq2[gopact.Event, error]) ([]string, agentState, bool, gopact.RunExport, error) {
 	var labels []string
 	var state agentState
+	recorder := gopact.NewRunRecorder()
 	for event, err := range events {
 		labels = append(labels, eventLabel(event))
+		if recordErr := recorder.Record(event); recordErr != nil {
+			return labels, state, false, gopact.RunExport{}, recordErr
+		}
 		if event.StepSnapshot != nil {
 			if next, ok := event.StepSnapshot.Output.(agentState); ok {
 				state = next
@@ -133,12 +145,29 @@ func collectRun(events iter.Seq2[gopact.Event, error]) ([]string, agentState, bo
 		}
 		if err != nil {
 			if errors.Is(err, gopact.ErrInterrupted) {
-				return labels, state, true, nil
+				export, exportErr := recorder.Export()
+				return labels, state, true, export, exportErr
 			}
-			return labels, state, false, err
+			return labels, state, false, gopact.RunExport{}, err
 		}
 	}
-	return labels, state, false, nil
+	export, err := recorder.Export()
+	return labels, state, false, export, err
+}
+
+func scaffoldVerificationReport(export gopact.RunExport, interruptID string) (gopact.VerificationReport, error) {
+	recorder := gopact.NewVerificationRecorder()
+	if err := gopacttest.RecordReviewCheck(recorder, gopacttest.ReviewResult{
+		ID:       "scaffold-approval",
+		Ref:      interruptID,
+		Reviewer: "local-user",
+		Source:   "resume",
+		Status:   gopacttest.ReviewStatusApproved,
+		Summary:  "approval resume accepted",
+	}); err != nil {
+		return gopact.VerificationReport{}, err
+	}
+	return gopact.BuildVerificationReport(export, recorder.Checks())
 }
 
 func eventLabel(event gopact.Event) string {
