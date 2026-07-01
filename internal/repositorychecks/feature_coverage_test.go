@@ -86,6 +86,11 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/tool-calling",
 		},
 		{
+			capability:  "structured output",
+			path:        "quickstart/structured-output",
+			mockCommand: "go test -count=1 ./quickstart/structured-output",
+		},
+		{
 			capability:  "Ark SDK provider",
 			path:        "quickstart/ark-chat",
 			mockCommand: "go test -count=1 ./quickstart/ark-chat",

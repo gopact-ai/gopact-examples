@@ -17,6 +17,7 @@ This matrix is the examples repository contract for expected runnable capabiliti
 | OpenAI-compatible chat | `quickstart/openai-chat` | `go test -count=1 ./quickstart/openai-chat` | - |
 | OpenAI-compatible streaming | `quickstart/openai-streaming` | `go test -count=1 ./quickstart/openai-streaming` | - |
 | tool calling | `quickstart/tool-calling` | `go test -count=1 ./quickstart/tool-calling` | - |
+| structured output | `quickstart/structured-output` | `go test -count=1 ./quickstart/structured-output` | - |
 | Ark SDK provider | `quickstart/ark-chat` | `go test -count=1 ./quickstart/ark-chat` | - |
 | Ark OpenAI-compatible streaming | `quickstart/ark-streaming` | `go test -count=1 ./quickstart/ark-streaming` | - |
 | Agnes provider | `quickstart/agnes-chat` | `go test -count=1 ./quickstart/agnes-chat` | `go test -tags=integration -count=1 ./quickstart/agnes-chat` |
