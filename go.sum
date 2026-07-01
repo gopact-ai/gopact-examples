@@ -41,7 +41,7 @@ github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.6 h1:16i6mjvet7Q7XRm3
 github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.6/go.mod h1:j2dW+w9ma2/j8UooZUwdVse2uZmmTdfX4H9Cg3Na5Rc=
 github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.6 h1:t28Koq8n9xuD2cdmKJm8o1WnCdnaWic0SLCixE9cRbI=
 github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.6/go.mod h1:c/YRygBX/Nap7+Wb9rJDg/iDSmUc+J6ZhFkZ/LB2VUc=
-github.com/gopact-ai/gopact-ext/models/agnes v0.1.7 h1:zsmoTQxEcKn1qP2KDrZ+d3ISGQlNa+YK7Uk5hz3b2iI=
+github.com/gopact-ai/gopact-ext/models/agnes v0.1.7 h1:FGEn8cQP3LbxtRCUyfDmwzwUwKTZ/vxn4l3l28MI4l0=
 github.com/gopact-ai/gopact-ext/models/agnes v0.1.7/go.mod h1:P+WN+sbfrQgZ4ixCj2BndGU7T+VblPV6SLLiFnqfZWU=
 github.com/gopact-ai/gopact-ext/models/ark v0.2.7 h1:UYtHDV6TsZshbu8U29FSYPDNnzCW+ykb3gJoiaafbdw=
 github.com/gopact-ai/gopact-ext/models/ark v0.2.7/go.mod h1:KlWx6O/+QhmUEG1MWPlDVT37cWxF6AQrx0Zb9uOjIxI=
