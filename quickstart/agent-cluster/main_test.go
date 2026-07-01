@@ -16,7 +16,7 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 	got := out.String()
 	for _, want := range []string{
 		"gateway: accepted self-bootstrap slice",
-		"bootstrap discovery: 4 HTTP agent cards",
+		"bootstrap discovery: 4 file registry agent cards",
 		"cards: planner-agent, research-agent, code-agent, review-agent",
 		"workflow events: run_started -> node_started(planner-agent) -> node_completed(planner-agent) -> node_started(research-agent) -> node_completed(research-agent) -> node_started(code-agent) -> node_completed(code-agent) -> node_started(review-agent) -> node_completed(review-agent) -> run_completed",
 		"run export: completed events=10 steps=4 verification_reports=1",

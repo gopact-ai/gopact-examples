@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -83,26 +84,43 @@ func run(ctx context.Context, out io.Writer) error {
 			server.Close()
 		}
 	}()
-	endpoints := make([]string, 0, len(agents))
+	registryFile, err := os.CreateTemp("", "gopact-agent-registry-*.json")
+	if err != nil {
+		return err
+	}
+	registryPath := registryFile.Name()
+	defer func() {
+		_ = os.Remove(registryPath)
+	}()
+	cards := make([]a2a.AgentCard, 0, len(agents))
 	for i := range agents {
 		server := httptest.NewServer(a2a.NewHTTPHandler(agents[i]))
 		servers = append(servers, server)
-		endpoints = append(endpoints, server.URL)
+		card := agents[i].Card()
+		card.URL = server.URL
+		cards = append(cards, card)
 	}
-	listers, err := a2a.NewHTTPCardListers(endpoints)
+	if err := json.NewEncoder(registryFile).Encode(cards); err != nil {
+		_ = registryFile.Close()
+		return err
+	}
+	if err := registryFile.Close(); err != nil {
+		return err
+	}
+	discoverer, err := a2a.NewFileDiscoverer(registryPath)
 	if err != nil {
 		return err
 	}
-	bootstrap, err := mesh.Bootstrap(ctx, listers...)
+	bootstrap, err := mesh.Bootstrap(ctx, discoverer)
 	if err != nil {
 		return err
 	}
-	cards := bootstrap.Cards
+	cards = bootstrap.Cards
 
 	if _, err := fmt.Fprintln(out, "gateway: accepted self-bootstrap slice"); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintf(out, "bootstrap discovery: %d HTTP agent cards\n", len(cards)); err != nil {
+	if _, err := fmt.Fprintf(out, "bootstrap discovery: %d file registry agent cards\n", len(cards)); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "cards: %s\n", cardNames(cards)); err != nil {
