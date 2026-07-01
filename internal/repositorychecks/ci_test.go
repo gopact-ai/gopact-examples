@@ -85,6 +85,23 @@ func TestAgnesLocalIntegrationCommandIsDocumented(t *testing.T) {
 	}
 }
 
+func TestScaffoldPathUsesCredentialFreeQuickstarts(t *testing.T) {
+	readme := readText(t, "../../README.md")
+	for _, phrase := range []string{
+		"## Scaffold Path",
+		"Start without credentials:",
+		"go run ./quickstart/react-agent",
+		"go run ./quickstart/plan-exec",
+		"go run ./quickstart/agent-as-tool",
+		"go run ./quickstart/agent-cluster",
+		"Use provider quickstarts after `.env` is configured.",
+	} {
+		if !strings.Contains(readme, phrase) {
+			t.Fatalf("README missing scaffold path phrase %q", phrase)
+		}
+	}
+}
+
 func readText(t *testing.T, path string) string {
 	t.Helper()
 
@@ -96,12 +113,18 @@ func readText(t *testing.T, path string) string {
 }
 
 func quickstartCommands(readme string) []string {
+	seen := map[string]struct{}{}
 	var commands []string
 	for _, line := range strings.Split(readme, "\n") {
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "go run ./quickstart/") {
+			if _, ok := seen[line]; ok {
+				continue
+			}
+			seen[line] = struct{}{}
 			commands = append(commands, line)
 		}
 	}
+	slices.Sort(commands)
 	return commands
 }
