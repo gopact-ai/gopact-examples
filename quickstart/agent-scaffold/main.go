@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gopact-ai/gopact"
+	"github.com/gopact-ai/gopact/a2a"
 	"github.com/gopact-ai/gopact/checkpoint"
 	"github.com/gopact-ai/gopact/gopacttest"
 	"github.com/gopact-ai/gopact/graph"
@@ -80,6 +82,10 @@ func run(ctx context.Context, out io.Writer) error {
 	if err != nil {
 		return err
 	}
+	card, err := discoverScaffoldAgentCard(ctx, workflow)
+	if err != nil {
+		return err
+	}
 
 	if _, err := fmt.Fprintf(out, "first_events: %s\n", strings.Join(firstEvents, " -> ")); err != nil {
 		return err
@@ -94,6 +100,9 @@ func run(ctx context.Context, out io.Writer) error {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "bundle: %s verification_reports=%d\n", bundle.Outcome, len(bundle.VerificationReports)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "a2a registry: %s capabilities=%s\n", card.Name, strings.Join(card.Capabilities, ", ")); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "trace: %s\n", strings.Join(final.Trace, " -> ")); err != nil {
@@ -134,6 +143,61 @@ func newAgentWorkflow() (*graph.Runnable[agentState], error) {
 	g.AddEdge("approval", "summary")
 	g.AddEdge("summary", graph.End)
 	return g.Compile()
+}
+
+func discoverScaffoldAgentCard(ctx context.Context, workflow *graph.Runnable[agentState]) (a2a.AgentCard, error) {
+	agent, err := a2a.NewRunnableAgent(
+		a2a.AgentCard{
+			Name:         "scaffold-agent",
+			Description:  "Checkpointed approval/resume scaffold.",
+			Capabilities: []string{"checkpoint.resume", "human.approval"},
+		},
+		workflow.AsRunnable(),
+		a2a.WithRunnableInputMapper(func(_ context.Context, task a2a.Task) (any, error) {
+			return agentState{Task: task.Input}, nil
+		}),
+		a2a.WithRunnableResultMapper(func(_ context.Context, task a2a.Task, events []gopact.Event) (a2a.Result, error) {
+			result := a2a.Result{TaskID: task.ID}
+			for _, event := range events {
+				if event.StepSnapshot == nil {
+					continue
+				}
+				state, ok := event.StepSnapshot.Output.(agentState)
+				if ok && state.Summary != "" {
+					result.Output = state.Summary
+				}
+			}
+			return result, nil
+		}),
+	)
+	if err != nil {
+		return a2a.AgentCard{}, err
+	}
+	card := agent.Card()
+	registryFile, err := os.CreateTemp("", "gopact-scaffold-agent-*.json")
+	if err != nil {
+		return a2a.AgentCard{}, err
+	}
+	registryPath := registryFile.Name()
+	defer func() {
+		_ = os.Remove(registryPath)
+	}()
+	if err := json.NewEncoder(registryFile).Encode([]a2a.AgentCard{card}); err != nil {
+		_ = registryFile.Close()
+		return a2a.AgentCard{}, err
+	}
+	if err := registryFile.Close(); err != nil {
+		return a2a.AgentCard{}, err
+	}
+	discoverer, err := a2a.NewFileDiscoverer(registryPath)
+	if err != nil {
+		return a2a.AgentCard{}, err
+	}
+	result, err := discoverer.Discover(ctx, a2a.DiscoveryQuery{Name: card.Name, Require: card.Capabilities})
+	if err != nil {
+		return a2a.AgentCard{}, err
+	}
+	return result.Card, nil
 }
 
 func collectRun(events iter.Seq2[gopact.Event, error]) ([]string, agentState, bool, gopact.RunExport, error) {

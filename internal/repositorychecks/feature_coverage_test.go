@@ -46,6 +46,11 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/agent-scaffold",
 		},
 		{
+			capability:  "A2A file registry scaffold",
+			path:        "quickstart/agent-scaffold",
+			mockCommand: "go test -count=1 ./quickstart/agent-scaffold",
+		},
+		{
 			capability:  "Plan-Execute workflow",
 			path:        "quickstart/plan-exec",
 			mockCommand: "go test -count=1 ./quickstart/plan-exec",
