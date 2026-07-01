@@ -76,6 +76,10 @@ func run(ctx context.Context, out io.Writer) error {
 	if err != nil {
 		return err
 	}
+	bundle, err := gopact.EmbedVerificationReport(export, report)
+	if err != nil {
+		return err
+	}
 
 	if _, err := fmt.Fprintf(out, "first_events: %s\n", strings.Join(firstEvents, " -> ")); err != nil {
 		return err
@@ -87,6 +91,9 @@ func run(ctx context.Context, out io.Writer) error {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "verification: %s checks=%d\n", report.Status, len(report.Checks)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "bundle: %s verification_reports=%d\n", bundle.Outcome, len(bundle.VerificationReports)); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "trace: %s\n", strings.Join(final.Trace, " -> ")); err != nil {
