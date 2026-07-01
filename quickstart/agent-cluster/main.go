@@ -12,6 +12,7 @@ import (
 
 	"github.com/gopact-ai/gopact"
 	"github.com/gopact-ai/gopact/a2a"
+	"github.com/gopact-ai/gopact/gopacttest"
 	"github.com/gopact-ai/gopact/graph"
 )
 
@@ -140,6 +141,14 @@ func run(ctx context.Context, out io.Writer) error {
 	if err != nil {
 		return err
 	}
+	releaseGate, err := gopacttest.BuildSelfBootstrapReleaseGateBundle(export)
+	if err != nil {
+		return err
+	}
+	if err := requireSelfBootstrapReleaseGate(ctx, releaseGate); err != nil {
+		return err
+	}
+	export = releaseGate.RunExport
 	resumeEvents, resumed, err := checkpointResume(ctx, workflow, checkpoints, ids)
 	if err != nil {
 		return err
@@ -148,7 +157,10 @@ func run(ctx context.Context, out io.Writer) error {
 	if _, err := fmt.Fprintf(out, "workflow events: %s\n", strings.Join(events, " -> ")); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintf(out, "run export: %s events=%d steps=%d\n", export.Outcome, len(export.Events), len(export.Steps)); err != nil {
+	if _, err := fmt.Fprintf(out, "run export: %s events=%d steps=%d verification_reports=%d\n", export.Outcome, len(export.Events), len(export.Steps), len(export.VerificationReports)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "release gate: %s checks=%d requirements=%d\n", releaseGate.Report.Status, len(releaseGate.Report.Checks), len(gopacttest.SelfBootstrapReleaseGateRequirements())); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "checkpoint resume: loaded %s step=%d events=%s\n", resumed.Node, resumed.Step, strings.Join(resumeEvents, " -> ")); err != nil {
@@ -180,6 +192,15 @@ func run(ctx context.Context, out io.Writer) error {
 	}
 	_, err = fmt.Fprintln(out, "summary: local agent cluster completed 4 calls")
 	return err
+}
+
+func requireSelfBootstrapReleaseGate(ctx context.Context, gate gopacttest.SelfBootstrapReleaseGateBundle) error {
+	for _, result := range gopacttest.CheckSelfBootstrapReleaseGate(ctx, gate.RunExport, gate.Report) {
+		if !result.Passed {
+			return fmt.Errorf("self-bootstrap release gate %s: %w", result.Case, result.Err)
+		}
+	}
+	return nil
 }
 
 func newAgentClusterWorkflow(registry *a2a.Registry) (*graph.Runnable[clusterState], error) {
