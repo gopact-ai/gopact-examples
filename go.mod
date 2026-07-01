@@ -3,15 +3,15 @@ module github.com/gopact-ai/gopact-examples
 go 1.25.11
 
 require (
-	github.com/gopact-ai/gopact v0.0.12
-	github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.3
-	github.com/gopact-ai/gopact-ext/agents/planexec v0.2.3
-	github.com/gopact-ai/gopact-ext/agents/react v0.2.3
-	github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.2
-	github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.2
-	github.com/gopact-ai/gopact-ext/models/agnes v0.1.3
-	github.com/gopact-ai/gopact-ext/models/ark v0.2.3
-	github.com/gopact-ai/gopact-ext/models/openai v0.5.5
+	github.com/gopact-ai/gopact v0.0.13
+	github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.4
+	github.com/gopact-ai/gopact-ext/agents/planexec v0.2.4
+	github.com/gopact-ai/gopact-ext/agents/react v0.2.4
+	github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.3
+	github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.3
+	github.com/gopact-ai/gopact-ext/models/agnes v0.1.4
+	github.com/gopact-ai/gopact-ext/models/ark v0.2.4
+	github.com/gopact-ai/gopact-ext/models/openai v0.5.6
 )
 
 require (
