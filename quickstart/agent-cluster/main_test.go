@@ -45,6 +45,8 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 		"route fallback: code-agent missing tag -> code-agent completed",
 		"cancel evidence: review-agent canceled",
 		"policy events: policy_requested -> policy_decided",
+		"policy deny: policy_requested -> policy_decided deny",
+		"policy review: policy_requested -> policy_decided review",
 		"failure attribution: external missing-agent check=failure-attribution:missing-agent",
 		"agent trace: planner-agent -> research-agent -> code-agent -> review-agent",
 		"summary: local agent cluster completed 4 calls",

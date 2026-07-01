@@ -76,6 +76,11 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/agent-cluster",
 		},
 		{
+			capability:  "A2A local cluster policy deny and review",
+			path:        "quickstart/agent-cluster",
+			mockCommand: "go test -count=1 ./quickstart/agent-cluster",
+		},
+		{
 			capability:  "OpenAI-compatible chat",
 			path:        "quickstart/openai-chat",
 			mockCommand: "go test -count=1 ./quickstart/openai-chat",
