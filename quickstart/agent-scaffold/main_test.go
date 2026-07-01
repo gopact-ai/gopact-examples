@@ -20,6 +20,7 @@ func TestRunShowsScaffoldApprovalResume(t *testing.T) {
 		"pending: approval checkpoint=scaffold-first:3",
 		"resume_events: run_started -> checkpoint_loaded(approval) -> resume_received(approval) -> node_resumed(summary) -> node_completed(summary) -> run_completed",
 		"verification: passed checks=1",
+		"bundle: completed verification_reports=1",
 		"trace: plan -> write -> approval -> summary",
 		"summary: published draft for add a README example",
 	} {
@@ -39,6 +40,7 @@ func TestReadmePointsScaffoldAtReleaseGatePath(t *testing.T) {
 	for _, want := range []string{
 		"RunExport",
 		"verification report",
+		"embeds the report",
 		"self-bootstrap release gate",
 		"quickstart/agent-cluster",
 	} {
