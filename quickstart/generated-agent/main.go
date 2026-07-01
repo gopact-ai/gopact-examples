@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	gopactVersion = "v0.0.25"
+	gopactVersion = "v0.0.26"
 	agentName     = "generated-agent"
 	modulePath    = "example.com/generated-agent"
 )
@@ -38,7 +38,6 @@ func run(ctx context.Context, out io.Writer) error {
 		"agent", "init", agentName,
 		"-out", target,
 		"-module", modulePath,
-		"-sdk-version", gopactVersion,
 	); err != nil {
 		return err
 	}
