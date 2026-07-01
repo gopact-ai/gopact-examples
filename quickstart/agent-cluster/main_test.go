@@ -53,6 +53,9 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 func TestRunBootstrapsConfiguredFileRegistry(t *testing.T) {
 	t.Setenv("GOPACT_A2A_ENDPOINTS", " ")
 	cards, _ := startTestAgentServers(t, testClusterAgents())
+	for i := range cards {
+		cards[i].Tags = nil
+	}
 	raw, err := json.Marshal(cards)
 	if err != nil {
 		t.Fatalf("Marshal(cards) error = %v", err)
@@ -131,7 +134,7 @@ func testClusterAgents() []localAgent {
 	return []localAgent{
 		{card: a2a.AgentCard{Name: "planner-agent", Capabilities: []string{"planning"}}, output: "plan: research -> code -> review"},
 		{card: a2a.AgentCard{Name: "research-agent", Capabilities: []string{"research"}}, output: "research: graph, a2a, examples"},
-		{card: a2a.AgentCard{Name: "code-agent", Capabilities: []string{"code.write"}}, output: "code: prepare a small tested patch"},
+		{card: a2a.AgentCard{Name: "code-agent", Capabilities: []string{"code.write"}, Tags: []string{"code", "local"}}, output: "code: prepare a small tested patch"},
 		{
 			card:   a2a.AgentCard{Name: "review-agent", Capabilities: []string{"code.review"}},
 			output: "review: pass",
