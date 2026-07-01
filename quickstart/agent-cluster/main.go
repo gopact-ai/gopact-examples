@@ -197,6 +197,13 @@ func run(ctx context.Context, out io.Writer) error {
 	if _, err := fmt.Fprintf(out, "review stream: %s\n", strings.Join(state.ReviewLabels, " -> ")); err != nil {
 		return err
 	}
+	fallbackLine, err := routeFallback(ctx, mesh, ids)
+	if err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "route fallback: %s\n", fallbackLine); err != nil {
+		return err
+	}
 	cancelLine, err := cancelReviewTask(ctx, mesh, ids)
 	if err != nil {
 		return err
@@ -474,6 +481,32 @@ func missingAgentFailureAttribution(ctx context.Context, mesh *a2a.Mesh, ids gop
 		return "", fmt.Errorf("failure attribution checks=%d, want 1", len(checks))
 	}
 	return fmt.Sprintf("%s %s check=%s", attribution.Kind, attribution.Node, checks[0].ID), nil
+}
+
+func routeFallback(ctx context.Context, mesh *a2a.Mesh, ids gopact.RuntimeIDs) (string, error) {
+	task := a2a.Task{ID: "code-fallback-task", IDs: ids, Input: "fallback route"}
+	_, err := mesh.Route(ctx, a2a.RouteQuery{Tags: []string{"missing-code-route"}, Task: task})
+	if !errors.Is(err, a2a.ErrAgentNotFound) {
+		if err == nil {
+			return "", fmt.Errorf("missing tag route unexpectedly resolved")
+		}
+		return "", err
+	}
+
+	result, err := mesh.Call(ctx, "code-agent", task)
+	if err != nil {
+		return "", err
+	}
+	check, err := recordA2ATaskCheck("code-agent", task, a2a.TaskEvent{
+		TaskID: task.ID,
+		IDs:    ids,
+		Status: a2a.TaskStatusCompleted,
+		Result: &result,
+	})
+	if err != nil {
+		return "", err
+	}
+	return "code-agent missing tag -> " + checkEvidenceSummary(check), nil
 }
 
 func agentCallNode(mesh *a2a.Mesh, name string, tags ...string) graph.NodeFunc[clusterState] {

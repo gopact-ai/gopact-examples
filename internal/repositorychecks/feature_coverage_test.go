@@ -66,7 +66,7 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/agent-as-tool",
 		},
 		{
-			capability:  "A2A local cluster + multi-source discovery + tag route + cancel",
+			capability:  "A2A local cluster + multi-source discovery + tag route + fallback + cancel",
 			path:        "quickstart/agent-cluster",
 			mockCommand: "go test -count=1 ./quickstart/agent-cluster",
 		},
