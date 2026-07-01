@@ -5,7 +5,7 @@ go 1.25.11
 require (
 	github.com/gopact-ai/gopact v0.0.26
 	github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.8
-	github.com/gopact-ai/gopact-ext/agents/planexec v0.2.8
+	github.com/gopact-ai/gopact-ext/agents/planexec v0.2.9
 	github.com/gopact-ai/gopact-ext/agents/react v0.2.8
 	github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.7
 	github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.7
