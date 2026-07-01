@@ -83,15 +83,15 @@ func run(ctx context.Context, out io.Writer) error {
 			server.Close()
 		}
 	}()
-	listers := make([]a2a.CardLister, 0, len(agents))
+	endpoints := make([]string, 0, len(agents))
 	for i := range agents {
 		server := httptest.NewServer(a2a.NewHTTPHandler(agents[i]))
 		servers = append(servers, server)
-		remote, err := a2a.NewHTTPAgent(server.URL, a2a.WithHTTPClient(server.Client()))
-		if err != nil {
-			return err
-		}
-		listers = append(listers, remote)
+		endpoints = append(endpoints, server.URL)
+	}
+	listers, err := a2a.NewHTTPCardListers(endpoints)
+	if err != nil {
+		return err
 	}
 	bootstrap, err := mesh.Bootstrap(ctx, listers...)
 	if err != nil {
