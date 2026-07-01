@@ -20,6 +20,19 @@ cp .env.example .env
 
 ## Examples
 
+## Scaffold Path
+
+Start without credentials:
+
+```bash
+go run ./quickstart/react-agent
+go run ./quickstart/plan-exec
+go run ./quickstart/agent-as-tool
+go run ./quickstart/agent-cluster
+```
+
+This path grows from one scripted tool-using agent to a Plan-Execute workflow, an agent-as-tool bridge, and a local A2A cluster. Use provider quickstarts after `.env` is configured.
+
 ```bash
 go run ./quickstart/agent-as-tool
 go run ./quickstart/agent-cluster
