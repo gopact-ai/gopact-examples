@@ -21,6 +21,7 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 		"workflow events: run_started -> node_started(planner-agent) -> node_completed(planner-agent) -> node_started(research-agent) -> node_completed(research-agent) -> node_started(code-agent) -> node_completed(code-agent) -> node_started(review-agent) -> node_completed(review-agent) -> run_completed",
 		"run export: completed events=10 steps=4 verification_reports=1",
 		"git diff evidence:",
+		"file snapshot evidence: sha256 ",
 		"release gate: passed checks=",
 		"requirements=12",
 		"checkpoint resume: loaded review-agent step=4 events=run_started -> checkpoint_loaded(review-agent) -> run_completed",
