@@ -215,38 +215,38 @@ func run(ctx context.Context, out io.Writer) error {
 }
 
 func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []localAgent) ([]a2a.AgentCard, string, func(), error) {
+	listers := []a2a.CardLister{}
+	sources := []string{}
 	if path := strings.TrimSpace(os.Getenv(a2aRegistryFileEnv)); path != "" {
 		discoverer, err := a2a.NewFileDiscoverer(path)
 		if err != nil {
 			return nil, "", func() {}, err
 		}
-		bootstrap, err := mesh.Bootstrap(ctx, discoverer)
-		if err != nil {
-			return nil, "", func() {}, err
-		}
-		return bootstrap.Cards, "configured file registry", func() {}, nil
+		listers = append(listers, discoverer)
+		sources = append(sources, "file registry")
 	}
 	if registryURL := strings.TrimSpace(os.Getenv(a2aRegistryURLEnv)); registryURL != "" {
 		registry, err := a2a.NewHTTPRegistry(registryURL)
 		if err != nil {
 			return nil, "", func() {}, err
 		}
-		bootstrap, err := mesh.Bootstrap(ctx, registry)
-		if err != nil {
-			return nil, "", func() {}, err
-		}
-		return bootstrap.Cards, "configured HTTP registry", func() {}, nil
+		listers = append(listers, registry)
+		sources = append(sources, "HTTP registry")
 	}
 	if endpoints := envList(a2aEndpointsEnv); len(endpoints) > 0 {
-		listers, err := a2a.NewHTTPCardListers(endpoints)
+		endpointListers, err := a2a.NewHTTPCardListers(endpoints)
 		if err != nil {
 			return nil, "", func() {}, err
 		}
+		listers = append(listers, endpointListers...)
+		sources = append(sources, "HTTP endpoints")
+	}
+	if len(listers) > 0 {
 		bootstrap, err := mesh.Bootstrap(ctx, listers...)
 		if err != nil {
 			return nil, "", func() {}, err
 		}
-		return bootstrap.Cards, "configured HTTP endpoints", func() {}, nil
+		return bootstrap.Cards, configuredDiscoveryLabel(sources), func() {}, nil
 	}
 
 	servers := make([]*httptest.Server, 0, len(agents))
@@ -288,6 +288,13 @@ func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []local
 		return nil, "", cleanupFile, err
 	}
 	return bootstrap.Cards, "file registry", cleanupFile, nil
+}
+
+func configuredDiscoveryLabel(sources []string) string {
+	if len(sources) == 1 {
+		return "configured " + sources[0]
+	}
+	return "configured discovery sources"
 }
 
 func envList(key string) []string {

@@ -14,6 +14,7 @@ import (
 
 func TestRunShowsLocalAgentCluster(t *testing.T) {
 	t.Setenv("GOPACT_A2A_REGISTRY_FILE", " ")
+	t.Setenv("GOPACT_A2A_REGISTRY_URL", " ")
 	t.Setenv("GOPACT_A2A_ENDPOINTS", " ")
 	var out bytes.Buffer
 	if err := run(context.Background(), &out); err != nil {
@@ -52,19 +53,12 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 
 func TestRunBootstrapsConfiguredFileRegistry(t *testing.T) {
 	t.Setenv("GOPACT_A2A_ENDPOINTS", " ")
+	t.Setenv("GOPACT_A2A_REGISTRY_URL", " ")
 	cards, _ := startTestAgentServers(t, testClusterAgents())
 	for i := range cards {
 		cards[i].Tags = nil
 	}
-	raw, err := json.Marshal(cards)
-	if err != nil {
-		t.Fatalf("Marshal(cards) error = %v", err)
-	}
-	path := t.TempDir() + "/agents.json"
-	if err := os.WriteFile(path, raw, 0o600); err != nil {
-		t.Fatalf("WriteFile(registry) error = %v", err)
-	}
-	t.Setenv("GOPACT_A2A_REGISTRY_FILE", path)
+	t.Setenv("GOPACT_A2A_REGISTRY_FILE", writeAgentRegistry(t, cards))
 
 	var out bytes.Buffer
 	if err := run(context.Background(), &out); err != nil {
@@ -86,6 +80,7 @@ func TestRunBootstrapsConfiguredFileRegistry(t *testing.T) {
 func TestRunBootstrapsConfiguredHTTPEndpoints(t *testing.T) {
 	_, endpoints := startTestAgentServers(t, testClusterAgents())
 	t.Setenv("GOPACT_A2A_REGISTRY_FILE", " ")
+	t.Setenv("GOPACT_A2A_REGISTRY_URL", " ")
 	t.Setenv("GOPACT_A2A_ENDPOINTS", strings.Join(endpoints, ","))
 
 	var out bytes.Buffer
@@ -130,6 +125,33 @@ func TestRunBootstrapsConfiguredHTTPRegistryURL(t *testing.T) {
 	}
 }
 
+func TestRunBootstrapsConfiguredDiscoverySources(t *testing.T) {
+	cards, endpoints := startTestAgentServers(t, testClusterAgents())
+	registryFile := writeAgentRegistry(t, cards[:2])
+	registry := httptest.NewServer(a2a.NewHTTPRegistryHandler(a2a.NewStaticDiscoverer(cards[2])))
+	defer registry.Close()
+
+	t.Setenv("GOPACT_A2A_REGISTRY_FILE", registryFile)
+	t.Setenv("GOPACT_A2A_REGISTRY_URL", registry.URL+"/agents.json")
+	t.Setenv("GOPACT_A2A_ENDPOINTS", endpoints[3])
+
+	var out bytes.Buffer
+	if err := run(context.Background(), &out); err != nil {
+		t.Fatalf("run() error = %v", err)
+	}
+
+	got := out.String()
+	for _, want := range []string{
+		"bootstrap discovery: 4 configured discovery sources agent cards",
+		"cards: planner-agent, research-agent, code-agent, review-agent",
+		"summary: local agent cluster completed 4 calls",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("output = %q, want %q", got, want)
+		}
+	}
+}
+
 func testClusterAgents() []localAgent {
 	return []localAgent{
 		{card: a2a.AgentCard{Name: "planner-agent", Capabilities: []string{"planning"}}, output: "plan: research -> code -> review"},
@@ -144,6 +166,20 @@ func testClusterAgents() []localAgent {
 			},
 		},
 	}
+}
+
+func writeAgentRegistry(t *testing.T, cards []a2a.AgentCard) string {
+	t.Helper()
+
+	raw, err := json.Marshal(cards)
+	if err != nil {
+		t.Fatalf("Marshal(cards) error = %v", err)
+	}
+	path := t.TempDir() + "/agents.json"
+	if err := os.WriteFile(path, raw, 0o600); err != nil {
+		t.Fatalf("WriteFile(registry) error = %v", err)
+	}
+	return path
 }
 
 func startTestAgentServers(t *testing.T, agents []localAgent) ([]a2a.AgentCard, []string) {

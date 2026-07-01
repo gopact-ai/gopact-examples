@@ -10,6 +10,6 @@ This example starts four local HTTP agents, bootstraps their agent cards through
 
 Set `GOPACT_A2A_REGISTRY_FILE=./agents.json` to bootstrap from an existing agent-card file instead of the demo's temporary local registry.
 Set `GOPACT_A2A_REGISTRY_URL=http://localhost:8080/agents.json` to bootstrap from an HTTP agent-card registry document.
-Set `GOPACT_A2A_ENDPOINTS=http://localhost:8080,http://localhost:8081` to bootstrap by fetching each endpoint's well-known agent card. If multiple discovery variables are set, `GOPACT_A2A_REGISTRY_FILE` wins, then `GOPACT_A2A_REGISTRY_URL`, then `GOPACT_A2A_ENDPOINTS`.
+Set `GOPACT_A2A_ENDPOINTS=http://localhost:8080,http://localhost:8081` to bootstrap by fetching each endpoint's well-known agent card. If multiple discovery variables are set, the example bootstraps all configured sources in file, registry URL, then endpoint order.
 
 CI runs this example with local mock agents only. Provider-backed examples use `.env` for local integration testing and are kept separate from this cluster smoke test.
