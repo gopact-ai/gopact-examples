@@ -197,6 +197,13 @@ func run(ctx context.Context, out io.Writer) error {
 	if _, err := fmt.Fprintf(out, "review stream: %s\n", strings.Join(state.ReviewLabels, " -> ")); err != nil {
 		return err
 	}
+	cancelLine, err := cancelReviewTask(ctx, mesh, ids)
+	if err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "cancel evidence: %s\n", cancelLine); err != nil {
+		return err
+	}
 	if _, err := fmt.Fprintf(out, "policy events: %s\n", strings.Join(state.PolicyLabels, " -> ")); err != nil {
 		return err
 	}
@@ -531,6 +538,26 @@ func collectReviewStream(ctx context.Context, mesh *a2a.Mesh) ([]string, []gopac
 	return labels, checks, nil
 }
 
+func cancelReviewTask(ctx context.Context, mesh *a2a.Mesh, ids gopact.RuntimeIDs) (string, error) {
+	const taskID = "review-cancel-task"
+	result, err := mesh.Cancel(gopact.ContextWithRuntimeIDs(ctx, ids), "review-agent", taskID)
+	if err != nil {
+		return "", err
+	}
+	if result.TaskID != taskID || len(result.Events) != 1 || result.Events[0].Type != gopact.EventA2ATaskCanceled {
+		return "", fmt.Errorf("cancel result = %+v, want one canceled event", result)
+	}
+	check, err := recordTerminalA2ATaskCheck("review-agent", a2a.Task{ID: taskID, IDs: ids}, a2a.TaskEvent{
+		TaskID: taskID,
+		IDs:    ids,
+		Status: a2a.TaskStatusCanceled,
+	})
+	if err != nil {
+		return "", err
+	}
+	return checkEvidenceSummary(check), nil
+}
+
 func recordA2ATaskCheck(agentName string, task a2a.Task, event a2a.TaskEvent) (gopact.VerificationCheck, error) {
 	recorder := gopact.NewVerificationRecorder()
 	err := a2a.RecordTaskEventCheck(recorder, a2a.TaskEventSnapshot{
@@ -544,6 +571,23 @@ func recordA2ATaskCheck(agentName string, task a2a.Task, event a2a.TaskEvent) (g
 	}
 	if len(checks) != 1 {
 		return gopact.VerificationCheck{}, fmt.Errorf("a2a task checks=%d, want 1", len(checks))
+	}
+	return checks[0], nil
+}
+
+func recordTerminalA2ATaskCheck(agentName string, task a2a.Task, event a2a.TaskEvent) (gopact.VerificationCheck, error) {
+	recorder := gopact.NewVerificationRecorder()
+	err := a2a.RecordTaskEventCheck(recorder, a2a.TaskEventSnapshot{
+		Agent: a2a.AgentCard{Name: agentName},
+		Task:  task,
+		Event: event,
+	})
+	if err != nil && !errors.Is(err, a2a.ErrTaskEventFailed) {
+		return gopact.VerificationCheck{}, err
+	}
+	checks := recorder.Checks()
+	if len(checks) != 1 {
+		return gopact.VerificationCheck{}, fmt.Errorf("a2a terminal task checks=%d, want 1", len(checks))
 	}
 	return checks[0], nil
 }
