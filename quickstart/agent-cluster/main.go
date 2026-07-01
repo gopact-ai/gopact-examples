@@ -13,12 +13,15 @@ import (
 	"strings"
 
 	"github.com/gopact-ai/gopact"
+	"github.com/gopact-ai/gopact-examples/internal/exampleenv"
 	"github.com/gopact-ai/gopact-ext/devagent/filesnapshot"
 	"github.com/gopact-ai/gopact-ext/devagent/gitdiff"
 	"github.com/gopact-ai/gopact/a2a"
 	"github.com/gopact-ai/gopact/gopacttest"
 	"github.com/gopact-ai/gopact/graph"
 )
+
+const a2aRegistryFileEnv = "GOPACT_A2A_REGISTRY_FILE"
 
 type localAgent struct {
 	card      a2a.AgentCard
@@ -49,6 +52,9 @@ func main() {
 }
 
 func run(ctx context.Context, out io.Writer) error {
+	if err := exampleenv.LoadDotEnv(); err != nil {
+		return err
+	}
 	mesh, err := a2a.NewMesh()
 	if err != nil {
 		return err
@@ -78,49 +84,16 @@ func run(ctx context.Context, out io.Writer) error {
 			},
 		},
 	}
-	servers := make([]*httptest.Server, 0, len(agents))
-	defer func() {
-		for _, server := range servers {
-			server.Close()
-		}
-	}()
-	registryFile, err := os.CreateTemp("", "gopact-agent-registry-*.json")
+	cards, discoverySource, cleanup, err := bootstrapAgentDiscovery(ctx, mesh, agents)
+	defer cleanup()
 	if err != nil {
 		return err
 	}
-	registryPath := registryFile.Name()
-	defer func() {
-		_ = os.Remove(registryPath)
-	}()
-	cards := make([]a2a.AgentCard, 0, len(agents))
-	for i := range agents {
-		server := httptest.NewServer(a2a.NewHTTPHandler(agents[i]))
-		servers = append(servers, server)
-		card := agents[i].Card()
-		card.URL = server.URL
-		cards = append(cards, card)
-	}
-	if err := json.NewEncoder(registryFile).Encode(cards); err != nil {
-		_ = registryFile.Close()
-		return err
-	}
-	if err := registryFile.Close(); err != nil {
-		return err
-	}
-	discoverer, err := a2a.NewFileDiscoverer(registryPath)
-	if err != nil {
-		return err
-	}
-	bootstrap, err := mesh.Bootstrap(ctx, discoverer)
-	if err != nil {
-		return err
-	}
-	cards = bootstrap.Cards
 
 	if _, err := fmt.Fprintln(out, "gateway: accepted self-bootstrap slice"); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintf(out, "bootstrap discovery: %d file registry agent cards\n", len(cards)); err != nil {
+	if _, err := fmt.Fprintf(out, "bootstrap discovery: %d %s agent cards\n", len(cards), discoverySource); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "cards: %s\n", cardNames(cards)); err != nil {
@@ -235,6 +208,60 @@ func run(ctx context.Context, out io.Writer) error {
 	}
 	_, err = fmt.Fprintln(out, "summary: local agent cluster completed 4 calls")
 	return err
+}
+
+func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []localAgent) ([]a2a.AgentCard, string, func(), error) {
+	if path := strings.TrimSpace(os.Getenv(a2aRegistryFileEnv)); path != "" {
+		discoverer, err := a2a.NewFileDiscoverer(path)
+		if err != nil {
+			return nil, "", func() {}, err
+		}
+		bootstrap, err := mesh.Bootstrap(ctx, discoverer)
+		if err != nil {
+			return nil, "", func() {}, err
+		}
+		return bootstrap.Cards, "configured file registry", func() {}, nil
+	}
+
+	servers := make([]*httptest.Server, 0, len(agents))
+	cleanup := func() {
+		for _, server := range servers {
+			server.Close()
+		}
+	}
+	registryFile, err := os.CreateTemp("", "gopact-agent-registry-*.json")
+	if err != nil {
+		return nil, "", cleanup, err
+	}
+	registryPath := registryFile.Name()
+	cleanupFile := func() {
+		cleanup()
+		_ = os.Remove(registryPath)
+	}
+	cards := make([]a2a.AgentCard, 0, len(agents))
+	for i := range agents {
+		server := httptest.NewServer(a2a.NewHTTPHandler(agents[i]))
+		servers = append(servers, server)
+		card := agents[i].Card()
+		card.URL = server.URL
+		cards = append(cards, card)
+	}
+	if err := json.NewEncoder(registryFile).Encode(cards); err != nil {
+		_ = registryFile.Close()
+		return nil, "", cleanupFile, err
+	}
+	if err := registryFile.Close(); err != nil {
+		return nil, "", cleanupFile, err
+	}
+	discoverer, err := a2a.NewFileDiscoverer(registryPath)
+	if err != nil {
+		return nil, "", cleanupFile, err
+	}
+	bootstrap, err := mesh.Bootstrap(ctx, discoverer)
+	if err != nil {
+		return nil, "", cleanupFile, err
+	}
+	return bootstrap.Cards, "file registry", cleanupFile, nil
 }
 
 func worktreeDiffChecks(ctx context.Context, dir string) ([]gopact.VerificationCheck, string, error) {

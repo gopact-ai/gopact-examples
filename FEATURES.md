@@ -13,7 +13,7 @@ This matrix is the examples repository contract for expected runnable capabiliti
 | core agent init scaffold | `quickstart/generated-agent` | `go test -count=1 ./quickstart/generated-agent` | - |
 | Plan-Execute workflow | `quickstart/plan-exec` | `go test -count=1 ./quickstart/plan-exec` | - |
 | agent as tool | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | - |
-| A2A local cluster | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
+| A2A local cluster + configured registry | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
 | OpenAI-compatible chat | `quickstart/openai-chat` | `go test -count=1 ./quickstart/openai-chat` | - |
 | OpenAI-compatible streaming | `quickstart/openai-streaming` | `go test -count=1 ./quickstart/openai-streaming` | - |
 | tool calling | `quickstart/tool-calling` | `go test -count=1 ./quickstart/tool-calling` | - |
