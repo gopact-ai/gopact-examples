@@ -31,8 +31,11 @@ func TestRunGeneratesTestedA2AAgentScaffold(t *testing.T) {
 	}
 	assertGeneratedFileContains(t, filepath.Join(dir, "go.mod"), "github.com/gopact-ai/gopact "+gopactVersion)
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewHTTPHandler(agent)")
+	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "signal.NotifyContext")
+	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "server.Shutdown")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewHTTPRegistryHandler")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "a2a.NewHTTPRegistry")
+	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "TestScaffoldServerStopsOnContextCancel")
 	assertGeneratedFileContains(t, filepath.Join(dir, ".env.example"), "GOPACT_AGENT_URL=http://localhost:8080")
 	assertGeneratedFileContains(t, filepath.Join(dir, ".gitignore"), ".env")
 }
