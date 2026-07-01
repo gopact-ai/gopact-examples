@@ -23,10 +23,6 @@ import (
 )
 
 const (
-	a2aRegistryFileEnv = "GOPACT_A2A_REGISTRY_FILE"
-	a2aRegistryURLEnv  = "GOPACT_A2A_REGISTRY_URL"
-	a2aEndpointsEnv    = "GOPACT_A2A_ENDPOINTS"
-
 	devAgentEvidencePurpose = "self-bootstrap-dev-agent"
 )
 
@@ -276,31 +272,9 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 }
 
 func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []localAgent) ([]a2a.AgentCard, string, func(), error) {
-	listers := []a2a.CardLister{}
-	sources := []string{}
-	if path := strings.TrimSpace(os.Getenv(a2aRegistryFileEnv)); path != "" {
-		discoverer, err := a2a.NewFileDiscoverer(path)
-		if err != nil {
-			return nil, "", func() {}, err
-		}
-		listers = append(listers, discoverer)
-		sources = append(sources, "file registry")
-	}
-	if registryURL := strings.TrimSpace(os.Getenv(a2aRegistryURLEnv)); registryURL != "" {
-		registry, err := a2a.NewHTTPRegistry(registryURL)
-		if err != nil {
-			return nil, "", func() {}, err
-		}
-		listers = append(listers, registry)
-		sources = append(sources, "HTTP registry")
-	}
-	if endpoints := envList(a2aEndpointsEnv); len(endpoints) > 0 {
-		endpointListers, err := a2a.NewHTTPCardListers(endpoints)
-		if err != nil {
-			return nil, "", func() {}, err
-		}
-		listers = append(listers, endpointListers...)
-		sources = append(sources, "HTTP endpoints")
+	listers, sources, err := a2a.NewEnvCardListers(os.Getenv)
+	if err != nil {
+		return nil, "", func() {}, err
 	}
 	if len(listers) > 0 {
 		bootstrap, err := mesh.Bootstrap(ctx, listers...)
@@ -356,16 +330,6 @@ func configuredDiscoveryLabel(sources []string) string {
 		return "configured " + sources[0]
 	}
 	return "configured discovery sources"
-}
-
-func envList(key string) []string {
-	var values []string
-	for _, part := range strings.Split(os.Getenv(key), ",") {
-		if value := strings.TrimSpace(part); value != "" {
-			values = append(values, value)
-		}
-	}
-	return values
 }
 
 func worktreeDiffChecks(ctx context.Context, dir string) ([]gopact.VerificationCheck, string, error) {
