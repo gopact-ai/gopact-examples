@@ -6,4 +6,4 @@ Run a parent ReAct agent that delegates one task to a Plan-Exec child agent expo
 go run ./quickstart/agent-as-tool
 ```
 
-This example uses only scripted local models. It demonstrates `agenttool.New`, `a2a.NewRunnableAgent`, child A2A completion evidence, and runtime identity propagation without external credentials.
+This example uses only scripted local models. It demonstrates `agenttool.New`, `a2a.NewRunnableAgent`, child A2A completion evidence, failure evidence propagation, and runtime identity propagation without external credentials.

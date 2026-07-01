@@ -61,7 +61,7 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/plan-exec",
 		},
 		{
-			capability:  "agent as tool",
+			capability:  "agent as tool success and failure evidence",
 			path:        "quickstart/agent-as-tool",
 			mockCommand: "go test -count=1 ./quickstart/agent-as-tool",
 		},
