@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
@@ -93,6 +94,40 @@ func TestRunBootstrapsConfiguredHTTPEndpoints(t *testing.T) {
 	got := out.String()
 	for _, want := range []string{
 		"bootstrap discovery: 4 configured HTTP endpoints agent cards",
+		"cards: planner-agent, research-agent, code-agent, review-agent",
+		"summary: local agent cluster completed 4 calls",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("output = %q, want %q", got, want)
+		}
+	}
+}
+
+func TestRunBootstrapsConfiguredHTTPRegistryURL(t *testing.T) {
+	cards, _ := startTestAgentServers(t, testClusterAgents())
+	registry := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/agents.json" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(map[string]any{"agents": cards}); err != nil {
+			t.Fatalf("Encode(registry) error = %v", err)
+		}
+	}))
+	defer registry.Close()
+	t.Setenv("GOPACT_A2A_REGISTRY_FILE", " ")
+	t.Setenv("GOPACT_A2A_REGISTRY_URL", registry.URL+"/agents.json")
+	t.Setenv("GOPACT_A2A_ENDPOINTS", " ")
+
+	var out bytes.Buffer
+	if err := run(context.Background(), &out); err != nil {
+		t.Fatalf("run() error = %v", err)
+	}
+
+	got := out.String()
+	for _, want := range []string{
+		"bootstrap discovery: 4 configured HTTP registry agent cards",
 		"cards: planner-agent, research-agent, code-agent, review-agent",
 		"summary: local agent cluster completed 4 calls",
 	} {
