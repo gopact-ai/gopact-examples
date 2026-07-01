@@ -47,7 +47,10 @@ func main() {
 }
 
 func run(ctx context.Context, out io.Writer) error {
-	registry := a2a.NewRegistry()
+	mesh, err := a2a.NewMesh()
+	if err != nil {
+		return err
+	}
 	agents := []localAgent{
 		{
 			card:      a2a.AgentCard{Name: "planner-agent", Capabilities: []string{"planning"}},
@@ -87,18 +90,8 @@ func run(ctx context.Context, out io.Writer) error {
 		if err != nil {
 			return err
 		}
-		discovered, err := remote.Discover(ctx, a2a.DiscoveryQuery{URL: server.URL})
+		discovered, err := mesh.Discover(ctx, remote, a2a.DiscoveryQuery{URL: server.URL})
 		if err != nil {
-			return err
-		}
-		callable, err := a2a.NewHTTPAgent(server.URL,
-			a2a.WithHTTPClient(server.Client()),
-			a2a.WithHTTPAgentCard(discovered.Card),
-		)
-		if err != nil {
-			return err
-		}
-		if err := registry.Register(ctx, callable); err != nil {
 			return err
 		}
 		cards = append(cards, discovered.Card)
@@ -114,7 +107,7 @@ func run(ctx context.Context, out io.Writer) error {
 		return err
 	}
 
-	workflow, err := newAgentClusterWorkflow(registry)
+	workflow, err := newAgentClusterWorkflow(mesh)
 	if err != nil {
 		return err
 	}
@@ -200,7 +193,7 @@ func run(ctx context.Context, out io.Writer) error {
 	if _, err := fmt.Fprintf(out, "policy events: %s\n", strings.Join(state.PolicyLabels, " -> ")); err != nil {
 		return err
 	}
-	failureLine, err := missingAgentFailureAttribution(ctx, registry, ids)
+	failureLine, err := missingAgentFailureAttribution(ctx, mesh, ids)
 	if err != nil {
 		return err
 	}
@@ -295,10 +288,10 @@ func requireSelfBootstrapReleaseGate(ctx context.Context, gate gopacttest.SelfBo
 	return nil
 }
 
-func newAgentClusterWorkflow(registry *a2a.Registry) (*graph.Runnable[clusterState], error) {
+func newAgentClusterWorkflow(mesh *a2a.Mesh) (*graph.Runnable[clusterState], error) {
 	g := graph.New[clusterState]()
 	for _, name := range []string{"planner-agent", "research-agent", "code-agent"} {
-		g.AddNode(name, agentCallNode(registry, name))
+		g.AddNode(name, agentCallNode(mesh, name))
 	}
 	g.AddNode("review-agent", func(ctx context.Context, state clusterState) (clusterState, error) {
 		policy := gopact.PolicyFunc(func(context.Context, gopact.PolicyRequest) (gopact.PolicyDecision, error) {
@@ -308,7 +301,7 @@ func newAgentClusterWorkflow(registry *a2a.Registry) (*graph.Runnable[clusterSta
 		if err != nil {
 			return state, err
 		}
-		labels, err := collectReviewStream(ctx, registry)
+		labels, err := collectReviewStream(ctx, mesh)
 		if err != nil {
 			return state, err
 		}
@@ -340,9 +333,9 @@ func checkpointResume(ctx context.Context, workflow *graph.Runnable[clusterState
 	return events, loaded, nil
 }
 
-func missingAgentFailureAttribution(ctx context.Context, registry *a2a.Registry, ids gopact.RuntimeIDs) (string, error) {
+func missingAgentFailureAttribution(ctx context.Context, mesh *a2a.Mesh, ids gopact.RuntimeIDs) (string, error) {
 	task := a2a.Task{ID: "missing-agent-task", IDs: ids, Input: "route to missing agent"}
-	_, err := registry.Send(ctx, "missing-agent", task)
+	_, err := mesh.Call(ctx, "missing-agent", task)
 	if !errors.Is(err, a2a.ErrAgentNotFound) {
 		if err == nil {
 			return "", fmt.Errorf("missing-agent unexpectedly resolved")
@@ -375,9 +368,9 @@ func missingAgentFailureAttribution(ctx context.Context, registry *a2a.Registry,
 	return fmt.Sprintf("%s %s check=%s", attribution.Kind, attribution.Node, checks[0].ID), nil
 }
 
-func agentCallNode(registry *a2a.Registry, name string) graph.NodeFunc[clusterState] {
+func agentCallNode(mesh *a2a.Mesh, name string) graph.NodeFunc[clusterState] {
 	return func(ctx context.Context, state clusterState) (clusterState, error) {
-		result, err := registry.Send(ctx, name, a2a.Task{ID: name + "-task", Input: state.Input})
+		result, err := mesh.Call(ctx, name, a2a.Task{ID: name + "-task", Input: state.Input})
 		if err != nil {
 			return state, err
 		}
@@ -391,9 +384,9 @@ func agentCallNode(registry *a2a.Registry, name string) graph.NodeFunc[clusterSt
 	}
 }
 
-func collectReviewStream(ctx context.Context, registry *a2a.Registry) ([]string, error) {
+func collectReviewStream(ctx context.Context, mesh *a2a.Mesh) ([]string, error) {
 	labels := []string{}
-	for event, err := range registry.Stream(ctx, "review-agent", a2a.Task{ID: "review-task", Input: "review the slice"}) {
+	for event, err := range mesh.Stream(ctx, "review-agent", a2a.Task{ID: "review-task", Input: "review the slice"}) {
 		if err != nil {
 			return nil, err
 		}
