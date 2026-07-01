@@ -15,8 +15,10 @@ func TestRunShowsWorkflowEventsAndSummary(t *testing.T) {
 
 	got := out.String()
 	for _, want := range []string{
-		"steps: plan -> draft -> review -> summarize",
-		"summary: workflow completed 2 parallel actions",
+		"steps: plan -> draft -> review -> polish-start -> polish-finish -> refine-1 -> refine-2 -> summarize",
+		"nested events: node_started(polish-start) -> node_completed(polish-start) -> node_started(polish-finish) -> node_completed(polish-finish)",
+		"step limit: graph: exceeded max steps 2",
+		"summary: workflow completed 2 parallel actions after 2 refinements",
 	} {
 		if !strings.Contains(got, want) {
 			t.Fatalf("output = %q, want %q", got, want)
