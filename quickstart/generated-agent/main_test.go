@@ -30,7 +30,9 @@ func TestRunGeneratesTestedA2AAgentScaffold(t *testing.T) {
 		}
 	}
 	assertGeneratedFileContains(t, filepath.Join(dir, "go.mod"), "github.com/gopact-ai/gopact "+gopactVersion)
-	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewHTTPHandler(scaffoldAgent{})")
+	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewHTTPHandler(agent)")
+	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewHTTPRegistryHandler")
+	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "a2a.NewHTTPRegistry")
 	assertGeneratedFileContains(t, filepath.Join(dir, ".gitignore"), ".env")
 }
 
@@ -41,6 +43,7 @@ func TestReadmeMentionsCoreAgentInit(t *testing.T) {
 	}
 	for _, want := range []string{
 		"gopact agent init",
+		"/agents.json",
 		"go run ./quickstart/generated-agent",
 	} {
 		if !strings.Contains(string(raw), want) {

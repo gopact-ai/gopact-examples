@@ -100,7 +100,7 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 	goMod := readText(t, "../../go.mod")
 
 	for _, requirement := range []string{
-		"github.com/gopact-ai/gopact v0.0.18",
+		"github.com/gopact-ai/gopact v0.0.19",
 		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.5",
 		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.5",
 		"github.com/gopact-ai/gopact-ext/agents/react v0.2.5",
