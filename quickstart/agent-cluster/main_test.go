@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
@@ -105,16 +104,7 @@ func TestRunBootstrapsConfiguredHTTPEndpoints(t *testing.T) {
 
 func TestRunBootstrapsConfiguredHTTPRegistryURL(t *testing.T) {
 	cards, _ := startTestAgentServers(t, testClusterAgents())
-	registry := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet || r.URL.Path != "/agents.json" {
-			http.NotFound(w, r)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(map[string]any{"agents": cards}); err != nil {
-			t.Fatalf("Encode(registry) error = %v", err)
-		}
-	}))
+	registry := httptest.NewServer(a2a.NewHTTPRegistryHandler(a2a.NewStaticDiscoverer(cards...)))
 	defer registry.Close()
 	t.Setenv("GOPACT_A2A_REGISTRY_FILE", " ")
 	t.Setenv("GOPACT_A2A_REGISTRY_URL", registry.URL+"/agents.json")
