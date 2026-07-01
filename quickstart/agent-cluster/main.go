@@ -157,9 +157,15 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 	if err != nil {
 		return err
 	}
+	devAgentChecks, devAgentSummary, err := devAgentEvidenceChecks()
+	if err != nil {
+		return err
+	}
 	releaseGate, err := gopacttest.BuildSelfBootstrapReleaseGateBundle(
 		export,
-		gopacttest.WithSelfBootstrapAdditionalChecks(append(append(append(diffChecks, fileChecks...), featureChecks...), state.A2AChecks...)...),
+		gopacttest.WithSelfBootstrapAdditionalChecks(
+			append(append(append(append(diffChecks, fileChecks...), featureChecks...), state.A2AChecks...), devAgentChecks...)...,
+		),
 	)
 	if err != nil {
 		return err
@@ -192,6 +198,9 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "a2a task evidence: %s\n", a2aTaskEvidenceSummary(state.A2AChecks)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "dev agent evidence: %s\n", devAgentSummary); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "release gate: %s checks=%d requirements=%d\n", releaseGate.Report.Status, len(releaseGate.Report.Checks), len(gopacttest.SelfBootstrapReleaseGateRequirements())); err != nil {
@@ -392,6 +401,40 @@ func fileSnapshotChecks(ctx context.Context, path string) ([]gopact.Verification
 		return nil, "", fmt.Errorf("file snapshot checks=%d, want 1", len(checks))
 	}
 	return checks, checkEvidenceSummary(checks[0]), nil
+}
+
+func devAgentEvidenceChecks() ([]gopact.VerificationCheck, string, error) {
+	recorder := gopact.NewVerificationRecorder()
+	if err := gopacttest.RecordCIGateSuiteCheck(recorder, gopacttest.CIGateSuite{
+		ID:            "ci-gates:dev-agent-local",
+		Name:          "Dev Agent local CI gates",
+		RequiredGates: []string{gopacttest.SelfBootstrapCIGateUnit},
+		Results: []gopacttest.CIGateResult{
+			{
+				Gate: gopacttest.SelfBootstrapCIGateUnit,
+				Result: gopacttest.CommandResult{
+					Command:  []string{"go", "test", "-count=1", "./quickstart/agent-cluster"},
+					ExitCode: 0,
+				},
+			},
+		},
+	}); err != nil {
+		return nil, "", err
+	}
+	if err := gopacttest.RecordReviewCheck(recorder, gopacttest.ReviewResult{
+		ID:       "review:dev-agent-local",
+		Reviewer: "local-reviewer",
+		Source:   "mock",
+		Status:   gopacttest.ReviewStatusApproved,
+		Summary:  "review approved",
+	}); err != nil {
+		return nil, "", err
+	}
+	checks := recorder.Checks()
+	if len(checks) != 2 {
+		return nil, "", fmt.Errorf("dev agent evidence checks=%d, want 2", len(checks))
+	}
+	return checks, checkEvidenceSummary(checks[0]) + " -> " + checkEvidenceSummary(checks[1]), nil
 }
 
 func findUp(name string) (string, error) {
