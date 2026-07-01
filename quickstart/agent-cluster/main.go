@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 
 	"github.com/gopact-ai/gopact"
 	"github.com/gopact-ai/gopact-examples/internal/exampleenv"
@@ -34,6 +35,7 @@ type localAgent struct {
 	output    string
 	artifacts []gopact.ArtifactRef
 	events    []a2a.TaskEvent
+	failures  *int32
 }
 
 type memoryCheckpointStore struct {
@@ -46,6 +48,7 @@ type clusterState struct {
 	Artifacts    []gopact.ArtifactRef
 	ReviewLabels []string
 	PolicyLabels []string
+	RetryLabels  []string
 	A2AChecks    []gopact.VerificationCheck
 	Trace        []string
 }
@@ -72,10 +75,11 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 	if err := exampleenv.LoadDotEnv(); err != nil {
 		return err
 	}
-	mesh, err := a2a.NewMesh()
+	mesh, err := a2a.NewMesh(a2a.WithMeshRetryPolicy(a2a.MeshRetryPolicy{MaxAttempts: 2}))
 	if err != nil {
 		return err
 	}
+	codeFailures := int32(1)
 	agents := []localAgent{
 		{
 			card:      a2a.AgentCard{Name: "planner-agent", Capabilities: []string{"planning"}},
@@ -91,6 +95,7 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 			card:      a2a.AgentCard{Name: "code-agent", Capabilities: []string{"code.write"}, Tags: []string{"code", "local"}},
 			output:    "code: prepare a small tested patch",
 			artifacts: []gopact.ArtifactRef{{ID: "code-patch", Name: "patch.diff", URI: "memory://code-patch"}},
+			failures:  &codeFailures,
 		},
 		{
 			card:   a2a.AgentCard{Name: "review-agent", Capabilities: []string{"code.review"}},
@@ -200,6 +205,9 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "a2a task evidence: %s\n", a2aTaskEvidenceSummary(state.A2AChecks)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "a2a retry evidence: %s\n", strings.Join(state.RetryLabels, " -> ")); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "dev agent evidence: %s\n", devAgentSummary); err != nil {
@@ -605,6 +613,9 @@ func agentCallNode(mesh *a2a.Mesh, name string, tags ...string) graph.NodeFunc[c
 		if err != nil {
 			return state, err
 		}
+		if label := retryEvidenceLabel(name, result.Events); label != "" {
+			state.RetryLabels = append(state.RetryLabels, label)
+		}
 		check, err := recordA2ATaskCheck(name, task, a2a.TaskEvent{
 			TaskID: task.ID,
 			Status: a2a.TaskStatusCompleted,
@@ -718,6 +729,20 @@ func a2aTaskEvidenceSummary(checks []gopact.VerificationCheck) string {
 	return strings.Join(parts, " -> ")
 }
 
+func retryEvidenceLabel(agentName string, events []gopact.Event) string {
+	maxAttempt := 0
+	for _, event := range events {
+		attempt, ok := event.Metadata["a2a_attempt"].(int)
+		if ok && attempt > maxAttempt {
+			maxAttempt = attempt
+		}
+	}
+	if maxAttempt <= 1 {
+		return ""
+	}
+	return fmt.Sprintf("%s attempts=%d", agentName, maxAttempt)
+}
+
 func authorizeA2AStream(ctx context.Context, policy gopact.Policy, agentName string, taskID string) ([]string, error) {
 	if policy == nil {
 		return nil, fmt.Errorf("policy is required")
@@ -800,6 +825,9 @@ func (a localAgent) Card() a2a.AgentCard {
 func (a localAgent) Send(ctx context.Context, task a2a.Task) (a2a.Result, error) {
 	if err := ctx.Err(); err != nil {
 		return a2a.Result{}, err
+	}
+	if a.failures != nil && atomic.AddInt32(a.failures, -1) >= 0 {
+		return a2a.Result{TaskID: task.ID}, errors.New("temporary " + a.card.Name + " failure")
 	}
 	return a2a.Result{TaskID: task.ID, Output: a.output, Artifacts: a.artifacts}, nil
 }

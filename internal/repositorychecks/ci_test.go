@@ -103,6 +103,7 @@ func TestAgentClusterDiscoveryEnvIsDocumented(t *testing.T) {
 
 func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 	goMod := readText(t, "../../go.mod")
+	generatedAgent := readText(t, "../../quickstart/generated-agent/main.go")
 
 	for _, requirement := range []string{
 		"github.com/gopact-ai/gopact v0.0.28",
@@ -118,6 +119,9 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 		if !strings.Contains(goMod, requirement) {
 			t.Fatalf("go.mod missing current released module %q", requirement)
 		}
+	}
+	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.28"`) {
+		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.28")
 	}
 }
 
