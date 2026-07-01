@@ -101,14 +101,14 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 
 	for _, requirement := range []string{
 		"github.com/gopact-ai/gopact v0.0.19",
-		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.5",
-		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.5",
-		"github.com/gopact-ai/gopact-ext/agents/react v0.2.5",
-		"github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.4",
-		"github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.4",
-		"github.com/gopact-ai/gopact-ext/models/agnes v0.1.5",
-		"github.com/gopact-ai/gopact-ext/models/ark v0.2.5",
-		"github.com/gopact-ai/gopact-ext/models/openai v0.5.7",
+		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.6",
+		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.6",
+		"github.com/gopact-ai/gopact-ext/agents/react v0.2.6",
+		"github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.5",
+		"github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.5",
+		"github.com/gopact-ai/gopact-ext/models/agnes v0.1.6",
+		"github.com/gopact-ai/gopact-ext/models/ark v0.2.6",
+		"github.com/gopact-ai/gopact-ext/models/openai v0.5.8",
 	} {
 		if !strings.Contains(goMod, requirement) {
 			t.Fatalf("go.mod missing current released module %q", requirement)
