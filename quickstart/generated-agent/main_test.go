@@ -57,6 +57,16 @@ func TestReadmeMentionsCoreAgentInit(t *testing.T) {
 	}
 }
 
+func TestQuickstartUsesScaffoldDefaultSDKVersion(t *testing.T) {
+	raw, err := os.ReadFile("main.go")
+	if err != nil {
+		t.Fatalf("read main.go: %v", err)
+	}
+	if strings.Contains(string(raw), "-sdk-version") {
+		t.Fatalf("quickstart should exercise gopact agent init default SDK version, not pass -sdk-version")
+	}
+}
+
 func assertGeneratedFileContains(t *testing.T, path, want string) {
 	t.Helper()
 	raw, err := os.ReadFile(path)
