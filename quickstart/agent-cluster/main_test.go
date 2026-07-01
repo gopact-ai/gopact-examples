@@ -37,6 +37,7 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 		"file snapshot evidence: sha256 ",
 		"feature coverage evidence: sha256 ",
 		"a2a task evidence: planner-agent completed -> research-agent completed -> code-agent completed -> review-agent completed",
+		"a2a retry evidence: code-agent attempts=2",
 		"dev agent evidence: unit gate passed -> review approved",
 		"release gate: passed checks=",
 		"requirements=14",
