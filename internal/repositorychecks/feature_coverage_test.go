@@ -31,7 +31,7 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/react-agent",
 		},
 		{
-			capability:  "workflow graph",
+			capability:  "workflow graph branch and fan-in",
 			path:        "quickstart/workflow-graph",
 			mockCommand: "go test -count=1 ./quickstart/workflow-graph",
 		},
