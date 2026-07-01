@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
 
 	"github.com/gopact-ai/gopact/a2a"
+	"github.com/gopact-ai/gopact/gopacttest"
 )
 
 func TestRunShowsLocalAgentCluster(t *testing.T) {
@@ -51,6 +53,18 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 			t.Fatalf("output = %q, want %q", got, want)
 		}
 	}
+}
+
+func TestRunExportMatchesAgentClusterGoldenTrajectory(t *testing.T) {
+	t.Setenv("GOPACT_A2A_REGISTRY_FILE", " ")
+	t.Setenv("GOPACT_A2A_REGISTRY_URL", " ")
+	t.Setenv("GOPACT_A2A_ENDPOINTS", " ")
+
+	export, err := runCluster(context.Background(), io.Discard)
+	if err != nil {
+		t.Fatalf("runCluster() error = %v", err)
+	}
+	gopacttest.RequireRunExportGoldenTrajectoryFrames(t, "testdata/agent_cluster_run_export.golden.json", export)
 }
 
 func TestRunBootstrapsConfiguredFileRegistry(t *testing.T) {

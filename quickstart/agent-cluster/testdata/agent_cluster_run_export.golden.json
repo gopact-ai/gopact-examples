@@ -1,0 +1,49 @@
+[
+  {
+    "type": "run_started"
+  },
+  {
+    "type": "node_started",
+    "node": "planner-agent",
+    "step": 1
+  },
+  {
+    "type": "node_completed",
+    "node": "planner-agent",
+    "step": 1
+  },
+  {
+    "type": "node_started",
+    "node": "research-agent",
+    "step": 2
+  },
+  {
+    "type": "node_completed",
+    "node": "research-agent",
+    "step": 2
+  },
+  {
+    "type": "node_started",
+    "node": "code-agent",
+    "step": 3
+  },
+  {
+    "type": "node_completed",
+    "node": "code-agent",
+    "step": 3
+  },
+  {
+    "type": "node_started",
+    "node": "review-agent",
+    "step": 4
+  },
+  {
+    "type": "node_completed",
+    "node": "review-agent",
+    "step": 4
+  },
+  {
+    "type": "run_completed",
+    "step": 4
+  }
+]
