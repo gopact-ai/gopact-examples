@@ -88,7 +88,7 @@ func TestAgnesLocalIntegrationCommandIsDocumented(t *testing.T) {
 func TestAgentClusterDiscoveryEnvIsDocumented(t *testing.T) {
 	for _, path := range []string{"../../README.md", "../../.env.example", "../../quickstart/agent-cluster/README.md"} {
 		text := readText(t, path)
-		for _, key := range []string{"GOPACT_A2A_REGISTRY_FILE", "GOPACT_A2A_ENDPOINTS"} {
+		for _, key := range []string{"GOPACT_A2A_REGISTRY_FILE", "GOPACT_A2A_REGISTRY_URL", "GOPACT_A2A_ENDPOINTS"} {
 			if !strings.Contains(text, key) {
 				t.Fatalf("%s missing %s", path, key)
 			}
@@ -100,7 +100,7 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 	goMod := readText(t, "../../go.mod")
 
 	for _, requirement := range []string{
-		"github.com/gopact-ai/gopact v0.0.16",
+		"github.com/gopact-ai/gopact v0.0.17",
 		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.5",
 		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.5",
 		"github.com/gopact-ai/gopact-ext/agents/react v0.2.5",

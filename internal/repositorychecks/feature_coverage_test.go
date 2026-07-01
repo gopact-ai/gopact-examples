@@ -66,7 +66,7 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/agent-as-tool",
 		},
 		{
-			capability:  "A2A local cluster",
+			capability:  "A2A local cluster + configured discovery",
 			path:        "quickstart/agent-cluster",
 			mockCommand: "go test -count=1 ./quickstart/agent-cluster",
 		},

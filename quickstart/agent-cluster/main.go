@@ -23,6 +23,7 @@ import (
 
 const (
 	a2aRegistryFileEnv = "GOPACT_A2A_REGISTRY_FILE"
+	a2aRegistryURLEnv  = "GOPACT_A2A_REGISTRY_URL"
 	a2aEndpointsEnv    = "GOPACT_A2A_ENDPOINTS"
 )
 
@@ -224,6 +225,17 @@ func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []local
 			return nil, "", func() {}, err
 		}
 		return bootstrap.Cards, "configured file registry", func() {}, nil
+	}
+	if registryURL := strings.TrimSpace(os.Getenv(a2aRegistryURLEnv)); registryURL != "" {
+		registry, err := a2a.NewHTTPRegistry(registryURL)
+		if err != nil {
+			return nil, "", func() {}, err
+		}
+		bootstrap, err := mesh.Bootstrap(ctx, registry)
+		if err != nil {
+			return nil, "", func() {}, err
+		}
+		return bootstrap.Cards, "configured HTTP registry", func() {}, nil
 	}
 	if endpoints := envList(a2aEndpointsEnv); len(endpoints) > 0 {
 		listers, err := a2a.NewHTTPCardListers(endpoints)
