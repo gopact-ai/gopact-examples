@@ -40,6 +40,7 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 		"artifacts: plan.md(memory://planner-plan) -> research.md(memory://research-notes) -> patch.diff(memory://code-patch)",
 		"code-agent: code: prepare a small tested patch",
 		"review stream: running(reviewing evidence) -> completed(review: pass)",
+		"cancel evidence: review-agent canceled",
 		"policy events: policy_requested -> policy_decided",
 		"failure attribution: external missing-agent check=failure-attribution:missing-agent",
 		"agent trace: planner-agent -> research-agent -> code-agent -> review-agent",
