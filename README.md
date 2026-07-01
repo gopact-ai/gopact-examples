@@ -29,12 +29,13 @@ Start without credentials:
 ```bash
 go run ./quickstart/react-agent
 go run ./quickstart/agent-scaffold
+go run ./quickstart/generated-agent
 go run ./quickstart/plan-exec
 go run ./quickstart/agent-as-tool
 go run ./quickstart/agent-cluster
 ```
 
-This path grows from one scripted tool-using agent to a checkpointed approval/resume scaffold, a Plan-Execute workflow, an agent-as-tool bridge, and a local A2A cluster. Use provider quickstarts after `.env` is configured.
+This path grows from one scripted tool-using agent to a checkpointed approval/resume scaffold, the core `gopact agent init` generator, a Plan-Execute workflow, an agent-as-tool bridge, and a local A2A cluster. Use provider quickstarts after `.env` is configured.
 
 ```bash
 go run ./quickstart/agent-as-tool
@@ -43,6 +44,7 @@ go run ./quickstart/agent-scaffold
 go run ./quickstart/agnes-chat
 go run ./quickstart/ark-chat
 go run ./quickstart/ark-streaming
+go run ./quickstart/generated-agent
 go run ./quickstart/openai-chat
 go run ./quickstart/openai-streaming
 go run ./quickstart/plan-exec
