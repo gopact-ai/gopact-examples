@@ -37,6 +37,8 @@ github.com/gopact-ai/gopact-ext/agents/planexec v0.2.1 h1:Qt1YpAOu+q6hlJCMlSaXYv
 github.com/gopact-ai/gopact-ext/agents/planexec v0.2.1/go.mod h1:cWpF6gvysMEzLs1ju4F/mwujzWBR1vfPwJEh8/0ymgU=
 github.com/gopact-ai/gopact-ext/agents/react v0.2.1 h1:a0aYY9a1j0o6GrIfUZo2tmh2fiLoyD6UgxxYpfNEXOo=
 github.com/gopact-ai/gopact-ext/agents/react v0.2.1/go.mod h1:JslRW0U9NE6cGbX/zbiYgAHBanH65VaBLm+tNLsPZNI=
+github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.0 h1:NOpa3sDiv4ynGmjrFq7WP2Qu/s0glkI0+7Bp6bkMD1c=
+github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.0/go.mod h1:wHRG+jlgwfyfFVqSEPplkiZmdXiM8Hdy8TO4NDA0qFs=
 github.com/gopact-ai/gopact-ext/models/agnes v0.1.1 h1:wQ//OiUd5qUYUPusZD4UxvTpy7EBdbk/vXtZoCKDXiE=
 github.com/gopact-ai/gopact-ext/models/agnes v0.1.1/go.mod h1:WkFOhivDP//vhCUBPJT7S0K5hwAGgH4+G4iEqUOhBpM=
 github.com/gopact-ai/gopact-ext/models/ark v0.2.1 h1:Lb1FUQzKMTMt1fJX3xX7oW7Ry4toUHbbwLWb4AGHP/M=
