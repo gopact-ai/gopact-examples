@@ -6,7 +6,7 @@ This matrix is the examples repository contract for expected runnable capabiliti
 | --- | --- | --- | --- |
 | dotenv configuration | `internal/exampleenv` | `go test -count=1 ./internal/exampleenv` | - |
 | scripted ReAct loop | `quickstart/react-agent` | `go test -count=1 ./quickstart/react-agent` | - |
-| workflow graph | `quickstart/workflow-graph` | `go test -count=1 ./quickstart/workflow-graph` | - |
+| workflow graph branch and fan-in | `quickstart/workflow-graph` | `go test -count=1 ./quickstart/workflow-graph` | - |
 | checkpoint approval resume | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |
 | verification bundle | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |
 | A2A file registry scaffold | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |

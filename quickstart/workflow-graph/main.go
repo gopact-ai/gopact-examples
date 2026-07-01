@@ -63,19 +63,27 @@ func newWorkflow() (*graph.Runnable[workflowState], error) {
 		state.Trace = append(state.Trace, "plan")
 		return state, nil
 	})
-	g.AddNode("execute", func(_ context.Context, state workflowState) (workflowState, error) {
-		state.Done = append(state.Done, state.Plan...)
-		state.Trace = append(state.Trace, "execute")
+	g.AddNode("draft", func(_ context.Context, state workflowState) (workflowState, error) {
+		state.Done = append(state.Done, "draft")
+		state.Trace = append(state.Trace, "draft")
+		return state, nil
+	})
+	g.AddNode("review", func(_ context.Context, state workflowState) (workflowState, error) {
+		state.Done = append(state.Done, "review")
+		state.Trace = append(state.Trace, "review")
 		return state, nil
 	})
 	g.AddNode("summarize", func(_ context.Context, state workflowState) (workflowState, error) {
-		state.Summary = fmt.Sprintf("workflow completed %d actions", len(state.Done))
+		state.Summary = fmt.Sprintf("workflow completed %d parallel actions", len(state.Done))
 		state.Trace = append(state.Trace, "summarize")
 		return state, nil
 	})
 	g.AddEdge(graph.Start, "plan")
-	g.AddEdge("plan", "execute")
-	g.AddEdge("execute", "summarize")
+	g.AddBranch("plan", func(_ context.Context, state workflowState) ([]string, error) {
+		return append([]string(nil), state.Plan...), nil
+	})
+	g.AddEdge("draft", "summarize")
+	g.AddEdge("review", "summarize")
 	g.AddEdge("summarize", graph.End)
 	return g.Compile()
 }
