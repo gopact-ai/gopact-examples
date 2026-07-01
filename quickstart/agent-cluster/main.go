@@ -25,6 +25,8 @@ const (
 	a2aRegistryFileEnv = "GOPACT_A2A_REGISTRY_FILE"
 	a2aRegistryURLEnv  = "GOPACT_A2A_REGISTRY_URL"
 	a2aEndpointsEnv    = "GOPACT_A2A_ENDPOINTS"
+
+	devAgentEvidencePurpose = "self-bootstrap-dev-agent"
 )
 
 type localAgent struct {
@@ -409,6 +411,7 @@ func devAgentEvidenceChecks() ([]gopact.VerificationCheck, string, error) {
 		ID:            "ci-gates:dev-agent-local",
 		Name:          "Dev Agent local CI gates",
 		RequiredGates: []string{gopacttest.SelfBootstrapCIGateUnit},
+		Metadata:      devAgentEvidenceMetadata(),
 		Results: []gopacttest.CIGateResult{
 			{
 				Gate: gopacttest.SelfBootstrapCIGateUnit,
@@ -416,6 +419,7 @@ func devAgentEvidenceChecks() ([]gopact.VerificationCheck, string, error) {
 					Command:  []string{"go", "test", "-count=1", "./quickstart/agent-cluster"},
 					ExitCode: 0,
 				},
+				Metadata: devAgentEvidenceMetadata(),
 			},
 		},
 	}); err != nil {
@@ -427,6 +431,7 @@ func devAgentEvidenceChecks() ([]gopact.VerificationCheck, string, error) {
 		Source:   "mock",
 		Status:   gopacttest.ReviewStatusApproved,
 		Summary:  "review approved",
+		Metadata: devAgentEvidenceMetadata(),
 	}); err != nil {
 		return nil, "", err
 	}
@@ -435,6 +440,10 @@ func devAgentEvidenceChecks() ([]gopact.VerificationCheck, string, error) {
 		return nil, "", fmt.Errorf("dev agent evidence checks=%d, want 2", len(checks))
 	}
 	return checks, checkEvidenceSummary(checks[0]) + " -> " + checkEvidenceSummary(checks[1]), nil
+}
+
+func devAgentEvidenceMetadata() map[string]any {
+	return map[string]any{"purpose": devAgentEvidencePurpose}
 }
 
 func findUp(name string) (string, error) {

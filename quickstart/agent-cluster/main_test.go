@@ -10,9 +10,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gopact-ai/gopact"
 	"github.com/gopact-ai/gopact/a2a"
 	"github.com/gopact-ai/gopact/gopacttest"
 )
+
+const wantDevAgentEvidencePurpose = "self-bootstrap-dev-agent"
 
 func TestRunShowsLocalAgentCluster(t *testing.T) {
 	t.Setenv("GOPACT_A2A_REGISTRY_FILE", " ")
@@ -68,6 +71,27 @@ func TestRunExportMatchesAgentClusterGoldenTrajectory(t *testing.T) {
 		t.Fatalf("runCluster() error = %v", err)
 	}
 	gopacttest.RequireRunExportGoldenTrajectoryFrames(t, "testdata/agent_cluster_run_export.golden.json", export)
+}
+
+func TestRunExportCarriesDevAgentEvidenceMetadata(t *testing.T) {
+	t.Setenv("GOPACT_A2A_REGISTRY_FILE", " ")
+	t.Setenv("GOPACT_A2A_REGISTRY_URL", " ")
+	t.Setenv("GOPACT_A2A_ENDPOINTS", " ")
+
+	export, err := runCluster(context.Background(), io.Discard)
+	if err != nil {
+		t.Fatalf("runCluster() error = %v", err)
+	}
+	if len(export.VerificationReports) != 1 {
+		t.Fatalf("VerificationReports = %+v, want one release gate report", export.VerificationReports)
+	}
+	report := export.VerificationReports[0]
+
+	ciGateCheck := requireVerificationCheck(t, report, "ci-gates:dev-agent-local")
+	requireEvidenceMetadata(t, ciGateCheck, gopacttest.VerificationEvidenceTypeCIGate, "purpose", wantDevAgentEvidencePurpose)
+
+	reviewCheck := requireVerificationCheck(t, report, "review:dev-agent-local")
+	requireEvidenceMetadata(t, reviewCheck, gopacttest.VerificationEvidenceTypeReview, "purpose", wantDevAgentEvidencePurpose)
 }
 
 func TestRunBootstrapsConfiguredFileRegistry(t *testing.T) {
@@ -221,4 +245,31 @@ func startTestAgentServers(t *testing.T, agents []localAgent) ([]a2a.AgentCard, 
 		endpoints = append(endpoints, server.URL)
 	}
 	return cards, endpoints
+}
+
+func requireVerificationCheck(t *testing.T, report gopact.VerificationReport, id string) gopact.VerificationCheck {
+	t.Helper()
+
+	for _, check := range report.Checks {
+		if check.ID == id {
+			return check
+		}
+	}
+	t.Fatalf("verification report checks missing %q: %+v", id, report.Checks)
+	return gopact.VerificationCheck{}
+}
+
+func requireEvidenceMetadata(t *testing.T, check gopact.VerificationCheck, evidenceType, key string, want any) {
+	t.Helper()
+
+	for _, evidence := range check.Evidence {
+		if evidence.Type != evidenceType {
+			continue
+		}
+		if got := evidence.Metadata[key]; got != want {
+			t.Fatalf("%s evidence metadata[%q] = %v, want %v", evidenceType, key, got, want)
+		}
+		return
+	}
+	t.Fatalf("check %q evidence missing type %q: %+v", check.ID, evidenceType, check.Evidence)
 }
