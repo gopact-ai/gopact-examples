@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	gopactVersion = "v0.0.21"
+	gopactVersion = "v0.0.22"
 	agentName     = "generated-agent"
 	modulePath    = "example.com/generated-agent"
 )
@@ -59,6 +59,7 @@ func runCommand(ctx context.Context, dir, name string, args ...string) error {
 	cmd.Env = append(os.Environ(),
 		"GOPRIVATE=github.com/gopact-ai/*",
 		"GONOSUMDB=github.com/gopact-ai/*",
+		"GONOPROXY=github.com/gopact-ai/*",
 	)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
