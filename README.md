@@ -52,6 +52,7 @@ go run ./quickstart/openai-chat
 go run ./quickstart/openai-streaming
 go run ./quickstart/plan-exec
 go run ./quickstart/react-agent
+go run ./quickstart/structured-output
 go run ./quickstart/tool-calling
 go run ./quickstart/workflow-graph
 ```
