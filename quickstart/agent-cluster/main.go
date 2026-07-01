@@ -228,6 +228,20 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 	if _, err := fmt.Fprintf(out, "policy events: %s\n", strings.Join(state.PolicyLabels, " -> ")); err != nil {
 		return err
 	}
+	policyDenyLine, err := blockedPolicyLine(ctx, gopact.PolicyDeny)
+	if err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "policy deny: %s\n", policyDenyLine); err != nil {
+		return err
+	}
+	policyReviewLine, err := blockedPolicyLine(ctx, gopact.PolicyReview)
+	if err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "policy review: %s\n", policyReviewLine); err != nil {
+		return err
+	}
 	failureLine, err := missingAgentFailureAttribution(ctx, mesh, ids)
 	if err != nil {
 		return err
@@ -667,10 +681,33 @@ func authorizeA2AStream(ctx context.Context, policy gopact.Policy, agentName str
 		return eventLabels(events), err
 	}
 	events = append(events, gopact.NewPolicyDecidedEvent(req, decision))
+	if decision.Action == gopact.PolicyReview {
+		return eventLabels(events), gopact.NewPolicyReviewInterrupt(req, decision)
+	}
 	if !decision.Allowed() {
-		return eventLabels(events), fmt.Errorf("policy denied: %s", decision.Reason)
+		return eventLabels(events), &gopact.PolicyDeniedError{Decision: decision, Request: req}
 	}
 	return eventLabels(events), nil
+}
+
+func blockedPolicyLine(ctx context.Context, action gopact.PolicyAction) (string, error) {
+	policy := gopact.PolicyFunc(func(context.Context, gopact.PolicyRequest) (gopact.PolicyDecision, error) {
+		return gopact.PolicyDecision{Action: action, Reason: "local demo " + string(action)}, nil
+	})
+	labels, err := authorizeA2AStream(ctx, policy, "review-agent", "review-task")
+	switch action {
+	case gopact.PolicyDeny:
+		if !errors.Is(err, gopact.ErrPolicyDenied) {
+			return "", fmt.Errorf("policy deny error = %v, want ErrPolicyDenied", err)
+		}
+	case gopact.PolicyReview:
+		if !errors.Is(err, gopact.ErrInterrupted) {
+			return "", fmt.Errorf("policy review error = %v, want interrupt", err)
+		}
+	default:
+		return "", fmt.Errorf("unsupported blocked policy action %q", action)
+	}
+	return strings.Join(labels, " -> ") + " " + string(action), nil
 }
 
 func cardNames(cards []a2a.AgentCard) string {

@@ -6,7 +6,7 @@ Run a local A2A-style agent cluster without external services or model credentia
 go run ./quickstart/agent-cluster
 ```
 
-This example starts four local HTTP agents, bootstraps their agent cards through `a2a.Mesh`, and executes a `graph` workflow across planner, research, code, and review agents. The gateway calls agents by name, records graph runtime events into a `RunExport`, captures local git diff, file snapshot, and A2A task evidence, builds a self-bootstrap release gate bundle, writes local checkpoints, resumes from the latest checkpoint, prints artifact handoff refs, gates the review stream through policy, records tag-route fallback evidence, records cancel evidence, records failure attribution for a missing remote agent, and consumes the review agent as a stream.
+This example starts four local HTTP agents, bootstraps their agent cards through `a2a.Mesh`, and executes a `graph` workflow across planner, research, code, and review agents. The gateway calls agents by name, records graph runtime events into a `RunExport`, captures local git diff, file snapshot, and A2A task evidence, builds a self-bootstrap release gate bundle, writes local checkpoints, resumes from the latest checkpoint, prints artifact handoff refs, gates the review stream through policy, records policy allow/deny/review evidence, records tag-route fallback evidence, records cancel evidence, records failure attribution for a missing remote agent, and consumes the review agent as a stream.
 
 Set `GOPACT_A2A_REGISTRY_FILE=./agents.json` to bootstrap from an existing agent-card file instead of the demo's temporary local registry.
 Set `GOPACT_A2A_REGISTRY_URL=http://localhost:8080/agents.json` to bootstrap from an HTTP agent-card registry document.
