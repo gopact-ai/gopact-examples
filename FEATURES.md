@@ -9,6 +9,7 @@ This matrix is the examples repository contract for expected runnable capabiliti
 | workflow graph | `quickstart/workflow-graph` | `go test -count=1 ./quickstart/workflow-graph` | - |
 | checkpoint approval resume | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |
 | verification bundle | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |
+| A2A file registry scaffold | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |
 | Plan-Execute workflow | `quickstart/plan-exec` | `go test -count=1 ./quickstart/plan-exec` | - |
 | agent as tool | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | - |
 | A2A local cluster | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |

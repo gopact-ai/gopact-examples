@@ -21,6 +21,7 @@ func TestRunShowsScaffoldApprovalResume(t *testing.T) {
 		"resume_events: run_started -> checkpoint_loaded(approval) -> resume_received(approval) -> node_resumed(summary) -> node_completed(summary) -> run_completed",
 		"verification: passed checks=1",
 		"bundle: completed verification_reports=1",
+		"a2a registry: scaffold-agent capabilities=checkpoint.resume, human.approval",
 		"trace: plan -> write -> approval -> summary",
 		"summary: published draft for add a README example",
 	} {
@@ -42,6 +43,7 @@ func TestReadmePointsScaffoldAtReleaseGatePath(t *testing.T) {
 		"verification report",
 		"embeds the report",
 		"self-bootstrap release gate",
+		"A2A file registry",
 		"quickstart/agent-cluster",
 	} {
 		if !strings.Contains(got, want) {
