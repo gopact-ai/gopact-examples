@@ -1,0 +1,20 @@
+# Feature Coverage
+
+This matrix is the examples repository contract for expected runnable capabilities. CI uses local mocks for these commands; provider-backed checks stay local unless explicitly run with integration tags.
+
+| Capability | Path | Mock test | Local integration |
+| --- | --- | --- | --- |
+| dotenv configuration | `internal/exampleenv` | `go test -count=1 ./internal/exampleenv` | - |
+| scripted ReAct loop | `quickstart/react-agent` | `go test -count=1 ./quickstart/react-agent` | - |
+| workflow graph | `quickstart/workflow-graph` | `go test -count=1 ./quickstart/workflow-graph` | - |
+| checkpoint approval resume | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |
+| verification bundle | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |
+| Plan-Execute workflow | `quickstart/plan-exec` | `go test -count=1 ./quickstart/plan-exec` | - |
+| agent as tool | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | - |
+| A2A local cluster | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
+| OpenAI-compatible chat | `quickstart/openai-chat` | `go test -count=1 ./quickstart/openai-chat` | - |
+| OpenAI-compatible streaming | `quickstart/openai-streaming` | `go test -count=1 ./quickstart/openai-streaming` | - |
+| tool calling | `quickstart/tool-calling` | `go test -count=1 ./quickstart/tool-calling` | - |
+| Ark SDK provider | `quickstart/ark-chat` | `go test -count=1 ./quickstart/ark-chat` | - |
+| Ark OpenAI-compatible streaming | `quickstart/ark-streaming` | `go test -count=1 ./quickstart/ark-streaming` | - |
+| Agnes provider | `quickstart/agnes-chat` | `go test -count=1 ./quickstart/agnes-chat` | `go test -tags=integration -count=1 ./quickstart/agnes-chat` |

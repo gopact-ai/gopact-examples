@@ -2,6 +2,8 @@
 
 Runnable examples for `github.com/gopact-ai/gopact` and official extensions.
 
+See [FEATURES.md](./FEATURES.md) for the executable capability coverage matrix.
+
 ## Configuration
 
 Examples read these environment variables:
