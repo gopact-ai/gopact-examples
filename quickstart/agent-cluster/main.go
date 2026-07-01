@@ -83,7 +83,7 @@ func run(ctx context.Context, out io.Writer) error {
 			server.Close()
 		}
 	}()
-	cards := make([]a2a.AgentCard, 0, len(agents))
+	listers := make([]a2a.CardLister, 0, len(agents))
 	for i := range agents {
 		server := httptest.NewServer(a2a.NewHTTPHandler(agents[i]))
 		servers = append(servers, server)
@@ -91,17 +91,18 @@ func run(ctx context.Context, out io.Writer) error {
 		if err != nil {
 			return err
 		}
-		discovered, err := mesh.Discover(ctx, remote, a2a.DiscoveryQuery{URL: server.URL})
-		if err != nil {
-			return err
-		}
-		cards = append(cards, discovered.Card)
+		listers = append(listers, remote)
 	}
+	bootstrap, err := mesh.Bootstrap(ctx, listers...)
+	if err != nil {
+		return err
+	}
+	cards := bootstrap.Cards
 
 	if _, err := fmt.Fprintln(out, "gateway: accepted self-bootstrap slice"); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintf(out, "discovery: %d HTTP agent cards\n", len(cards)); err != nil {
+	if _, err := fmt.Fprintf(out, "bootstrap discovery: %d HTTP agent cards\n", len(cards)); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "cards: %s\n", cardNames(cards)); err != nil {
