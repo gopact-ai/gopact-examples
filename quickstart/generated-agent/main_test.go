@@ -24,7 +24,7 @@ func TestRunGeneratesTestedA2AAgentScaffold(t *testing.T) {
 		t.Fatalf("output = %q, want generated scaffold path", out.String())
 	}
 	dir := strings.TrimPrefix(line, "generated generated-agent at ")
-	for _, file := range []string{"go.mod", "main.go", "main_test.go", "agents.json", "README.md", ".gitignore"} {
+	for _, file := range []string{"go.mod", "main.go", "main_test.go", "agents.json", "README.md", ".env.example", ".gitignore"} {
 		if _, err := os.Stat(filepath.Join(dir, file)); err != nil {
 			t.Fatalf("generated scaffold missing %s: %v", file, err)
 		}
@@ -33,6 +33,7 @@ func TestRunGeneratesTestedA2AAgentScaffold(t *testing.T) {
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewHTTPHandler(agent)")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewHTTPRegistryHandler")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "a2a.NewHTTPRegistry")
+	assertGeneratedFileContains(t, filepath.Join(dir, ".env.example"), "GOPACT_AGENT_URL=http://localhost:8080")
 	assertGeneratedFileContains(t, filepath.Join(dir, ".gitignore"), ".env")
 }
 

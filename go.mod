@@ -3,7 +3,7 @@ module github.com/gopact-ai/gopact-examples
 go 1.25.11
 
 require (
-	github.com/gopact-ai/gopact v0.0.19
+	github.com/gopact-ai/gopact v0.0.20
 	github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.6
 	github.com/gopact-ai/gopact-ext/agents/planexec v0.2.6
 	github.com/gopact-ai/gopact-ext/agents/react v0.2.6
