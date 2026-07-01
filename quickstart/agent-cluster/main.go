@@ -36,6 +36,7 @@ type clusterState struct {
 	Artifacts    []gopact.ArtifactRef
 	ReviewLabels []string
 	PolicyLabels []string
+	A2AChecks    []gopact.VerificationCheck
 	Trace        []string
 }
 
@@ -147,7 +148,7 @@ func run(ctx context.Context, out io.Writer) error {
 	}
 	releaseGate, err := gopacttest.BuildSelfBootstrapReleaseGateBundle(
 		export,
-		gopacttest.WithSelfBootstrapAdditionalChecks(append(diffChecks, fileChecks...)...),
+		gopacttest.WithSelfBootstrapAdditionalChecks(append(append(diffChecks, fileChecks...), state.A2AChecks...)...),
 	)
 	if err != nil {
 		return err
@@ -171,6 +172,9 @@ func run(ctx context.Context, out io.Writer) error {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "file snapshot evidence: %s\n", fileSummary); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "a2a task evidence: %s\n", a2aTaskEvidenceSummary(state.A2AChecks)); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "release gate: %s checks=%d requirements=%d\n", releaseGate.Report.Status, len(releaseGate.Report.Checks), len(gopacttest.SelfBootstrapReleaseGateRequirements())); err != nil {
@@ -301,11 +305,12 @@ func newAgentClusterWorkflow(mesh *a2a.Mesh) (*graph.Runnable[clusterState], err
 		if err != nil {
 			return state, err
 		}
-		labels, err := collectReviewStream(ctx, mesh)
+		labels, checks, err := collectReviewStream(ctx, mesh)
 		if err != nil {
 			return state, err
 		}
 		state.ReviewLabels = labels
+		state.A2AChecks = append(state.A2AChecks, checks...)
 		state.PolicyLabels = policyLabels
 		state.Trace = append(state.Trace, "review-agent")
 		return state, nil
@@ -370,7 +375,16 @@ func missingAgentFailureAttribution(ctx context.Context, mesh *a2a.Mesh, ids gop
 
 func agentCallNode(mesh *a2a.Mesh, name string) graph.NodeFunc[clusterState] {
 	return func(ctx context.Context, state clusterState) (clusterState, error) {
-		result, err := mesh.Call(ctx, name, a2a.Task{ID: name + "-task", Input: state.Input})
+		task := a2a.Task{ID: name + "-task", IDs: runtimeIDs(ctx), Input: state.Input}
+		result, err := mesh.Call(ctx, name, task)
+		if err != nil {
+			return state, err
+		}
+		check, err := recordA2ATaskCheck(name, task, a2a.TaskEvent{
+			TaskID: task.ID,
+			Status: a2a.TaskStatusCompleted,
+			Result: &result,
+		})
 		if err != nil {
 			return state, err
 		}
@@ -379,16 +393,19 @@ func agentCallNode(mesh *a2a.Mesh, name string) graph.NodeFunc[clusterState] {
 		}
 		state.Results[name] = result.Output
 		state.Artifacts = append(state.Artifacts, result.Artifacts...)
+		state.A2AChecks = append(state.A2AChecks, check)
 		state.Trace = append(state.Trace, name)
 		return state, nil
 	}
 }
 
-func collectReviewStream(ctx context.Context, mesh *a2a.Mesh) ([]string, error) {
+func collectReviewStream(ctx context.Context, mesh *a2a.Mesh) ([]string, []gopact.VerificationCheck, error) {
 	labels := []string{}
-	for event, err := range mesh.Stream(ctx, "review-agent", a2a.Task{ID: "review-task", Input: "review the slice"}) {
+	checks := []gopact.VerificationCheck{}
+	task := a2a.Task{ID: "review-task", IDs: runtimeIDs(ctx), Input: "review the slice"}
+	for event, err := range mesh.Stream(ctx, "review-agent", task) {
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		label := string(event.Status)
 		if event.Message != "" {
@@ -397,9 +414,46 @@ func collectReviewStream(ctx context.Context, mesh *a2a.Mesh) ([]string, error) 
 		if event.Result != nil && event.Result.Output != "" {
 			label += "(" + event.Result.Output + ")"
 		}
+		if event.Status == a2a.TaskStatusCompleted || event.Status == a2a.TaskStatusFailed || event.Status == a2a.TaskStatusCanceled {
+			check, err := recordA2ATaskCheck("review-agent", task, event)
+			if err != nil {
+				return nil, nil, err
+			}
+			checks = append(checks, check)
+		}
 		labels = append(labels, label)
 	}
-	return labels, nil
+	return labels, checks, nil
+}
+
+func recordA2ATaskCheck(agentName string, task a2a.Task, event a2a.TaskEvent) (gopact.VerificationCheck, error) {
+	recorder := gopact.NewVerificationRecorder()
+	err := a2a.RecordTaskEventCheck(recorder, a2a.TaskEventSnapshot{
+		Agent: a2a.AgentCard{Name: agentName},
+		Task:  task,
+		Event: event,
+	})
+	checks := recorder.Checks()
+	if err != nil {
+		return gopact.VerificationCheck{}, err
+	}
+	if len(checks) != 1 {
+		return gopact.VerificationCheck{}, fmt.Errorf("a2a task checks=%d, want 1", len(checks))
+	}
+	return checks[0], nil
+}
+
+func runtimeIDs(ctx context.Context) gopact.RuntimeIDs {
+	ids, _ := gopact.RuntimeIDsFromContext(ctx)
+	return ids
+}
+
+func a2aTaskEvidenceSummary(checks []gopact.VerificationCheck) string {
+	parts := make([]string, 0, len(checks))
+	for _, check := range checks {
+		parts = append(parts, checkEvidenceSummary(check))
+	}
+	return strings.Join(parts, " -> ")
 }
 
 func authorizeA2AStream(ctx context.Context, policy gopact.Policy, agentName string, taskID string) ([]string, error) {
