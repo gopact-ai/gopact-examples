@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gopact-ai/gopact"
+	"github.com/gopact-ai/gopact-ext/devagent/gitdiff"
 	"github.com/gopact-ai/gopact/a2a"
 	"github.com/gopact-ai/gopact/gopacttest"
 	"github.com/gopact-ai/gopact/graph"
@@ -141,7 +142,14 @@ func run(ctx context.Context, out io.Writer) error {
 	if err != nil {
 		return err
 	}
-	releaseGate, err := gopacttest.BuildSelfBootstrapReleaseGateBundle(export)
+	diffChecks, diffSummary, err := worktreeDiffChecks(ctx, ".")
+	if err != nil {
+		return err
+	}
+	releaseGate, err := gopacttest.BuildSelfBootstrapReleaseGateBundle(
+		export,
+		gopacttest.WithSelfBootstrapAdditionalChecks(diffChecks...),
+	)
 	if err != nil {
 		return err
 	}
@@ -158,6 +166,9 @@ func run(ctx context.Context, out io.Writer) error {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "run export: %s events=%d steps=%d verification_reports=%d\n", export.Outcome, len(export.Events), len(export.Steps), len(export.VerificationReports)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "git diff evidence: %s\n", diffSummary); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "release gate: %s checks=%d requirements=%d\n", releaseGate.Report.Status, len(releaseGate.Report.Checks), len(gopacttest.SelfBootstrapReleaseGateRequirements())); err != nil {
@@ -192,6 +203,36 @@ func run(ctx context.Context, out io.Writer) error {
 	}
 	_, err = fmt.Fprintln(out, "summary: local agent cluster completed 4 calls")
 	return err
+}
+
+func worktreeDiffChecks(ctx context.Context, dir string) ([]gopact.VerificationCheck, string, error) {
+	snapshot, err := gitdiff.ScanWorktree(ctx, dir)
+	if err != nil {
+		return nil, "", err
+	}
+	if snapshot.Skipped {
+		if snapshot.Summary == "" {
+			return nil, "no diff", nil
+		}
+		return nil, snapshot.Summary, nil
+	}
+
+	recorder := gopact.NewVerificationRecorder()
+	if err := gopacttest.RecordDiffCheck(recorder, snapshot); err != nil {
+		return nil, "", err
+	}
+	checks := recorder.Checks()
+	if len(checks) != 1 {
+		return nil, "", fmt.Errorf("git diff checks=%d, want 1", len(checks))
+	}
+	return checks, diffCheckSummary(checks[0]), nil
+}
+
+func diffCheckSummary(check gopact.VerificationCheck) string {
+	if len(check.Evidence) > 0 && check.Evidence[0].Summary != "" {
+		return check.Evidence[0].Summary
+	}
+	return check.Summary
 }
 
 func requireSelfBootstrapReleaseGate(ctx context.Context, gate gopacttest.SelfBootstrapReleaseGateBundle) error {
