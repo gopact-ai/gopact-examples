@@ -1,6 +1,6 @@
 # Agent Scaffold
 
-Minimal no-credential agent skeleton with graph nodes, checkpointing, approval interrupt, and resume.
+Minimal no-credential agent skeleton with graph nodes, checkpointing, approval interrupt, resume, and a verification report.
 
 ```bash
 go run ./quickstart/agent-scaffold
