@@ -4,14 +4,7 @@
 
 ## 中文
 
-本文档是 gopact 开源文档集的一部分，中文内容用于说明当前仓库约束、能力或维护流程。
-
-## English
-
-This document is part of the gopact open-source documentation set. The English section gives an entry point for readers who prefer English, while the remaining sections preserve the maintained technical details.
-
-
-This matrix is the examples repository contract for expected runnable capabilities. CI uses local mocks for these commands; provider-backed checks stay local unless explicitly run with integration tags.
+这个矩阵是 `gopact-examples` 的可执行能力契约。CI 只运行 mock、本地 fake server 和 scripted agent；真实 provider 测试必须通过 integration build tag 手动执行。
 
 | Capability | Path | Mock test | Local integration |
 | --- | --- | --- | --- |
@@ -38,3 +31,15 @@ This matrix is the examples repository contract for expected runnable capabiliti
 | Ark SDK provider | `quickstart/ark-chat` | `go test -count=1 ./quickstart/ark-chat` | - |
 | Ark OpenAI-compatible streaming | `quickstart/ark-streaming` | `go test -count=1 ./quickstart/ark-streaming` | - |
 | Agnes provider | `quickstart/agnes-chat` | `go test -count=1 ./quickstart/agnes-chat` | `go test -tags=integration -count=1 ./quickstart/agnes-chat` |
+
+覆盖原则：
+
+- 每个 quickstart 都必须有 `main.go`、`main_test.go` 和 `README.md`。
+- provider quickstart 的默认测试必须使用 fake server 或 mock 数据。
+- 真实 provider 凭据只能通过 `.env` 或显式环境变量进入本地 integration 测试。
+
+## English
+
+This matrix is the executable contract for `gopact-examples`. CI uses mocks, local fake servers, and scripted agents only. Real provider checks are local opt-in tests behind the `integration` build tag.
+
+Every quickstart must include `main.go`, `main_test.go`, and `README.md`. Provider examples must keep their default tests deterministic and credential-free.

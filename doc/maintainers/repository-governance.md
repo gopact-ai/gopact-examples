@@ -4,50 +4,37 @@
 
 ## 中文
 
-本文档是 gopact 开源文档集的一部分，中文内容用于说明当前仓库约束、能力或维护流程。
-
-## English
-
-This document is part of the gopact open-source documentation set. The English section gives an entry point for readers who prefer English, while the remaining sections preserve the maintained technical details.
-
-
-This repository uses pull requests as the only write path to `main` after it is
-made public. The rule exists even for a single maintainer: it keeps CI, review
-state, and release evidence attached to every example change.
+`gopact-examples` 公开后，`main` 只允许通过 PR 更新。即使只有一名主要维护者，也要保留 PR 流程，因为示例仓库承担用户入口职责，所有变更都应带着 CI、review、自动合并和敏感信息检查证据。
 
 ## Pull Request Flow
 
+仓库规则：
+
 - Require status checks to pass before merge.
-- Require the `ci` workflow `test` job.
-- Require the `pr-governance` workflow `author-policy` job.
-- Include administrators in branch protection or ruleset enforcement.
-- Block force-pushes and branch deletion on `main`.
-- Do not configure a global required review count. The `author-policy` check
-  enforces the conditional review rule without blocking a single admin working
-  alone.
+- 必需检查包括 `ci/test` 和 `pr-governance/author-policy`。
+- 管理员也受 ruleset 约束。
+- 禁止 force push 到 `main`。
+- 禁止删除 `main`。
+- Do not configure a global required review count。单维护者场景下，全局 required review 会阻塞 admin 自己的 PR；条件审批由 `author-policy` 实现。
 
-Admin-authored PRs may merge after required CI checks pass.
+Admin-authored PRs 可以在所有 required checks 通过后自动合并。
 
-Non-admin-authored PRs require at least one admin approval on the latest commit.
-The `author-policy` job checks the PR author's repository permission and the
-reviewer's permission through GitHub's API.
+Non-admin-authored PRs 必须在最新 commit 上获得至少一名 admin 审批。`author-policy` 通过 GitHub API 检查 PR author 与 reviewer 的 repository permission。
 
 ## Admin Auto-Merge
 
-The `admin-automerge` workflow enables squash auto-merge for admin-authored PRs.
-It does not check out or execute pull request code. Non-admin-authored PRs are
-left for an admin to approve and merge after `author-policy` passes.
+`admin-automerge` workflow 对 admin-authored PR 开启 squash auto-merge。它运行在 `pull_request_target` 上，但不 checkout、不执行 PR 代码，只调用 GitHub CLI 配置 auto-merge。
 
-Repository settings should be:
+仓库设置应保持：
 
 - allow auto-merge
 - allow squash merge
 - delete head branches after merge
-- disable merge commits and rebase merge unless a release requires them
+- disable merge commit and rebase merge unless a release explicitly needs them
 
 ## Public Release Checks
 
-Before changing repository visibility to public, run:
+开放仓库或发布重要版本前执行：
 
 ```bash
 ./scripts/public-readiness-check.sh
@@ -59,6 +46,16 @@ go test -coverprofile=coverage.out ./...
 govulncheck ./...
 ```
 
-The readiness script checks tracked files and commit messages for high-confidence
-secret patterns. It reports file names and commit hashes only; it does not print
-matched secret contents.
+公开前必须确认：
+
+- `.env` 和 `.env.*` 没有被 tracked。
+- commit message 没有真实 token、endpoint ID、AK/SK 或 provider secret。
+- README、quickstart README、FEATURES 和实际测试覆盖一致。
+- GitHub Secret Scanning、Push Protection、Dependabot security updates 已开启。
+- 规则集覆盖 `main`，并且没有 admin bypass。
+
+## English
+
+After `gopact-examples` is public, `main` is PR-only. This repository is a user entry point, so each change should carry CI evidence, review state, auto-merge state, and secret-scanning evidence.
+
+Admin-authored PRs may be squash-merged automatically after required checks pass. Non-admin-authored PRs require at least one admin approval on the latest commit. The `author-policy` job implements this conditional rule without requiring a global required review count.
