@@ -43,7 +43,11 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 		"a2a retry evidence: code-agent attempts=2",
 		"dev agent evidence: unit gate passed -> review approved",
 		"release gate: passed checks=",
-		"requirements=14",
+		"requirements=15",
+		"replay evidence: run-effect-replay:self-bootstrap run_effect_replay",
+		"command evidence: command:(cd gopact-ext/models/agnes && go test -tags=integration -count=1 ./...)",
+		"command:(cd gopact-ext/tests/agents && go test -tags=integration -count=1 ./...)",
+		"command:(cd gopact-examples && go test -tags=integration -count=1 ./quickstart/agnes-chat)",
 		"checkpoint resume: loaded review-agent step=4 events=run_started -> checkpoint_loaded(review-agent) -> run_completed",
 		"planner-agent: plan: research -> code -> review",
 		"research-agent: research: graph, a2a, examples",
@@ -97,6 +101,33 @@ func TestRunExportCarriesDevAgentEvidenceMetadata(t *testing.T) {
 
 	reviewCheck := requireVerificationCheck(t, report, "review:dev-agent-local")
 	requireEvidenceMetadata(t, reviewCheck, gopacttest.VerificationEvidenceTypeReview, "purpose", wantDevAgentEvidencePurpose)
+}
+
+func TestRunExportCarriesReplayAndCommandEvidence(t *testing.T) {
+	t.Setenv("GOPACT_A2A_REGISTRY_FILE", " ")
+	t.Setenv("GOPACT_A2A_REGISTRY_URL", " ")
+	t.Setenv("GOPACT_A2A_ENDPOINTS", " ")
+
+	export, err := runCluster(context.Background(), io.Discard)
+	if err != nil {
+		t.Fatalf("runCluster() error = %v", err)
+	}
+	if len(export.VerificationReports) != 1 {
+		t.Fatalf("VerificationReports = %+v, want one release gate report", export.VerificationReports)
+	}
+	report := export.VerificationReports[0]
+
+	replayCheck := requireVerificationCheck(t, report, gopacttest.SelfBootstrapCheckRunEffectReplay)
+	requireEvidenceType(t, replayCheck, gopact.VerificationEvidenceTypeRunEffectReplay)
+
+	for _, id := range []string{
+		gopacttest.SelfBootstrapCheckAgnesProviderIntegrationCommand,
+		gopacttest.SelfBootstrapCheckAgnesAgentTemplatesIntegrationCommand,
+		gopacttest.SelfBootstrapCheckAgnesExamplesIntegrationCommand,
+	} {
+		check := requireVerificationCheck(t, report, id)
+		requireEvidenceType(t, check, gopacttest.VerificationEvidenceTypeCommand)
+	}
 }
 
 func TestRunBootstrapsConfiguredFileRegistry(t *testing.T) {
@@ -362,6 +393,17 @@ func requireEvidenceMetadata(t *testing.T, check gopact.VerificationCheck, evide
 			t.Fatalf("%s evidence metadata[%q] = %v, want %v", evidenceType, key, got, want)
 		}
 		return
+	}
+	t.Fatalf("check %q evidence missing type %q: %+v", check.ID, evidenceType, check.Evidence)
+}
+
+func requireEvidenceType(t *testing.T, check gopact.VerificationCheck, evidenceType string) {
+	t.Helper()
+
+	for _, evidence := range check.Evidence {
+		if evidence.Type == evidenceType {
+			return
+		}
 	}
 	t.Fatalf("check %q evidence missing type %q: %+v", check.ID, evidenceType, check.Evidence)
 }

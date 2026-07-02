@@ -213,6 +213,12 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 	if _, err := fmt.Fprintf(out, "release gate: %s checks=%d requirements=%d\n", releaseGate.Report.Status, len(releaseGate.Report.Checks), len(gopacttest.SelfBootstrapReleaseGateRequirements())); err != nil {
 		return err
 	}
+	if _, err := fmt.Fprintf(out, "replay evidence: %s\n", releaseGateEvidenceSummary(releaseGate.Report, gopacttest.SelfBootstrapCheckRunEffectReplay)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "command evidence: %s\n", selfBootstrapCommandEvidenceSummary(releaseGate.Report)); err != nil {
+		return err
+	}
 	if _, err := fmt.Fprintf(out, "checkpoint resume: loaded %s step=%d events=%s\n", resumed.Node, resumed.Step, strings.Join(resumeEvents, " -> ")); err != nil {
 		return err
 	}
@@ -447,6 +453,32 @@ func checkEvidenceSummary(check gopact.VerificationCheck) string {
 		return check.Evidence[0].Summary
 	}
 	return check.Summary
+}
+
+func releaseGateEvidenceSummary(report gopact.VerificationReport, checkID string) string {
+	for _, check := range report.Checks {
+		if check.ID != checkID {
+			continue
+		}
+		if len(check.Evidence) == 0 {
+			return check.ID
+		}
+		return check.ID + " " + check.Evidence[0].Type
+	}
+	return "missing " + checkID
+}
+
+func selfBootstrapCommandEvidenceSummary(report gopact.VerificationReport) string {
+	ids := []string{
+		gopacttest.SelfBootstrapCheckAgnesProviderIntegrationCommand,
+		gopacttest.SelfBootstrapCheckAgnesAgentTemplatesIntegrationCommand,
+		gopacttest.SelfBootstrapCheckAgnesExamplesIntegrationCommand,
+	}
+	labels := make([]string, 0, len(ids))
+	for _, id := range ids {
+		labels = append(labels, releaseGateEvidenceSummary(report, id))
+	}
+	return strings.Join(labels, " -> ")
 }
 
 func requireSelfBootstrapReleaseGate(ctx context.Context, gate gopacttest.SelfBootstrapReleaseGateBundle) error {
