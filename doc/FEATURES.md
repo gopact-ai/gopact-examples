@@ -20,6 +20,7 @@ This matrix is the executable contract for `gopact-examples`. CI uses mocks, loc
 | agent as tool success and failure evidence | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | Not required |
 | A2A local cluster + multi-source discovery + tag route + fallback + cancel | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
 | A2A env mesh sync with readiness pruning | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
+| A2A continuous env mesh sync with registry changes | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
 | A2A local cluster expiry-aware discovery and lease heartbeat evidence | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
 | A2A local cluster readiness-gated endpoint discovery | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
 | A2A local cluster run export golden trajectory | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
