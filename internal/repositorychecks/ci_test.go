@@ -333,6 +333,12 @@ func TestAgentClusterDiscoveryEnvIsDocumented(t *testing.T) {
 			}
 		}
 	}
+
+	for _, path := range []string{"../../README.md", "../../quickstart/agent-cluster/README.md"} {
+		if !strings.Contains(readText(t, path), "Mesh.SyncEnv") {
+			t.Fatalf("%s must document Mesh.SyncEnv for A2A env mesh sync", path)
+		}
+	}
 }
 
 func TestAgentClusterReadmesDocumentReleaseEvidence(t *testing.T) {
@@ -356,23 +362,23 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 	generatedAgent := readText(t, "../../quickstart/generated-agent/main.go")
 
 	for _, requirement := range []string{
-		"github.com/gopact-ai/gopact v0.0.37",
-		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.16",
-		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.17",
-		"github.com/gopact-ai/gopact-ext/agents/react v0.2.15",
-		"github.com/gopact-ai/gopact-ext/agents/supervisor v0.1.3",
-		"github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.14",
-		"github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.14",
-		"github.com/gopact-ai/gopact-ext/models/agnes v0.1.18",
-		"github.com/gopact-ai/gopact-ext/models/ark v0.2.15",
-		"github.com/gopact-ai/gopact-ext/models/openai v0.5.17",
+		"github.com/gopact-ai/gopact v0.0.38",
+		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.17",
+		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.18",
+		"github.com/gopact-ai/gopact-ext/agents/react v0.2.16",
+		"github.com/gopact-ai/gopact-ext/agents/supervisor v0.1.4",
+		"github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.15",
+		"github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.15",
+		"github.com/gopact-ai/gopact-ext/models/agnes v0.1.19",
+		"github.com/gopact-ai/gopact-ext/models/ark v0.2.16",
+		"github.com/gopact-ai/gopact-ext/models/openai v0.5.18",
 	} {
 		if !strings.Contains(goMod, requirement) {
 			t.Fatalf("go.mod missing current released module %q", requirement)
 		}
 	}
-	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.37"`) {
-		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.37")
+	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.38"`) {
+		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.38")
 	}
 }
 

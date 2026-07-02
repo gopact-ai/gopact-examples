@@ -76,6 +76,11 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/agent-cluster",
 		},
 		{
+			capability:  "A2A env mesh sync with readiness pruning",
+			path:        "quickstart/agent-cluster",
+			mockCommand: "go test -count=1 ./quickstart/agent-cluster",
+		},
+		{
 			capability:  "A2A local cluster expiry-aware discovery and lease heartbeat evidence",
 			path:        "quickstart/agent-cluster",
 			mockCommand: "go test -count=1 ./quickstart/agent-cluster",
