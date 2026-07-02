@@ -27,6 +27,7 @@
 | A2A local cluster policy deny and review | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
 | A2A local cluster retry evidence | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
 | Dev Agent test and review evidence | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
+| Dev Agent replay and command evidence | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
 | OpenAI-compatible chat | `quickstart/openai-chat` | `go test -count=1 ./quickstart/openai-chat` | - |
 | OpenAI-compatible streaming | `quickstart/openai-streaming` | `go test -count=1 ./quickstart/openai-streaming` | - |
 | tool calling | `quickstart/tool-calling` | `go test -count=1 ./quickstart/tool-calling` | - |

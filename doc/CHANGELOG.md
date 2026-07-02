@@ -8,7 +8,7 @@ This changelog records user-visible changes for `gopact-examples`. The current u
 
 ## Unreleased
 
-- Examples now track `gopact` core `v0.0.34` and the agent cluster quickstart demonstrates A2A lease heartbeat renewal.
+- Examples now track `gopact` core `v0.0.35` and the agent cluster quickstart demonstrates A2A lease heartbeat renewal plus replay and command evidence.
 - Add `quickstart/supervisor` to demonstrate routing work to named Plan-Execute child agents without provider credentials.
 - Default documentation is English-only, with Chinese translations maintained in sibling `_zh.md` files.
 - The root README has a credential-free scaffold path, complete quickstart command list, environment variable reference, and CI gate summary.
