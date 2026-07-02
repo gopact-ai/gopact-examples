@@ -262,6 +262,22 @@ func TestAgentClusterDiscoveryEnvIsDocumented(t *testing.T) {
 	}
 }
 
+func TestAgentClusterReadmesDocumentReleaseEvidence(t *testing.T) {
+	for _, path := range []string{
+		"../../README.md",
+		"../../README_zh.md",
+		"../../quickstart/agent-cluster/README.md",
+		"../../quickstart/agent-cluster/README_zh.md",
+	} {
+		text := readText(t, path)
+		for _, want := range []string{"replay", "command evidence"} {
+			if !strings.Contains(text, want) {
+				t.Fatalf("%s missing agent-cluster release evidence phrase %q", path, want)
+			}
+		}
+	}
+}
+
 func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 	goMod := readText(t, "../../go.mod")
 	generatedAgent := readText(t, "../../quickstart/generated-agent/main.go")
