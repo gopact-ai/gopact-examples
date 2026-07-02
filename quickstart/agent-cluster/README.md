@@ -7,7 +7,7 @@
 
 Chinese documentation: [README_zh.md](README_zh.md)
 
-This example runs a local A2A-style agent cluster with planner, research, code, and review agents. It demonstrates multi-source discovery, routing, policy evidence, retry/cancel evidence, development-agent evidence, and a self-bootstrap release-gate bundle without requiring provider credentials.
+This example runs a local A2A-style agent cluster with planner, research, code, and review agents. It demonstrates multi-source discovery, routing, policy evidence, retry/cancel evidence, development-agent replay and command evidence, and a self-bootstrap release-gate bundle without requiring provider credentials.
 
 The discovery path can be overridden with:
 

@@ -27,5 +27,5 @@ GOPACT_A2A_ENDPOINTS=http://localhost:8080,http://localhost:8081
 - multi-source A2A discovery、tag route、fallback 和 readiness-gated endpoint discovery。
 - checkpoint、resume、policy allow/deny/review、retry evidence、cancel evidence。
 - `RunExport` golden trajectory。
-- git diff、file snapshot 和 dev-agent evidence。
+- git diff、file snapshot、dev-agent replay 和 command evidence。
 - self-bootstrap release gate bundle。
