@@ -106,22 +106,22 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 	generatedAgent := readText(t, "../../quickstart/generated-agent/main.go")
 
 	for _, requirement := range []string{
-		"github.com/gopact-ai/gopact v0.0.29",
-		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.12",
-		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.12",
-		"github.com/gopact-ai/gopact-ext/agents/react v0.2.11",
-		"github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.10",
-		"github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.10",
-		"github.com/gopact-ai/gopact-ext/models/agnes v0.1.13",
-		"github.com/gopact-ai/gopact-ext/models/ark v0.2.11",
-		"github.com/gopact-ai/gopact-ext/models/openai v0.5.13",
+		"github.com/gopact-ai/gopact v0.0.30",
+		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.13",
+		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.13",
+		"github.com/gopact-ai/gopact-ext/agents/react v0.2.12",
+		"github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.11",
+		"github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.11",
+		"github.com/gopact-ai/gopact-ext/models/agnes v0.1.14",
+		"github.com/gopact-ai/gopact-ext/models/ark v0.2.12",
+		"github.com/gopact-ai/gopact-ext/models/openai v0.5.14",
 	} {
 		if !strings.Contains(goMod, requirement) {
 			t.Fatalf("go.mod missing current released module %q", requirement)
 		}
 	}
-	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.29"`) {
-		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.29")
+	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.30"`) {
+		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.30")
 	}
 }
 
