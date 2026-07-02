@@ -1,39 +1,26 @@
 # Contributing to gopact-examples
 
-<!-- gopact:doc-language: zh,en -->
+<!-- gopact:doc-language: en -->
 
-## 中文
+Chinese documentation: [CONTRIBUTING_zh.md](CONTRIBUTING_zh.md)
 
-`gopact-examples` 的每个示例都必须能从仓库根目录运行，并且必须有测试固化文档中的命令路径。示例代码可以简洁，但不能依赖隐藏前置条件。
+Every example in `gopact-examples` must run from the repository root and have tests that lock the documented command path. Keep CI mock-only, use fake servers for provider-shaped behavior, and reserve real provider checks for explicit integration tests.
 
 ## Development Setup
 
-前置工具：
-
-- Go 1.25.11
-- Git
-- `golangci-lint` v2.8.0
-- `govulncheck` v1.1.4
-
-克隆后先执行：
+Install Go 1.25 or newer, clone the repository, and work on a pull-request branch:
 
 ```bash
-git clone git@github.com:gopact-ai/gopact-examples.git
+git clone https://github.com/gopact-ai/gopact-examples.git
 cd gopact-examples
-go test -count=1 ./...
+git switch -c your-change
 ```
 
-修改规则：
-
-- CI 保持 mock-only。真实 provider 调用必须放在 `integration` build tag 下。
-- provider 行为优先用本地 fake server 覆盖，确保无凭据也能验证 request/response 形态。
-- 新增 quickstart 必须同时提供 `main.go`、`main_test.go`、`README.md`，并在根 README 与 [FEATURES.md](FEATURES.md) 登记。
-- 新增环境变量必须同步更新 `.env.example`、根 README 和对应 quickstart README。
-- 不提交 `.env`、真实 token、真实 endpoint ID、私有 prompt、原始模型响应或客户数据。
+Copy `.env.example` to `.env` only when running local provider checks. `.env` is ignored and must never be committed.
 
 ## Verification
 
-提交 PR 前运行：
+Run the repository gates before opening a pull request:
 
 ```bash
 git diff --check
@@ -48,14 +35,16 @@ go test -coverprofile=coverage.out ./...
 govulncheck ./...
 ```
 
+Real provider checks are opt-in:
+
+```bash
+go test -tags=integration -count=1 ./quickstart/agnes-chat
+```
+
 ## Pull Request Checklist
 
-- 示例能从仓库根目录执行。
-- README 中的 `go run ./quickstart/...` 命令和 `main_test.go` 覆盖一致。
-- provider-backed 行为默认有 fake server/mock 测试，真实服务测试使用 integration tag。
-- 新增或修改的环境变量已写入 `.env.example` 和相关 README。
-- PR 不包含真实密钥、真实 endpoint ID、原始模型输出、私有 prompt 或用户数据。
-
-## English
-
-Every example in `gopact-examples` must run from the repository root and have tests that lock the documented command path. Keep CI mock-only, use fake servers for provider-shaped behavior, and reserve real provider checks for explicit integration tests.
+- Keep each quickstart runnable from the repository root.
+- Keep default tests deterministic and credential-free.
+- Update `README.md`, the quickstart README, and `doc/FEATURES.md` when adding or changing an example.
+- Document all environment variables that a provider or A2A discovery path reads.
+- Keep generated files, provider tokens, endpoint IDs, and local `.env` values out of git history.
