@@ -169,6 +169,13 @@ func TestExamplesPublicReadinessAndPRGovernanceAreConfigured(t *testing.T) {
 	}
 }
 
+func TestExamplesUsePatchedProtobuf(t *testing.T) {
+	goMod := readText(t, "../../go.mod")
+	if !strings.Contains(goMod, "google.golang.org/protobuf v1.33.0") {
+		t.Fatal("go.mod must keep google.golang.org/protobuf at patched v1.33.0")
+	}
+}
+
 func TestExamplesCIWorkflowOptimizesIndependentGatesForParallelFeedback(t *testing.T) {
 	workflow := readText(t, "../../.github/workflows/ci.yml")
 
