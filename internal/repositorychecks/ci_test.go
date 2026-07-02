@@ -81,6 +81,9 @@ func TestAgnesLocalIntegrationCommandIsDocumented(t *testing.T) {
 	if !strings.Contains(readme, command) {
 		t.Fatalf("README missing Agnes integration command %q", command)
 	}
+	if !strings.Contains(quickstartReadme, command) {
+		t.Fatalf("quickstart/agnes-chat/README.md missing Agnes integration command %q", command)
+	}
 	for _, key := range []string{"GOPACT_AGNES_API_KEY", "GOPACT_AGNES_SK", "GOPACT_LLM_TOKEN"} {
 		if !strings.Contains(readme, key) {
 			t.Fatalf("README missing Agnes credential variable %q", key)

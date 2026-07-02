@@ -25,3 +25,9 @@ GOPACT_AGNES_MODEL=agnes-2.0-flash
 ```bash
 go run ./quickstart/agnes-chat
 ```
+
+## Local Integration
+
+```bash
+go test -tags=integration -count=1 ./quickstart/agnes-chat
+```
