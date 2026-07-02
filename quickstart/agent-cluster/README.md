@@ -7,13 +7,15 @@
 
 Chinese documentation: [README_zh.md](README_zh.md)
 
-This example runs a local A2A-style agent cluster with planner, research, code, and review agents. It demonstrates multi-source discovery, routing, policy evidence, retry/cancel evidence, development-agent replay and command evidence, and a self-bootstrap release-gate bundle without requiring provider credentials.
+This example runs a local A2A-style agent cluster with planner, research, code, and review agents. It demonstrates `Mesh.SyncEnv` discovery, readiness pruning, routing, policy evidence, retry/cancel evidence, development-agent replay and command evidence, and a self-bootstrap release-gate bundle without requiring provider credentials.
 
 The discovery path can be overridden with:
 
 - `GOPACT_A2A_REGISTRY_FILE`
 - `GOPACT_A2A_REGISTRY_URL`
 - `GOPACT_A2A_ENDPOINTS`
+
+`Mesh.SyncEnv` imports these sources, registers callable HTTP agents, prunes unready endpoints, and returns the final card snapshot used by the workflow.
 
 Run it from the repository root:
 
