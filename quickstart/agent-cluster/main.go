@@ -72,7 +72,14 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 	if err := exampleenv.LoadDotEnv(); err != nil {
 		return err
 	}
-	mesh, err := a2a.NewMesh(a2a.WithMeshRetryPolicy(a2a.MeshRetryPolicy{MaxAttempts: 2}))
+	meshEvents := []gopact.Event{}
+	mesh, err := a2a.NewMesh(
+		a2a.WithMeshRetryPolicy(a2a.MeshRetryPolicy{MaxAttempts: 2}),
+		a2a.WithMeshEventSink(func(_ context.Context, event gopact.Event) error {
+			meshEvents = append(meshEvents, event)
+			return nil
+		}),
+	)
 	if err != nil {
 		return err
 	}
@@ -247,7 +254,7 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 	if _, err := fmt.Fprintf(out, "cancel evidence: %s\n", cancelLine); err != nil {
 		return err
 	}
-	leaseLine, err := leaseHeartbeatLine(ctx, mesh, ids)
+	leaseLine, err := leaseHeartbeatLine(ctx, mesh, ids, &meshEvents)
 	if err != nil {
 		return err
 	}
@@ -682,7 +689,7 @@ func cancelReviewTask(ctx context.Context, mesh *a2a.Mesh, ids gopact.RuntimeIDs
 	return checkEvidenceSummary(check), nil
 }
 
-func leaseHeartbeatLine(ctx context.Context, mesh *a2a.Mesh, ids gopact.RuntimeIDs) (string, error) {
+func leaseHeartbeatLine(ctx context.Context, mesh *a2a.Mesh, ids gopact.RuntimeIDs, events *[]gopact.Event) (string, error) {
 	registration, err := mesh.RegisterWithLease(ctx, localAgent{
 		card:   a2a.AgentCard{Name: "lease-agent", Capabilities: []string{"lease.demo"}},
 		output: "lease active",
@@ -692,6 +699,10 @@ func leaseHeartbeatLine(ctx context.Context, mesh *a2a.Mesh, ids gopact.RuntimeI
 	}
 	if registration.Card.ExpiresAt.IsZero() {
 		return "", fmt.Errorf("lease-agent registration missing expiry")
+	}
+	eventStart := 0
+	if events != nil {
+		eventStart = len(*events)
 	}
 	renewed, err := mesh.Heartbeat(ctx, "lease-agent", 2*time.Minute)
 	if err != nil {
@@ -722,7 +733,19 @@ func leaseHeartbeatLine(ctx context.Context, mesh *a2a.Mesh, ids gopact.RuntimeI
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s renewed %s", card.Name, result.Output), nil
+	if events == nil || !hasEventType((*events)[eventStart:], gopact.EventA2AAgentHeartbeat) {
+		return "", fmt.Errorf("lease-agent heartbeat missing %s evidence", gopact.EventA2AAgentHeartbeat)
+	}
+	return fmt.Sprintf("%s renewed %s evidence=%s", card.Name, result.Output, gopact.EventA2AAgentHeartbeat), nil
+}
+
+func hasEventType(events []gopact.Event, eventType gopact.EventType) bool {
+	for _, event := range events {
+		if event.Type == eventType {
+			return true
+		}
+	}
+	return false
 }
 
 func recordA2ATaskCheck(agentName string, task a2a.Task, event a2a.TaskEvent) (gopact.VerificationCheck, error) {
