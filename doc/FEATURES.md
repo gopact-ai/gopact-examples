@@ -16,6 +16,7 @@ This matrix is the executable contract for `gopact-examples`. CI uses mocks, loc
 | A2A file registry scaffold | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | Not required |
 | core agent init/run scaffold | `quickstart/generated-agent` | `go test -count=1 ./quickstart/generated-agent` | Not required |
 | Plan-Execute workflow with replan, approval resume, and cancel | `quickstart/plan-exec` | `go test -count=1 ./quickstart/plan-exec` | Not required |
+| Supervisor routing to named Plan-Execute child agents | `quickstart/supervisor` | `go test -count=1 ./quickstart/supervisor` | Not required |
 | agent as tool success and failure evidence | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | Not required |
 | A2A local cluster + multi-source discovery + tag route + fallback + cancel | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
 | A2A local cluster expiry-aware discovery and lease heartbeat | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |

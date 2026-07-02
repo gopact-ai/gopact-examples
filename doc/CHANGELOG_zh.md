@@ -11,9 +11,10 @@
 ## Unreleased
 
 - 示例仓库跟进 `gopact` core `v0.0.34`，并在 agent cluster quickstart 中演示 A2A lease heartbeat renewal。
+- 增加 `quickstart/supervisor`，无凭据演示 supervisor 路由到具名 Plan-Execute 子 agent。
 - 重写根 README、quickstart README 和 `doc/` 文档，补齐示例定位、运行路径、环境变量、mock/integration 测试边界、安全和治理说明。
 - 保持 CI mock-only，并继续通过 `go test -tags=integration -count=1 ./quickstart/agnes-chat` 支持本地 Agnes provider 验证。
-- 明确无凭据 scaffold path：`react-agent`、`plan-exec`、`agent-as-tool`、`agent-cluster`。
+- 明确无凭据 scaffold path：`react-agent`、`plan-exec`、`supervisor`、`agent-as-tool`、`agent-cluster`。
 
 ## 2026-07-02
 

@@ -61,6 +61,11 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/plan-exec",
 		},
 		{
+			capability:  "Supervisor routing to named Plan-Execute child agents",
+			path:        "quickstart/supervisor",
+			mockCommand: "go test -count=1 ./quickstart/supervisor",
+		},
+		{
 			capability:  "agent as tool success and failure evidence",
 			path:        "quickstart/agent-as-tool",
 			mockCommand: "go test -count=1 ./quickstart/agent-as-tool",

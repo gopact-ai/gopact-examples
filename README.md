@@ -21,11 +21,12 @@ Start without credentials:
 ```bash
 go run ./quickstart/react-agent
 go run ./quickstart/plan-exec
+go run ./quickstart/supervisor
 go run ./quickstart/agent-as-tool
 go run ./quickstart/agent-cluster
 ```
 
-This path starts with a scripted ReAct agent, then adds Plan-Execute, agent-as-tool delegation, and a local A2A agent cluster. Use provider quickstarts after `.env` is configured.
+This path starts with a scripted ReAct agent, then adds Plan-Execute, supervisor routing, agent-as-tool delegation, and a local A2A agent cluster. Use provider quickstarts after `.env` is configured.
 
 ## Quickstarts
 
@@ -44,6 +45,7 @@ go run ./quickstart/openai-streaming
 go run ./quickstart/plan-exec
 go run ./quickstart/react-agent
 go run ./quickstart/structured-output
+go run ./quickstart/supervisor
 go run ./quickstart/tool-calling
 go run ./quickstart/workflow-graph
 ```
@@ -55,6 +57,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/agent-scaffold` | Checkpoint approval resume, verification bundle, and A2A file registry scaffold. | No |
 | `quickstart/generated-agent` | Core agent init/run scaffold generated through `gopact agent init`. | No |
 | `quickstart/plan-exec` | Plan-Execute workflow with replan, approval resume, and cancel. | No |
+| `quickstart/supervisor` | Supervisor routing to named Plan-Execute child agents. | No |
 | `quickstart/agent-as-tool` | Agent as tool success and failure evidence. | No |
 | `quickstart/agent-cluster` | A2A local cluster, multi-source discovery, tag route, fallback, policy, retry, cancel, and Dev Agent test and review evidence. | No |
 | `quickstart/openai-chat` | OpenAI-compatible chat. | Yes |
