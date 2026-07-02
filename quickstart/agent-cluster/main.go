@@ -156,7 +156,7 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 	if err != nil {
 		return err
 	}
-	featureChecks, featureSummary, err := fileSnapshotChecks(ctx, "FEATURES.md")
+	featureChecks, featureSummary, err := fileSnapshotChecks(ctx, "doc/FEATURES.md")
 	if err != nil {
 		return err
 	}

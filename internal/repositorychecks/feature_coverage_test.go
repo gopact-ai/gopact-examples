@@ -8,9 +8,9 @@ import (
 )
 
 func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
-	matrix := readText(t, "../../FEATURES.md")
+	matrix := readText(t, "../../doc/FEATURES.md")
 	readme := readText(t, "../../README.md")
-	if !strings.Contains(readme, "FEATURES.md") {
+	if !strings.Contains(readme, "doc/FEATURES.md") {
 		t.Fatal("README must link to FEATURES.md")
 	}
 

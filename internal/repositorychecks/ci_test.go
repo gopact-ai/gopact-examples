@@ -57,7 +57,7 @@ func TestExamplesOpenSourceGovernanceDocsArePresent(t *testing.T) {
 			},
 		},
 		{
-			path: "CONTRIBUTING.md",
+			path: "doc/CONTRIBUTING.md",
 			sections: []string{
 				"# Contributing to gopact-examples",
 				"## Development Setup",
@@ -66,7 +66,7 @@ func TestExamplesOpenSourceGovernanceDocsArePresent(t *testing.T) {
 			},
 		},
 		{
-			path: "SECURITY.md",
+			path: "doc/SECURITY.md",
 			sections: []string{
 				"# Security Policy",
 				"## Supported Versions",
@@ -74,14 +74,14 @@ func TestExamplesOpenSourceGovernanceDocsArePresent(t *testing.T) {
 			},
 		},
 		{
-			path: "CHANGELOG.md",
+			path: "doc/CHANGELOG.md",
 			sections: []string{
 				"# Changelog",
 				"## Unreleased",
 			},
 		},
 		{
-			path: "docs/maintainers/repository-governance.md",
+			path: "doc/maintainers/repository-governance.md",
 			sections: []string{
 				"# Repository Governance",
 				"## Pull Request Flow",
@@ -107,7 +107,7 @@ func TestExamplesPublicReadinessAndPRGovernanceAreConfigured(t *testing.T) {
 	readiness := readText(t, "../../scripts/public-readiness-check.sh")
 	prGovernance := readText(t, "../../.github/workflows/pr-governance.yml")
 	adminAutomerge := readText(t, "../../.github/workflows/admin-automerge.yml")
-	governanceDoc := readText(t, "../../docs/maintainers/repository-governance.md")
+	governanceDoc := readText(t, "../../doc/maintainers/repository-governance.md")
 
 	for _, want := range []string{
 		"permissions:",
