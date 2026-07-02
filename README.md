@@ -107,6 +107,7 @@ A2A cluster discovery reads:
 CI is mock-only. Run real provider tests explicitly from a local machine:
 
 ```bash
+./scripts/local-agnes-integration.sh
 go test -tags=integration -count=1 ./quickstart/agnes-chat
 ```
 
