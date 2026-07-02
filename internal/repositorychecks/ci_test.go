@@ -1,11 +1,15 @@
 package repositorychecks
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
+
+	"golang.org/x/mod/modfile"
+	"golang.org/x/mod/semver"
 )
 
 func TestExamplesCIMockGateIsDocumented(t *testing.T) {
@@ -171,8 +175,42 @@ func TestExamplesPublicReadinessAndPRGovernanceAreConfigured(t *testing.T) {
 
 func TestExamplesUsePatchedProtobuf(t *testing.T) {
 	goMod := readText(t, "../../go.mod")
-	if !strings.Contains(goMod, "google.golang.org/protobuf v1.33.0") {
-		t.Fatal("go.mod must keep google.golang.org/protobuf at patched v1.33.0")
+	if err := checkGoModModuleAtLeast(goMod, "go.mod", "google.golang.org/protobuf", "v1.33.0"); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGoModModuleVersionContractAcceptsFuturePatchedVersion(t *testing.T) {
+	goMod := `module example.test
+
+require (
+	google.golang.org/protobuf v1.34.1
+)
+`
+	if err := checkGoModModuleAtLeast(goMod, "test/go.mod", "google.golang.org/protobuf", "v1.33.0"); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGoModModuleVersionContractRejectsVulnerableRequire(t *testing.T) {
+	goMod := `module example.test
+
+require google.golang.org/protobuf v1.32.0
+`
+	if err := checkGoModModuleAtLeast(goMod, "test/go.mod", "google.golang.org/protobuf", "v1.33.0"); err == nil {
+		t.Fatal("expected vulnerable protobuf require to fail")
+	}
+}
+
+func TestGoModModuleVersionContractRejectsVulnerableReplace(t *testing.T) {
+	goMod := `module example.test
+
+require google.golang.org/protobuf v1.34.0
+
+replace google.golang.org/protobuf => google.golang.org/protobuf v1.32.0
+`
+	if err := checkGoModModuleAtLeast(goMod, "test/go.mod", "google.golang.org/protobuf", "v1.33.0"); err == nil {
+		t.Fatal("expected vulnerable protobuf replace to fail")
 	}
 }
 
@@ -353,4 +391,51 @@ func quickstartCommands(readme string) []string {
 	}
 	slices.Sort(commands)
 	return commands
+}
+
+func checkGoModModuleAtLeast(goMod, path, module, minVersion string) error {
+	file, err := modfile.Parse(path, []byte(goMod), nil)
+	if err != nil {
+		return fmt.Errorf("parse %s: %w", path, err)
+	}
+
+	requiredVersion := ""
+	for _, requirement := range file.Require {
+		if requirement.Mod.Path == module {
+			requiredVersion = requirement.Mod.Version
+			break
+		}
+	}
+	if requiredVersion == "" {
+		return fmt.Errorf("%s must require %s >= %s", path, module, minVersion)
+	}
+	if err := checkStableSemverAtLeast(requiredVersion, minVersion); err != nil {
+		return fmt.Errorf("%s requires %s %s: %w", path, module, requiredVersion, err)
+	}
+
+	for _, replacement := range file.Replace {
+		if replacement.Old.Path != module {
+			continue
+		}
+		if replacement.New.Version == "" {
+			return fmt.Errorf("%s replaces %s with %s without a verifiable module version", path, module, replacement.New.Path)
+		}
+		if err := checkStableSemverAtLeast(replacement.New.Version, minVersion); err != nil {
+			return fmt.Errorf("%s replaces %s with %s %s: %w", path, module, replacement.New.Path, replacement.New.Version, err)
+		}
+	}
+	return nil
+}
+
+func checkStableSemverAtLeast(version, minVersion string) error {
+	if !semver.IsValid(version) || semver.Prerelease(version) != "" {
+		return fmt.Errorf("version %q is not a stable Go semver", version)
+	}
+	if !semver.IsValid(minVersion) || semver.Prerelease(minVersion) != "" {
+		return fmt.Errorf("minimum version %q is not a stable Go semver", minVersion)
+	}
+	if semver.Compare(version, minVersion) < 0 {
+		return fmt.Errorf("version must be >= %s", minVersion)
+	}
+	return nil
 }
