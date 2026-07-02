@@ -55,7 +55,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/plan-exec` | Plan-Execute、replan、approval resume、cancel 测试覆盖。 | 否 |
 | `quickstart/supervisor` | supervisor 路由到具名 Plan-Execute 子 agent。 | 否 |
 | `quickstart/agent-as-tool` | 父 ReAct agent 将 Plan-Execute 子 agent 当作 tool 调用。 | 否 |
-| `quickstart/agent-cluster` | 本地 A2A cluster、multi-source discovery、policy、retry、cancel、dev-agent evidence。 | 否 |
+| `quickstart/agent-cluster` | 本地 A2A cluster、multi-source discovery、policy、retry、cancel、dev-agent replay 和 command evidence。 | 否 |
 | `quickstart/openai-chat` | OpenAI-compatible chat completions。 | 是 |
 | `quickstart/openai-streaming` | OpenAI Chat Completions 和 Responses 两种 streaming API。 | 是 |
 | `quickstart/tool-calling` | OpenAI-compatible model tool calling。 | 是 |
