@@ -12,6 +12,14 @@ GOPACT_LLM_TOKEN=your-agnes-token
 GOPACT_LLM_MODEL=agnes-2.0-flash
 ```
 
+You can also use Agnes-specific credentials:
+
+```dotenv
+GOPACT_AGNES_API_KEY=your-agnes-token
+GOPACT_AGNES_SK=your-agnes-token
+GOPACT_AGNES_MODEL=agnes-2.0-flash
+```
+
 ## Run
 
 ```bash

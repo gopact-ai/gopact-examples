@@ -75,6 +75,7 @@ func TestQuickstartsAreDocumentedAndTested(t *testing.T) {
 func TestAgnesLocalIntegrationCommandIsDocumented(t *testing.T) {
 	readme := readText(t, "../../README.md")
 	envExample := readText(t, "../../.env.example")
+	quickstartReadme := readText(t, "../../quickstart/agnes-chat/README.md")
 
 	command := "go test -tags=integration -count=1 ./quickstart/agnes-chat"
 	if !strings.Contains(readme, command) {
@@ -86,6 +87,9 @@ func TestAgnesLocalIntegrationCommandIsDocumented(t *testing.T) {
 		}
 		if !strings.Contains(envExample, key) {
 			t.Fatalf(".env.example missing Agnes credential variable %q", key)
+		}
+		if !strings.Contains(quickstartReadme, key) {
+			t.Fatalf("quickstart/agnes-chat/README.md missing Agnes credential variable %q", key)
 		}
 	}
 }
