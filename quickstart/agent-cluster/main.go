@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	"github.com/gopact-ai/gopact"
 	"github.com/gopact-ai/gopact-examples/internal/exampleenv"
@@ -238,6 +239,13 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "cancel evidence: %s\n", cancelLine); err != nil {
+		return err
+	}
+	leaseLine, err := leaseHeartbeatLine(ctx, mesh, ids)
+	if err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "a2a lease heartbeat: %s\n", leaseLine); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "policy events: %s\n", strings.Join(state.PolicyLabels, " -> ")); err != nil {
@@ -640,6 +648,49 @@ func cancelReviewTask(ctx context.Context, mesh *a2a.Mesh, ids gopact.RuntimeIDs
 		return "", err
 	}
 	return checkEvidenceSummary(check), nil
+}
+
+func leaseHeartbeatLine(ctx context.Context, mesh *a2a.Mesh, ids gopact.RuntimeIDs) (string, error) {
+	registration, err := mesh.RegisterWithLease(ctx, localAgent{
+		card:   a2a.AgentCard{Name: "lease-agent", Capabilities: []string{"lease.demo"}},
+		output: "lease active",
+	}, time.Minute)
+	if err != nil {
+		return "", err
+	}
+	if registration.Card.ExpiresAt.IsZero() {
+		return "", fmt.Errorf("lease-agent registration missing expiry")
+	}
+	renewed, err := mesh.Heartbeat(ctx, "lease-agent", 2*time.Minute)
+	if err != nil {
+		return "", err
+	}
+	if !renewed.ExpiresAt.After(registration.Card.ExpiresAt) {
+		return "", fmt.Errorf(
+			"lease-agent heartbeat expiry %s did not renew %s",
+			renewed.ExpiresAt.Format(time.RFC3339Nano),
+			registration.Card.ExpiresAt.Format(time.RFC3339Nano),
+		)
+	}
+	card, err := mesh.Card(ctx, "lease-agent")
+	if err != nil {
+		return "", err
+	}
+	if !card.ExpiresAt.Equal(renewed.ExpiresAt) {
+		return "", fmt.Errorf(
+			"lease-agent card expiry %s, want renewed expiry %s",
+			card.ExpiresAt.Format(time.RFC3339Nano),
+			renewed.ExpiresAt.Format(time.RFC3339Nano),
+		)
+	}
+	result, err := mesh.Route(ctx, a2a.RouteQuery{
+		Require: []string{"lease.demo"},
+		Task:    a2a.Task{ID: "lease-task", IDs: ids, Input: "lease check"},
+	})
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s renewed %s", card.Name, result.Output), nil
 }
 
 func recordA2ATaskCheck(agentName string, task a2a.Task, event a2a.TaskEvent) (gopact.VerificationCheck, error) {
