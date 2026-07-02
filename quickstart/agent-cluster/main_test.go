@@ -32,7 +32,7 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 	got := out.String()
 	for _, want := range []string{
 		"gateway: accepted self-bootstrap slice",
-		"bootstrap discovery: 4 file registry agent cards",
+		"sync env discovery: 4 file registry agent cards",
 		"cards: planner-agent, research-agent, code-agent, review-agent",
 		"workflow events: run_started -> node_started(planner-agent) -> node_completed(planner-agent) -> node_started(research-agent) -> node_completed(research-agent) -> node_started(code-agent) -> node_completed(code-agent) -> node_started(review-agent) -> node_completed(review-agent) -> run_completed",
 		"run export: completed events=10 steps=4 verification_reports=1",
@@ -146,7 +146,7 @@ func TestRunBootstrapsConfiguredFileRegistry(t *testing.T) {
 
 	got := out.String()
 	for _, want := range []string{
-		"bootstrap discovery: 4 configured file registry agent cards",
+		"sync env discovery: 4 configured file registry agent cards",
 		"cards: planner-agent, research-agent, code-agent, review-agent",
 		"summary: local agent cluster completed 4 calls",
 	} {
@@ -169,7 +169,7 @@ func TestRunBootstrapsConfiguredHTTPEndpoints(t *testing.T) {
 
 	got := out.String()
 	for _, want := range []string{
-		"bootstrap discovery: 4 configured HTTP endpoints agent cards",
+		"sync env discovery: 4 configured HTTP endpoints agent cards",
 		"cards: planner-agent, research-agent, code-agent, review-agent",
 		"summary: local agent cluster completed 4 calls",
 	} {
@@ -228,7 +228,7 @@ func TestRunBootstrapsConfiguredHTTPRegistryURL(t *testing.T) {
 
 	got := out.String()
 	for _, want := range []string{
-		"bootstrap discovery: 4 configured HTTP registry agent cards",
+		"sync env discovery: 4 configured HTTP registry agent cards",
 		"cards: planner-agent, research-agent, code-agent, review-agent",
 		"summary: local agent cluster completed 4 calls",
 	} {
@@ -255,7 +255,7 @@ func TestRunBootstrapsConfiguredDiscoverySources(t *testing.T) {
 
 	got := out.String()
 	for _, want := range []string{
-		"bootstrap discovery: 4 configured discovery sources agent cards",
+		"sync env discovery: 4 configured discovery sources agent cards",
 		"cards: planner-agent, research-agent, code-agent, review-agent",
 		"summary: local agent cluster completed 4 calls",
 	} {

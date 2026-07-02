@@ -119,7 +119,7 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 	if _, err := fmt.Fprintln(out, "gateway: accepted self-bootstrap slice"); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintf(out, "bootstrap discovery: %d %s agent cards\n", len(cards), discoverySource); err != nil {
+	if _, err := fmt.Fprintf(out, "sync env discovery: %d %s agent cards\n", len(cards), discoverySource); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "cards: %s\n", cardNames(cards)); err != nil {
@@ -293,12 +293,12 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 }
 
 func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []localAgent) ([]a2a.AgentCard, string, func(), error) {
-	bootstrap, sources, err := mesh.BootstrapEnv(ctx, os.Getenv, a2a.WithHTTPReadinessCheck())
+	sync, err := mesh.SyncEnv(ctx, os.Getenv, a2a.WithHTTPReadinessCheck())
 	if err != nil {
 		return nil, "", func() {}, err
 	}
-	if len(sources) > 0 {
-		return bootstrap.Cards, configuredDiscoveryLabel(sources), func() {}, nil
+	if len(sync.Sources) > 0 {
+		return sync.Cards, configuredDiscoveryLabel(sync.Sources), func() {}, nil
 	}
 
 	servers := make([]*httptest.Server, 0, len(agents))
@@ -331,15 +331,17 @@ func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []local
 	if err := registryFile.Close(); err != nil {
 		return nil, "", cleanupFile, err
 	}
-	discoverer, err := a2a.NewFileDiscoverer(registryPath)
+	lookup := func(key string) string {
+		if key == a2a.EnvA2ARegistryFile {
+			return registryPath
+		}
+		return ""
+	}
+	sync, err = mesh.SyncEnv(ctx, lookup, a2a.WithHTTPReadinessCheck())
 	if err != nil {
 		return nil, "", cleanupFile, err
 	}
-	bootstrap, err = mesh.Bootstrap(ctx, discoverer)
-	if err != nil {
-		return nil, "", cleanupFile, err
-	}
-	return bootstrap.Cards, "file registry", cleanupFile, nil
+	return sync.Cards, "file registry", cleanupFile, nil
 }
 
 func configuredDiscoveryLabel(sources []string) string {

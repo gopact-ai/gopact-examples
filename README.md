@@ -59,7 +59,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/plan-exec` | Plan-Execute workflow with replan, approval resume, and cancel. | No |
 | `quickstart/supervisor` | Supervisor routing to named Plan-Execute child agents. | No |
 | `quickstart/agent-as-tool` | Agent as tool success and failure evidence. | No |
-| `quickstart/agent-cluster` | A2A local cluster, multi-source discovery, tag route, fallback, policy, retry, cancel, and Dev Agent test, review, replay, and command evidence. | No |
+| `quickstart/agent-cluster` | A2A local cluster, `Mesh.SyncEnv` discovery, tag route, fallback, policy, retry, cancel, and Dev Agent test, review, replay, and command evidence. | No |
 | `quickstart/openai-chat` | OpenAI-compatible chat. | Yes |
 | `quickstart/openai-streaming` | OpenAI-compatible streaming. | Yes |
 | `quickstart/tool-calling` | Tool calling through an OpenAI-compatible provider. | Yes |
@@ -101,6 +101,8 @@ A2A cluster discovery reads:
 - `GOPACT_A2A_REGISTRY_FILE`
 - `GOPACT_A2A_REGISTRY_URL`
 - `GOPACT_A2A_ENDPOINTS`
+
+The agent-cluster quickstart uses `Mesh.SyncEnv` to import env-configured cards, register callable HTTP agents, and prune unready endpoints before routing tasks.
 
 ## Integration Tests
 
