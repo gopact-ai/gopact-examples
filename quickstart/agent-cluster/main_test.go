@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
@@ -142,6 +144,40 @@ func TestRunBootstrapsConfiguredHTTPEndpoints(t *testing.T) {
 		if !strings.Contains(got, want) {
 			t.Fatalf("output = %q, want %q", got, want)
 		}
+	}
+}
+
+func TestConfiguredHTTPEndpointDiscoveryRequiresReadiness(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/.well-known/agent-card.json":
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(a2a.AgentCard{
+				Name:   "planner-agent",
+				Health: &a2a.HealthHints{ReadinessPath: "/readyz"},
+			})
+		case "/readyz":
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusServiceUnavailable)
+			_ = json.NewEncoder(w).Encode(map[string]string{"status": "not_ready"})
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("GOPACT_A2A_REGISTRY_FILE", " ")
+	t.Setenv("GOPACT_A2A_REGISTRY_URL", " ")
+	t.Setenv("GOPACT_A2A_ENDPOINTS", server.URL)
+
+	mesh, err := a2a.NewMesh()
+	if err != nil {
+		t.Fatalf("NewMesh() error = %v", err)
+	}
+	_, _, cleanup, err := bootstrapAgentDiscovery(context.Background(), mesh, nil)
+	defer cleanup()
+	if !errors.Is(err, a2a.ErrHTTPStatus) {
+		t.Fatalf("bootstrapAgentDiscovery() error = %v, want ErrHTTPStatus", err)
 	}
 }
 
