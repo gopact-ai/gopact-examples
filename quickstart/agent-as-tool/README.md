@@ -3,22 +3,23 @@
 [![CI](https://github.com/gopact-ai/gopact-examples/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gopact-ai/gopact-examples/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/gopact-ai/gopact-examples)](../../LICENSE)
 
-
 <!-- gopact:doc-language: zh,en -->
 
 ## 中文
 
-本文档是 gopact 开源文档集的一部分，中文内容用于说明当前仓库约束、能力或维护流程。
-
-## English
-
-This document is part of the gopact open-source documentation set. The English section gives an entry point for readers who prefer English, while the remaining sections preserve the maintained technical details.
-
-
-Run a parent ReAct agent that delegates one task to a Plan-Exec child agent exposed as a normal tool.
+这个示例演示父 ReAct agent 如何把一个 Plan-Execute 子 agent 当作普通 tool 调用。整个流程使用 scripted local model，不需要真实 provider credential。
 
 ```bash
 go run ./quickstart/agent-as-tool
 ```
 
-This example uses only scripted local models. It demonstrates `agenttool.New`, `a2a.NewRunnableAgent`, child A2A completion evidence, failure evidence propagation, and runtime identity propagation without external credentials.
+它覆盖：
+
+- `a2a.NewRunnableAgent` 将 runnable agent 包装成 A2A agent。
+- `agenttool.New` 将 A2A agent 转成 `gopact.ToolFunc`。
+- 父 agent 通过 tool call 委托子 agent。
+- 子 agent 的 completion evidence、failure evidence 和 runtime IDs 回传给父 run。
+
+## English
+
+This example shows a parent ReAct agent delegating work to a Plan-Execute child agent exposed as a normal tool. It uses scripted local models only and does not require provider credentials.

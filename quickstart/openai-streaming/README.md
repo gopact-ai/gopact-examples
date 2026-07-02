@@ -3,23 +3,14 @@
 [![CI](https://github.com/gopact-ai/gopact-examples/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gopact-ai/gopact-examples/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/gopact-ai/gopact-examples)](../../LICENSE)
 
-
 <!-- gopact:doc-language: zh,en -->
 
 ## 中文
 
-本文档是 gopact 开源文档集的一部分，中文内容用于说明当前仓库约束、能力或维护流程。
+这个示例通过 `gopact-ext/models/openai` 同时演示两种 OpenAI API surface 的 streaming：
 
-## English
-
-This document is part of the gopact open-source documentation set. The English section gives an entry point for readers who prefer English, while the remaining sections preserve the maintained technical details.
-
-
-Stream both OpenAI API surfaces through `gopact-ext/models/openai`.
-
-## Configure
-
-Create `.env` at the repository root:
+- `openai.WithChatCompletionsAPI()` 使用 `/chat/completions` 和 `messages` payload。
+- `openai.WithResponsesAPI()` 使用 `/responses` 和 `input` payload。
 
 ```dotenv
 GOPACT_LLM_BASEURL=https://api.openai.com/v1
@@ -27,13 +18,12 @@ GOPACT_LLM_TOKEN=your-token
 GOPACT_LLM_MODEL=gpt-4o-mini
 ```
 
-## Run
-
 ```bash
 go run ./quickstart/openai-streaming
 ```
 
-## Notes
+优先使用 Chat Completions 兼容面接通多数 provider；当 provider 支持 Responses、rich content part 或 reasoning delta 时，再使用 Responses。
 
-- `openai.WithChatCompletionsAPI()` streams from `/chat/completions` and sends a `messages` payload. This is the common OpenAI-compatible chat API.
-- `openai.WithResponsesAPI()` streams from `/responses` and sends an `input` payload. Use it when the provider supports the Responses API, richer content parts, or reasoning deltas.
+## English
+
+This example streams both OpenAI API surfaces through `gopact-ext/models/openai`: Chat Completions and Responses. It demonstrates that `Stream` uses the same provider-neutral `gopact.ModelRequest` contract.

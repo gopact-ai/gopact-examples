@@ -3,21 +3,11 @@
 [![CI](https://github.com/gopact-ai/gopact-examples/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gopact-ai/gopact-examples/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/gopact-ai/gopact-examples)](../../LICENSE)
 
-
 <!-- gopact:doc-language: zh,en -->
 
 ## 中文
 
-本文档是 gopact 开源文档集的一部分，中文内容用于说明当前仓库约束、能力或维护流程。
-
-## English
-
-This document is part of the gopact open-source documentation set. The English section gives an entry point for readers who prefer English, while the remaining sections preserve the maintained technical details.
-
-
-Stream an Ark OpenAI-compatible Responses call through `gopact-ext/models/openai`.
-The example runs both `thinking=disabled` and `thinking=enabled` with `max_output_tokens=1024`.
-Reasoning tokens count against the output budget, so tiny values like `64` can finish with reasoning-only output on thinking models.
+这个示例把 Ark endpoint 作为 OpenAI-compatible Responses API 使用，通过 `gopact-ext/models/openai` 演示 streaming。它会分别运行 `thinking=disabled` 和 `thinking=enabled`，并使用 `max_output_tokens=1024` 避免 thinking 模型只返回 reasoning 而没有可见文本。
 
 ```bash
 GOPACT_LLM_BASEURL=https://ark.cn-beijing.volces.com/api/v3 \
@@ -25,3 +15,9 @@ GOPACT_LLM_TOKEN=your-ark-api-key \
 GOPACT_LLM_MODEL=your-ark-endpoint-id \
 go run ./quickstart/ark-streaming
 ```
+
+如果要测试 Ark SDK provider，请使用 `quickstart/ark-chat`。
+
+## English
+
+This example treats an Ark endpoint as an OpenAI-compatible Responses API and streams through `gopact-ext/models/openai`. It runs both thinking-disabled and thinking-enabled requests with a reasonable output budget.
