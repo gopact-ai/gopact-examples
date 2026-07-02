@@ -52,6 +52,7 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 		"review stream: running(reviewing evidence) -> completed(review: pass)",
 		"route fallback: code-agent missing tag -> code-agent completed",
 		"cancel evidence: review-agent canceled",
+		"a2a lease heartbeat: lease-agent renewed lease active",
 		"policy events: policy_requested -> policy_decided",
 		"policy deny: policy_requested -> policy_decided deny",
 		"policy review: policy_requested -> policy_decided review",

@@ -18,7 +18,7 @@ This matrix is the executable contract for `gopact-examples`. CI uses mocks, loc
 | Plan-Execute workflow with replan, approval resume, and cancel | `quickstart/plan-exec` | `go test -count=1 ./quickstart/plan-exec` | Not required |
 | agent as tool success and failure evidence | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | Not required |
 | A2A local cluster + multi-source discovery + tag route + fallback + cancel | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
-| A2A local cluster expiry-aware discovery | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
+| A2A local cluster expiry-aware discovery and lease heartbeat | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
 | A2A local cluster readiness-gated endpoint discovery | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
 | A2A local cluster run export golden trajectory | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
 | A2A local cluster policy deny and review | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
