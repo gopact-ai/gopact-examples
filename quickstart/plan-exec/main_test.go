@@ -22,7 +22,8 @@ func TestRunShowsPlanExecuteFlow(t *testing.T) {
 	got := out.String()
 	for _, want := range []string{
 		"events: run_started -> node_started(plan) -> node_completed(plan) -> node_started(execute) -> node_completed(execute) -> node_started(summarize) -> node_completed(summarize) -> run_completed",
-		"results: draft=done draft, review=done review",
+		"trace: plan -> replan -> execute -> summarize",
+		"results: draft-retry=done draft-retry, review=done review",
 		"summary: completed 2 steps",
 	} {
 		if !strings.Contains(got, want) {

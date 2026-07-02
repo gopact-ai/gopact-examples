@@ -56,7 +56,7 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/generated-agent",
 		},
 		{
-			capability:  "Plan-Execute workflow with approval resume and cancel",
+			capability:  "Plan-Execute workflow with replan, approval resume, and cancel",
 			path:        "quickstart/plan-exec",
 			mockCommand: "go test -count=1 ./quickstart/plan-exec",
 		},
