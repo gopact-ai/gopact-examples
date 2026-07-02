@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gopact-ai/gopact"
 	"github.com/gopact-ai/gopact/a2a"
@@ -193,6 +194,59 @@ func TestRunBootstrapsConfiguredDiscoverySources(t *testing.T) {
 		if !strings.Contains(got, want) {
 			t.Fatalf("output = %q, want %q", got, want)
 		}
+	}
+}
+
+func TestAgentClusterSkipsExpiredDiscoveredAgents(t *testing.T) {
+	ctx := context.Background()
+	mesh, err := a2a.NewMesh()
+	if err != nil {
+		t.Fatalf("NewMesh() error = %v", err)
+	}
+	expired := a2a.FakeAgent{
+		CardValue: a2a.AgentCard{
+			Name:         "expired-code-agent",
+			Capabilities: []string{"code.write"},
+			ExpiresAt:    time.Now().Add(-time.Minute),
+		},
+		SendFunc: func(context.Context, a2a.Task) (a2a.Result, error) {
+			return a2a.Result{Output: "expired"}, nil
+		},
+	}
+	active := a2a.FakeAgent{
+		CardValue: a2a.AgentCard{
+			Name:         "active-code-agent",
+			Capabilities: []string{"code.write"},
+			ExpiresAt:    time.Now().Add(time.Minute),
+		},
+		SendFunc: func(context.Context, a2a.Task) (a2a.Result, error) {
+			return a2a.Result{Output: "active"}, nil
+		},
+	}
+	if _, err := mesh.Register(ctx, expired); err != nil {
+		t.Fatalf("Register(expired) error = %v", err)
+	}
+	if _, err := mesh.Register(ctx, active); err != nil {
+		t.Fatalf("Register(active) error = %v", err)
+	}
+
+	cards, err := mesh.ListCards(ctx)
+	if err != nil {
+		t.Fatalf("ListCards() error = %v", err)
+	}
+	if len(cards) != 1 || cards[0].Name != "active-code-agent" {
+		t.Fatalf("ListCards() = %+v, want only active-code-agent", cards)
+	}
+
+	result, err := mesh.Route(ctx, a2a.RouteQuery{
+		Require: []string{"code.write"},
+		Task:    a2a.Task{ID: "task-1"},
+	})
+	if err != nil {
+		t.Fatalf("Route() error = %v", err)
+	}
+	if result.Output != "active" {
+		t.Fatalf("Route() output = %q, want active", result.Output)
 	}
 }
 

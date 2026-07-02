@@ -71,6 +71,11 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/agent-cluster",
 		},
 		{
+			capability:  "A2A local cluster expiry-aware discovery",
+			path:        "quickstart/agent-cluster",
+			mockCommand: "go test -count=1 ./quickstart/agent-cluster",
+		},
+		{
 			capability:  "A2A local cluster run export golden trajectory",
 			path:        "quickstart/agent-cluster",
 			mockCommand: "go test -count=1 ./quickstart/agent-cluster",
