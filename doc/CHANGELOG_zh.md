@@ -10,7 +10,8 @@
 
 ## Unreleased
 
-- 示例仓库跟进 `gopact` core `v0.0.40` 和当前 `gopact-ext` 发布 tag。
+- 示例仓库跟进 `gopact` core `v0.0.41` 和当前 `gopact-ext` 发布 tag。
+- 增加 `quickstart/agent-node`，演示将 A2A 子 agent 挂成 typed graph node，并保留嵌套 evidence。
 - agent cluster quickstart 覆盖 `Mesh.SyncEnv` 与 `Mesh.SyncEnvEvery`，演示环境变量驱动的 A2A discovery、HTTP agent 注册、readiness pruning 和 registry changes。
 - agent cluster quickstart 演示 A2A lease heartbeat evidence、replay evidence 和 command evidence。
 - 增加 `quickstart/supervisor`，无凭据演示 supervisor 路由到具名 Plan-Execute 子 agent。

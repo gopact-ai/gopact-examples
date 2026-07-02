@@ -23,10 +23,11 @@ go run ./quickstart/react-agent
 go run ./quickstart/plan-exec
 go run ./quickstart/supervisor
 go run ./quickstart/agent-as-tool
+go run ./quickstart/agent-node
 go run ./quickstart/agent-cluster
 ```
 
-This path starts with a scripted ReAct agent, then adds Plan-Execute, supervisor routing, agent-as-tool delegation, and a local A2A agent cluster. Use provider quickstarts after `.env` is configured.
+This path starts with a scripted ReAct agent, then adds Plan-Execute, supervisor routing, agent-as-tool delegation, agent-as-graph-node composition, and a local A2A agent cluster. Use provider quickstarts after `.env` is configured.
 
 ## Quickstarts
 
@@ -35,6 +36,7 @@ Run examples from the repository root:
 ```bash
 go run ./quickstart/agent-as-tool
 go run ./quickstart/agent-cluster
+go run ./quickstart/agent-node
 go run ./quickstart/agent-scaffold
 go run ./quickstart/agnes-chat
 go run ./quickstart/ark-chat
@@ -59,6 +61,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/plan-exec` | Plan-Execute workflow with replan, approval resume, and cancel. | No |
 | `quickstart/supervisor` | Supervisor routing to named Plan-Execute child agents. | No |
 | `quickstart/agent-as-tool` | Agent as tool success and failure evidence. | No |
+| `quickstart/agent-node` | A2A child agent mounted as a typed graph node with nested evidence. | No |
 | `quickstart/agent-cluster` | A2A local cluster, `Mesh.SyncEnv`/`Mesh.SyncEnvEvery` discovery, tag route, fallback, policy, retry, cancel, and Dev Agent test, review, replay, and command evidence. | No |
 | `quickstart/openai-chat` | OpenAI-compatible chat. | Yes |
 | `quickstart/openai-streaming` | OpenAI-compatible streaming. | Yes |
