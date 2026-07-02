@@ -272,7 +272,7 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 }
 
 func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []localAgent) ([]a2a.AgentCard, string, func(), error) {
-	bootstrap, sources, err := mesh.BootstrapEnv(ctx, os.Getenv)
+	bootstrap, sources, err := mesh.BootstrapEnv(ctx, os.Getenv, a2a.WithHTTPReadinessCheck())
 	if err != nil {
 		return nil, "", func() {}, err
 	}
