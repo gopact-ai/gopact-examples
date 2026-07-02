@@ -17,11 +17,12 @@ Start without credentials:
 ```bash
 go run ./quickstart/react-agent
 go run ./quickstart/plan-exec
+go run ./quickstart/supervisor
 go run ./quickstart/agent-as-tool
 go run ./quickstart/agent-cluster
 ```
 
-这条路径从单个 scripted ReAct agent 开始，逐步扩展到 Plan-Execute、agent-as-tool 委托和本地 A2A agent cluster。Use provider quickstarts after `.env` is configured.
+这条路径从单个 scripted ReAct agent 开始，逐步扩展到 Plan-Execute、supervisor 路由、agent-as-tool 委托和本地 A2A agent cluster。配置 `.env` 后再运行 provider quickstart。
 
 ## Quickstarts
 
@@ -40,6 +41,7 @@ go run ./quickstart/openai-streaming
 go run ./quickstart/plan-exec
 go run ./quickstart/react-agent
 go run ./quickstart/structured-output
+go run ./quickstart/supervisor
 go run ./quickstart/tool-calling
 go run ./quickstart/workflow-graph
 ```
@@ -51,6 +53,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/agent-scaffold` | checkpoint、approval interrupt/resume、verification bundle、A2A file registry。 | 否 |
 | `quickstart/generated-agent` | 调用 core `gopact agent init`，验证生成 agent 的 run 和 registry。 | 否 |
 | `quickstart/plan-exec` | Plan-Execute、replan、approval resume、cancel 测试覆盖。 | 否 |
+| `quickstart/supervisor` | supervisor 路由到具名 Plan-Execute 子 agent。 | 否 |
 | `quickstart/agent-as-tool` | 父 ReAct agent 将 Plan-Execute 子 agent 当作 tool 调用。 | 否 |
 | `quickstart/agent-cluster` | 本地 A2A cluster、multi-source discovery、policy、retry、cancel、dev-agent evidence。 | 否 |
 | `quickstart/openai-chat` | OpenAI-compatible chat completions。 | 是 |

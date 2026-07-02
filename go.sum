@@ -37,6 +37,8 @@ github.com/gopact-ai/gopact-ext/agents/planexec v0.2.15 h1:ALQW4QbHpUvnhfJiwsubw
 github.com/gopact-ai/gopact-ext/agents/planexec v0.2.15/go.mod h1:BQ3eaTGBD9rFRv/KvEfBYBouKlQjAlwUUWrah3gTXh4=
 github.com/gopact-ai/gopact-ext/agents/react v0.2.13 h1:aXf/rqDJvvkEXlrBAYmzhPzfRElfe88xSuOFbJFu/jg=
 github.com/gopact-ai/gopact-ext/agents/react v0.2.13/go.mod h1:ji51o+6qm3fruNj/8x418oZYyGfISduGmTfnRay6XKw=
+github.com/gopact-ai/gopact-ext/agents/supervisor v0.1.1 h1:axowrMRIaVocXx5kd2OEDtk8oNfpzA5Jms9ZRDfH5Cs=
+github.com/gopact-ai/gopact-ext/agents/supervisor v0.1.1/go.mod h1:pn51usZLdCTgK3I76txHUtq7vvpGNueFdXnm9BciWsM=
 github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.12 h1:4K4DPOb6lmWliA0NJheiBRf1st5jqxijziZmsF8xfEw=
 github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.12/go.mod h1:PKjDmecHLhthUlYeZkl77q8M6DCRhyqX+7ZxCI9tv8M=
 github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.12 h1:8qliVwVWQ1Y9Ti5DbKALreBZkNw0aL7fWDxpAVOZlos=
