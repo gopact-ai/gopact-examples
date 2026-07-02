@@ -265,6 +265,53 @@ func TestRunBootstrapsConfiguredDiscoverySources(t *testing.T) {
 	}
 }
 
+func TestAgentClusterContinuousEnvSyncTracksRegistryChanges(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	cards, _ := startTestAgentServers(t, testClusterAgents())
+	registryFile := writeAgentRegistry(t, cards[:1])
+	writeRegistry := func(cards []a2a.AgentCard) {
+		raw, err := json.Marshal(cards)
+		if err != nil {
+			t.Fatalf("Marshal(cards) error = %v", err)
+		}
+		if err := os.WriteFile(registryFile, raw, 0o600); err != nil {
+			t.Fatalf("WriteFile(registry) error = %v", err)
+		}
+	}
+	mesh, err := a2a.NewMesh()
+	if err != nil {
+		t.Fatalf("NewMesh() error = %v", err)
+	}
+
+	var snapshots []string
+	for result, err := range mesh.SyncEnvEvery(ctx, time.Millisecond, func(key string) string {
+		if key == a2a.EnvA2ARegistryFile {
+			return registryFile
+		}
+		return ""
+	}, a2a.WithHTTPReadinessCheck()) {
+		if err != nil {
+			t.Fatalf("SyncEnvEvery() error = %v", err)
+		}
+		snapshots = append(snapshots, cardNames(result.Cards))
+		switch len(snapshots) {
+		case 1:
+			if got, want := snapshots[0], "planner-agent"; got != want {
+				t.Fatalf("first SyncEnvEvery() cards = %v, want %v", got, want)
+			}
+			writeRegistry(cards[:2])
+		case 2:
+			if got, want := snapshots[1], "planner-agent, research-agent"; got != want {
+				t.Fatalf("second SyncEnvEvery() cards = %v, want %v", got, want)
+			}
+			cancel()
+			return
+		}
+	}
+	t.Fatalf("SyncEnvEvery() yielded %d snapshots, want 2", len(snapshots))
+}
+
 func TestAgentClusterSkipsExpiredDiscoveredAgents(t *testing.T) {
 	ctx := context.Background()
 	mesh, err := a2a.NewMesh()
