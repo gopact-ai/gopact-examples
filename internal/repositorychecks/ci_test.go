@@ -214,6 +214,18 @@ replace google.golang.org/protobuf => google.golang.org/protobuf v1.32.0
 	}
 }
 
+func TestGoModModuleVersionContractRejectsDifferentReplacePath(t *testing.T) {
+	goMod := `module example.test
+
+require google.golang.org/protobuf v1.34.0
+
+replace google.golang.org/protobuf => example.com/protobuf v1.34.0
+`
+	if err := checkGoModModuleAtLeast(goMod, "test/go.mod", "google.golang.org/protobuf", "v1.33.0"); err == nil {
+		t.Fatal("expected protobuf replace to a different module path to fail")
+	}
+}
+
 func TestExamplesCIWorkflowOptimizesIndependentGatesForParallelFeedback(t *testing.T) {
 	workflow := readText(t, "../../.github/workflows/ci.yml")
 
@@ -416,6 +428,9 @@ func checkGoModModuleAtLeast(goMod, path, module, minVersion string) error {
 	for _, replacement := range file.Replace {
 		if replacement.Old.Path != module {
 			continue
+		}
+		if replacement.New.Path != module {
+			return fmt.Errorf("%s replaces %s with different module path %s", path, module, replacement.New.Path)
 		}
 		if replacement.New.Version == "" {
 			return fmt.Errorf("%s replaces %s with %s without a verifiable module version", path, module, replacement.New.Path)
