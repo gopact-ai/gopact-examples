@@ -43,6 +43,132 @@ func TestExamplesCIMockGateIsDocumented(t *testing.T) {
 	}
 }
 
+func TestExamplesOpenSourceGovernanceDocsArePresent(t *testing.T) {
+	readme := readText(t, "../../README.md")
+	for _, doc := range []struct {
+		path     string
+		sections []string
+	}{
+		{
+			path: "LICENSE",
+			sections: []string{
+				"MIT License",
+				"Permission is hereby granted",
+			},
+		},
+		{
+			path: "CONTRIBUTING.md",
+			sections: []string{
+				"# Contributing to gopact-examples",
+				"## Development Setup",
+				"## Verification",
+				"## Pull Request Checklist",
+			},
+		},
+		{
+			path: "SECURITY.md",
+			sections: []string{
+				"# Security Policy",
+				"## Supported Versions",
+				"## Reporting a Vulnerability",
+			},
+		},
+		{
+			path: "CHANGELOG.md",
+			sections: []string{
+				"# Changelog",
+				"## Unreleased",
+			},
+		},
+		{
+			path: "docs/maintainers/repository-governance.md",
+			sections: []string{
+				"# Repository Governance",
+				"## Pull Request Flow",
+				"## Admin Auto-Merge",
+				"## Public Release Checks",
+			},
+		},
+	} {
+		body := readText(t, "../../"+doc.path)
+		for _, section := range doc.sections {
+			if !strings.Contains(body, section) {
+				t.Fatalf("%s missing section %q", doc.path, section)
+			}
+		}
+		if !strings.Contains(readme, doc.path) {
+			t.Fatalf("README missing governance doc link %q", doc.path)
+		}
+	}
+}
+
+func TestExamplesPublicReadinessAndPRGovernanceAreConfigured(t *testing.T) {
+	workflow := readText(t, "../../.github/workflows/ci.yml")
+	readiness := readText(t, "../../scripts/public-readiness-check.sh")
+	prGovernance := readText(t, "../../.github/workflows/pr-governance.yml")
+	adminAutomerge := readText(t, "../../.github/workflows/admin-automerge.yml")
+	governanceDoc := readText(t, "../../docs/maintainers/repository-governance.md")
+
+	for _, want := range []string{
+		"permissions:",
+		"contents: read",
+		"fetch-depth: 0",
+		"./scripts/public-readiness-check.sh",
+	} {
+		if !strings.Contains(workflow, want) {
+			t.Fatalf("CI workflow missing public readiness control %q", want)
+		}
+	}
+	for _, want := range []string{
+		"git ls-files -- .env '.env.*'",
+		"git rev-list --all",
+		"commit message",
+		"api-key-[0-9]{14,}",
+		"sk-vx[[:alnum:]_-]{20,}",
+		"ep-[0-9]{14}-[[:alnum:]_-]+",
+	} {
+		if !strings.Contains(readiness, want) {
+			t.Fatalf("public readiness script missing %q", want)
+		}
+	}
+	for _, want := range []string{
+		"name: pr-governance",
+		"pull_request_target:",
+		"pull_request_review:",
+		"author-policy",
+		"collaborators/${author}/permission",
+		"== \"APPROVED\"",
+	} {
+		if !strings.Contains(prGovernance, want) {
+			t.Fatalf("PR governance workflow missing %q", want)
+		}
+	}
+	for _, want := range []string{
+		"name: admin-automerge",
+		"pull_request_target:",
+		"gh pr merge",
+		"--auto",
+		"--squash",
+		"--delete-branch",
+		"!= \"admin\"",
+	} {
+		if !strings.Contains(adminAutomerge, want) {
+			t.Fatalf("admin automerge workflow missing %q", want)
+		}
+	}
+	for _, want := range []string{
+		"author-policy",
+		"Admin-authored PRs",
+		"Non-admin-authored PRs",
+		"Do not configure a global required review count",
+		"Require status checks to pass",
+	} {
+		if !strings.Contains(governanceDoc, want) {
+			t.Fatalf("repository governance doc missing %q", want)
+		}
+	}
+}
+
 func TestQuickstartsAreDocumentedAndTested(t *testing.T) {
 	entries, err := os.ReadDir("../../quickstart")
 	if err != nil {

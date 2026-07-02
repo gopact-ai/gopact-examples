@@ -4,6 +4,14 @@ Runnable examples for `github.com/gopact-ai/gopact` and official extensions.
 
 See [FEATURES.md](./FEATURES.md) for the executable capability coverage matrix.
 
+Governance and release hygiene:
+
+- [LICENSE](./LICENSE)
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [SECURITY.md](./SECURITY.md)
+- [CHANGELOG.md](./CHANGELOG.md)
+- [docs/maintainers/repository-governance.md](./docs/maintainers/repository-governance.md)
+
 ## Configuration
 
 Examples read these environment variables:
