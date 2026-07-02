@@ -223,6 +223,7 @@ func TestAgnesLocalIntegrationCommandIsDocumented(t *testing.T) {
 	readme := readText(t, "../../README.md")
 	envExample := readText(t, "../../.env.example")
 	quickstartReadme := readText(t, "../../quickstart/agnes-chat/README.md")
+	script := readText(t, "../../scripts/local-agnes-integration.sh")
 
 	command := "go test -tags=integration -count=1 ./quickstart/agnes-chat"
 	if !strings.Contains(readme, command) {
@@ -230,6 +231,12 @@ func TestAgnesLocalIntegrationCommandIsDocumented(t *testing.T) {
 	}
 	if !strings.Contains(quickstartReadme, command) {
 		t.Fatalf("quickstart/agnes-chat/README.md missing Agnes integration command %q", command)
+	}
+	if !strings.Contains(readme, "./scripts/local-agnes-integration.sh") {
+		t.Fatal("README missing local Agnes integration script")
+	}
+	if !strings.Contains(script, command) {
+		t.Fatalf("local Agnes integration script missing command %q", command)
 	}
 	for _, key := range []string{"GOPACT_AGNES_API_KEY", "GOPACT_AGNES_SK", "GOPACT_LLM_TOKEN"} {
 		if !strings.Contains(readme, key) {

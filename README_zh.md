@@ -103,6 +103,7 @@ A2A cluster discovery 支持：
 CI 必须保持 mock-only。真实 provider 测试只在本地显式运行：
 
 ```bash
+./scripts/local-agnes-integration.sh
 go test -tags=integration -count=1 ./quickstart/agnes-chat
 ```
 
