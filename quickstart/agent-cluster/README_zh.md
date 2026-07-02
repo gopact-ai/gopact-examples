@@ -6,7 +6,7 @@
 
 ## 中文
 
-这个示例在本地拉起一个 A2A-style agent cluster，不需要外部服务或模型凭据。它展示 planner、research、code、review 四个垂域 agent 如何通过 `a2a.Mesh` 自动发现、路由和协作，并用 `Mesh.SyncEnv` 完成环境变量驱动的 discovery、HTTP agent 注册和 readiness pruning。
+这个示例在本地拉起一个 A2A-style agent cluster，不需要外部服务或模型凭据。它展示 planner、research、code、review 四个垂域 agent 如何通过 `a2a.Mesh` 自动发现、路由和协作，并用 `Mesh.SyncEnv` 与 `Mesh.SyncEnvEvery` 完成环境变量驱动的 discovery、HTTP agent 注册、readiness pruning 和连续 registry refresh。
 
 ```bash
 go run ./quickstart/agent-cluster
@@ -24,7 +24,7 @@ GOPACT_A2A_ENDPOINTS=http://localhost:8080,http://localhost:8081
 
 示例覆盖：
 
-- `Mesh.SyncEnv` multi-source A2A discovery、tag route、fallback 和 readiness-gated endpoint discovery。
+- `Mesh.SyncEnv` / `Mesh.SyncEnvEvery` multi-source A2A discovery、tag route、fallback、readiness-gated endpoint discovery 和 continuous registry refresh。
 - checkpoint、resume、policy allow/deny/review、retry evidence、cancel evidence。
 - `RunExport` golden trajectory。
 - git diff、file snapshot、dev-agent replay 和 command evidence。
