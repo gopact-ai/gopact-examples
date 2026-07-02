@@ -1,16 +1,18 @@
 # gopact-examples
 
+#### Runnable examples for gopact workflows, providers, A2A discovery, and agent templates.
+
 [![CI](https://github.com/gopact-ai/gopact-examples/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gopact-ai/gopact-examples/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/gopact-ai/gopact-examples)](LICENSE)
 [![Go Reference](https://pkg.go.dev/badge/github.com/gopact-ai/gopact-examples.svg)](https://pkg.go.dev/github.com/gopact-ai/gopact-examples)
+[![License](https://img.shields.io/github/license/gopact-ai/gopact-examples)](LICENSE)
 
-<!-- gopact:doc-language: zh,en -->
+<!-- gopact:doc-language: en -->
 
-## 中文
+Chinese documentation: [README_zh.md](README_zh.md)
 
-`gopact-examples` 是 `github.com/gopact-ai/gopact` 和 `gopact-ext` 的可运行示例仓库。它的目标不是展示孤立代码片段，而是把 core workflow、agent template、provider adapter、A2A discovery、verification 和 dev-agent evidence 串成可以本地执行、可以被 CI 固化的用法。
+`gopact-examples` contains executable examples for [`gopact`](https://github.com/gopact-ai/gopact) and [`gopact-ext`](https://github.com/gopact-ai/gopact-ext). The repository favors complete local flows over isolated snippets: workflow graphs, agent templates, provider adapters, A2A discovery, verification, and development-agent evidence are all covered by tests.
 
-CI 使用 fake LLM server、scripted model 和本地 A2A agent，不需要真实 provider credential。真实 provider 示例保留为本地 opt-in 测试，必须由 `.env` 提供凭据。
+CI uses fake LLM servers, scripted models, and local A2A agents. Real provider checks are local opt-in tests driven by `.env`.
 
 ## Scaffold Path
 
@@ -23,11 +25,11 @@ go run ./quickstart/agent-as-tool
 go run ./quickstart/agent-cluster
 ```
 
-这条路径从单个 scripted ReAct agent 开始，逐步扩展到 Plan-Execute、agent-as-tool 委托和本地 A2A agent cluster。Use provider quickstarts after `.env` is configured.
+This path starts with a scripted ReAct agent, then adds Plan-Execute, agent-as-tool delegation, and a local A2A agent cluster. Use provider quickstarts after `.env` is configured.
 
 ## Quickstarts
 
-所有示例都可以从仓库根目录运行：
+Run examples from the repository root:
 
 ```bash
 go run ./quickstart/agent-as-tool
@@ -46,44 +48,44 @@ go run ./quickstart/tool-calling
 go run ./quickstart/workflow-graph
 ```
 
-| 示例 | 说明 | 是否需要真实凭据 |
+| Example | Demonstrates | Credentials |
 | --- | --- | --- |
-| `quickstart/react-agent` | scripted ReAct loop，演示本地 tool calling。 | 否 |
-| `quickstart/workflow-graph` | typed graph、branch fan-out/fan-in、subgraph、loop、step limit。 | 否 |
-| `quickstart/agent-scaffold` | checkpoint、approval interrupt/resume、verification bundle、A2A file registry。 | 否 |
-| `quickstart/generated-agent` | 调用 core `gopact agent init`，验证生成 agent 的 run 和 registry。 | 否 |
-| `quickstart/plan-exec` | Plan-Execute、replan、approval resume、cancel 测试覆盖。 | 否 |
-| `quickstart/agent-as-tool` | 父 ReAct agent 将 Plan-Execute 子 agent 当作 tool 调用。 | 否 |
-| `quickstart/agent-cluster` | 本地 A2A cluster、multi-source discovery、policy、retry、cancel、dev-agent evidence。 | 否 |
-| `quickstart/openai-chat` | OpenAI-compatible chat completions。 | 是 |
-| `quickstart/openai-streaming` | OpenAI Chat Completions 和 Responses 两种 streaming API。 | 是 |
-| `quickstart/tool-calling` | OpenAI-compatible model tool calling。 | 是 |
-| `quickstart/structured-output` | JSON schema structured output。 | 是 |
-| `quickstart/ark-chat` | Ark SDK provider。 | 是 |
-| `quickstart/ark-streaming` | Ark OpenAI-compatible Responses streaming。 | 是 |
-| `quickstart/agnes-chat` | Agnes provider。 | 是 |
+| `quickstart/react-agent` | Scripted ReAct loop and local tool calling. | No |
+| `quickstart/workflow-graph` | Typed graph, branch fan-out and fan-in, subgraph, loop, and step limit. | No |
+| `quickstart/agent-scaffold` | Checkpoint approval resume, verification bundle, and A2A file registry scaffold. | No |
+| `quickstart/generated-agent` | Core agent init/run scaffold generated through `gopact agent init`. | No |
+| `quickstart/plan-exec` | Plan-Execute workflow with replan, approval resume, and cancel. | No |
+| `quickstart/agent-as-tool` | Agent as tool success and failure evidence. | No |
+| `quickstart/agent-cluster` | A2A local cluster, multi-source discovery, tag route, fallback, policy, retry, cancel, and Dev Agent test and review evidence. | No |
+| `quickstart/openai-chat` | OpenAI-compatible chat. | Yes |
+| `quickstart/openai-streaming` | OpenAI-compatible streaming. | Yes |
+| `quickstart/tool-calling` | Tool calling through an OpenAI-compatible provider. | Yes |
+| `quickstart/structured-output` | Structured output through JSON schema. | Yes |
+| `quickstart/ark-chat` | Ark SDK provider. | Yes |
+| `quickstart/ark-streaming` | Ark OpenAI-compatible streaming. | Yes |
+| `quickstart/agnes-chat` | Agnes provider. | Yes |
 
-## 配置
+## Configuration
 
-默认情况下，示例会从当前目录或父目录加载 `.env`。`.env` 已在 `.gitignore` 中排除；仓库只提交 `.env.example`。
+Examples load `.env` from the current directory or a parent directory. `.env` is ignored; only `.env.example` is committed.
 
 ```bash
 cp .env.example .env
 ```
 
-通用 OpenAI-shaped provider 示例读取：
+OpenAI-shaped provider examples read:
 
 - `GOPACT_LLM_BASEURL`
 - `GOPACT_LLM_TOKEN`
 - `GOPACT_LLM_MODEL`
 
-Agnes 示例支持通用变量，也支持 provider-specific override：
+Agnes examples also support:
 
 - `GOPACT_AGNES_API_KEY`
 - `GOPACT_AGNES_SK`
 - `GOPACT_AGNES_MODEL`
 
-Ark SDK 示例读取：
+Ark SDK examples read:
 
 - `GOPACT_ARK_API_KEY`
 - `GOPACT_ARK_ACCESS_KEY`
@@ -91,23 +93,23 @@ Ark SDK 示例读取：
 - `GOPACT_ARK_MODEL`
 - `GOPACT_ARK_REGION`
 
-A2A cluster discovery 支持：
+A2A cluster discovery reads:
 
 - `GOPACT_A2A_REGISTRY_FILE`
 - `GOPACT_A2A_REGISTRY_URL`
 - `GOPACT_A2A_ENDPOINTS`
 
-## 本地集成测试
+## Integration Tests
 
-CI 必须保持 mock-only。真实 provider 测试只在本地显式运行：
+CI is mock-only. Run real provider tests explicitly from a local machine:
 
 ```bash
 go test -tags=integration -count=1 ./quickstart/agnes-chat
 ```
 
-## 开发验证
+## Verification
 
-提交 PR 前运行：
+Run the same gates before opening a pull request:
 
 ```bash
 git diff --check
@@ -122,17 +124,15 @@ go test -coverprofile=coverage.out ./...
 govulncheck ./...
 ```
 
-## 文档索引
+## Documentation
 
-- [doc/README.md](./doc/README.md)：文档地图与推荐阅读顺序。
-- [doc/FEATURES.md](./doc/FEATURES.md)：可执行能力覆盖矩阵。
-- [doc/CONTRIBUTING.md](./doc/CONTRIBUTING.md)：贡献流程、本地验证和 PR 要求。
-- [doc/SECURITY.md](./doc/SECURITY.md)：安全策略与漏洞报告方式。
-- [doc/CHANGELOG.md](./doc/CHANGELOG.md)：变更记录。
-- [doc/maintainers/repository-governance.md](./doc/maintainers/repository-governance.md)：PR-only、CI 门禁、admin auto-merge 和公开前检查。
+- [doc/README.md](doc/README.md): documentation index.
+- [doc/FEATURES.md](doc/FEATURES.md): executable capability matrix.
+- [doc/CONTRIBUTING.md](doc/CONTRIBUTING.md): development setup, local checks, and pull request rules.
+- [doc/SECURITY.md](doc/SECURITY.md): security policy and vulnerability reporting.
+- [doc/CHANGELOG.md](doc/CHANGELOG.md): user-visible changes.
+- [doc/maintainers/repository-governance.md](doc/maintainers/repository-governance.md): PR-only flow, CI gates, admin auto-merge, and public repository governance.
 
-## English
+## Contributing
 
-`gopact-examples` provides runnable examples for `github.com/gopact-ai/gopact` and `gopact-ext`. The repository demonstrates complete flows rather than isolated snippets: core workflow graphs, agent templates, provider adapters, A2A discovery, verification, and development-agent evidence.
-
-Start with the no-credential scaffold path, then move to provider quickstarts after local `.env` values are configured. CI is mock-only; real provider checks are opt-in local integration tests.
+Keep examples runnable from the repository root, covered by mock tests, and documented with the exact command users should run. Provider credentials belong only in local `.env` files.
