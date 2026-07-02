@@ -13,6 +13,7 @@ require (
 	github.com/gopact-ai/gopact-ext/models/agnes v0.1.16
 	github.com/gopact-ai/gopact-ext/models/ark v0.2.13
 	github.com/gopact-ai/gopact-ext/models/openai v0.5.15
+	golang.org/x/mod v0.37.0
 )
 
 require (
