@@ -4,9 +4,16 @@
 
 ## 中文
 
-本文档目录保存 `gopact-examples` 除根 README 和 quickstart README 之外的项目文档。根 README 负责快速运行入口；quickstart README 负责单个示例；`doc/` 维护能力矩阵、贡献流程、安全策略、变更记录和维护者流程。
+`doc/` 保存 `gopact-examples` 的项目级文档。根 README 面向第一次运行示例的用户；quickstart README 面向单个示例；本目录记录能力覆盖、贡献流程、安全策略、变更记录和维护者治理规则。
 
-## 索引
+推荐阅读顺序：
+
+1. 先读根 [README](../README.md)，选择无凭据 scaffold path 或 provider quickstart。
+2. 再读 [FEATURES.md](FEATURES.md)，确认每个能力对应的可执行测试。
+3. 修改示例前读 [CONTRIBUTING.md](CONTRIBUTING.md)，按同一套命令本地验证。
+4. 发布或开放仓库前读 [maintainers/repository-governance.md](maintainers/repository-governance.md)。
+
+## 文档索引
 
 - [FEATURES.md](FEATURES.md)：examples 可执行能力覆盖矩阵。
 - [CONTRIBUTING.md](CONTRIBUTING.md)：贡献流程与本地验证要求。
@@ -16,12 +23,6 @@
 
 ## English
 
-This directory stores `gopact-examples` project documentation other than the root README and quickstart READMEs. The root README is the quick-run entry point; quickstart READMEs document individual examples; `doc/` maintains the capability matrix, contribution flow, security policy, changelog, and maintainer process.
+`doc/` stores repository-level documentation for `gopact-examples`. The root README helps users choose a runnable path, quickstart READMEs explain individual examples, and this directory records capability coverage, contribution rules, security handling, release history, and maintainer governance.
 
-## Index
-
-- [FEATURES.md](FEATURES.md): executable capability coverage matrix for examples.
-- [CONTRIBUTING.md](CONTRIBUTING.md): contribution flow and local verification requirements.
-- [SECURITY.md](SECURITY.md): vulnerability reporting and security handling policy.
-- [CHANGELOG.md](CHANGELOG.md): changelog.
-- [maintainers/repository-governance.md](maintainers/repository-governance.md): PR, CI, auto-merge, and pre-public checks.
+Read the root README first, then use [FEATURES.md](FEATURES.md) to see which behavior is locked by tests. Maintainers should also read the governance document before changing repository visibility, branch rules, or release gates.

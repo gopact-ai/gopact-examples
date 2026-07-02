@@ -4,35 +4,32 @@
 
 ## 中文
 
-本文档是 gopact 开源文档集的一部分，中文内容用于说明当前仓库约束、能力或维护流程。
-
-## English
-
-This document is part of the gopact open-source documentation set. The English section gives an entry point for readers who prefer English, while the remaining sections preserve the maintained technical details.
-
+`gopact-examples` 展示 provider、tool、A2A agent 和工程证据的完整调用路径，因此安全要求重点放在凭据隔离和可公开日志上。默认示例必须能在没有真实 provider credential 的 CI 中运行。
 
 ## Supported Versions
 
-`gopact-examples` follows the latest `main` branch and the latest released
-`gopact` / `gopact-ext` versions used by the examples.
+`gopact-examples` 跟随 `main` 分支以及 `go.mod` 中声明的最新 `gopact` / `gopact-ext` 版本。仓库进入稳定版本线后，本节会改为明确的支持版本表。
 
 ## Reporting a Vulnerability
 
-Do not open a public issue for suspected vulnerabilities. Report privately to
-the maintainers through the gopact-ai organization owner channel until a
-dedicated security advisory process is enabled.
+不要为疑似漏洞创建公开 issue。请通过 `gopact-ai` 组织维护者私有渠道报告，直到仓库启用 GitHub Security Advisory 流程。
 
-Include:
+报告时请包含：
 
-- affected example path
-- reproduction steps
-- impact and trust boundary
-- whether provider credentials, prompts, tool payloads, artifacts, or external
-  tokens may be exposed
+- 受影响的 quickstart 或 internal package。
+- 最小复现步骤。
+- 影响边界：provider token、prompt、tool args/result、artifact、A2A event、本地文件或用户数据。
+- 是否已在 fork、CI log、issue、PR 评论或 commit message 中暴露敏感信息。
 
-## Handling Guidelines
+处理要求：
 
-- Do not include secrets, tokens, raw prompts, raw model responses, raw tool
-  args/results, or private customer data in issues, tests, examples, or logs.
-- Keep `.env` local and use `.env.example` for placeholders only.
-- CI must use mock services and must not require real provider credentials.
+- `.env` 必须保持本地文件，`.env.example` 只能包含占位值。
+- CI 不读取 `.env`，不要求真实 provider credential。
+- public readiness check 必须扫描 tracked file 和 commit message 中的高置信敏感模式。
+- 示例输出不得打印真实 token、原始密钥、完整私有 prompt 或客户数据。
+
+## English
+
+`gopact-examples` demonstrates provider, tool, A2A, and engineering-evidence flows. The security baseline is credential isolation and public-safe logs. Default examples must run in CI without real provider credentials.
+
+Do not open public issues for suspected vulnerabilities. Report privately through the `gopact-ai` maintainer channel until GitHub Security Advisory handling is enabled.

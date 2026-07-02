@@ -3,28 +3,34 @@
 [![CI](https://github.com/gopact-ai/gopact-examples/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gopact-ai/gopact-examples/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/gopact-ai/gopact-examples)](../../LICENSE)
 
-
 <!-- gopact:doc-language: zh,en -->
 
 ## 中文
 
-本文档是 gopact 开源文档集的一部分，中文内容用于说明当前仓库约束、能力或维护流程。
-
-## English
-
-This document is part of the gopact open-source documentation set. The English section gives an entry point for readers who prefer English, while the remaining sections preserve the maintained technical details.
-
-
-Run a local A2A-style agent cluster without external services or model credentials.
+这个示例在本地拉起一个 A2A-style agent cluster，不需要外部服务或模型凭据。它展示 planner、research、code、review 四个垂域 agent 如何通过 `a2a.Mesh` 自动发现、路由和协作。
 
 ```bash
 go run ./quickstart/agent-cluster
 ```
 
-This example starts four local HTTP agents, bootstraps their agent cards through `a2a.Mesh`, and executes a `graph` workflow across planner, research, code, and review agents. The gateway calls agents by name, records graph runtime events into a `RunExport`, captures local git diff, file snapshot, and A2A task evidence, builds a self-bootstrap release gate bundle, writes local checkpoints, resumes from the latest checkpoint, prints artifact handoff refs, gates the review stream through policy, records policy allow/deny/review evidence, records tag-route fallback evidence, records retry evidence, records cancel evidence, records failure attribution for a missing remote agent, and consumes the review agent as a stream.
+默认模式会创建临时本地 agent-card registry。也可以通过环境变量切换 discovery 来源：
 
-Set `GOPACT_A2A_REGISTRY_FILE=./agents.json` to bootstrap from an existing agent-card file instead of the demo's temporary local registry.
-Set `GOPACT_A2A_REGISTRY_URL=http://localhost:8080/agents.json` to bootstrap from an HTTP agent-card registry document.
-Set `GOPACT_A2A_ENDPOINTS=http://localhost:8080,http://localhost:8081` to bootstrap by fetching each endpoint's well-known agent card. If multiple discovery variables are set, the example bootstraps all configured sources in file, registry URL, then endpoint order.
+```bash
+GOPACT_A2A_REGISTRY_FILE=./agents.json
+GOPACT_A2A_REGISTRY_URL=http://localhost:8080/agents.json
+GOPACT_A2A_ENDPOINTS=http://localhost:8080,http://localhost:8081
+```
 
-CI runs this example with local mock agents only and fixes the cluster `RunExport` event sequence with a golden trajectory. Provider-backed examples use `.env` for local integration testing and are kept separate from this cluster smoke test.
+如果多个 discovery 变量同时存在，示例按 file、registry URL、endpoint 的顺序加载并合并。
+
+示例覆盖：
+
+- multi-source A2A discovery、tag route、fallback 和 readiness-gated endpoint discovery。
+- checkpoint、resume、policy allow/deny/review、retry evidence、cancel evidence。
+- `RunExport` golden trajectory。
+- git diff、file snapshot 和 dev-agent evidence。
+- self-bootstrap release gate bundle。
+
+## English
+
+This example runs a local A2A-style agent cluster with planner, research, code, and review agents. It demonstrates multi-source discovery, routing, policy evidence, retry/cancel evidence, development-agent evidence, and a self-bootstrap release-gate bundle without requiring provider credentials.
