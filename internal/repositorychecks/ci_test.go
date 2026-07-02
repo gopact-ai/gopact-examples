@@ -113,7 +113,7 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 	generatedAgent := readText(t, "../../quickstart/generated-agent/main.go")
 
 	for _, requirement := range []string{
-		"github.com/gopact-ai/gopact v0.0.30",
+		"github.com/gopact-ai/gopact v0.0.31",
 		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.13",
 		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.13",
 		"github.com/gopact-ai/gopact-ext/agents/react v0.2.12",
@@ -127,8 +127,8 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 			t.Fatalf("go.mod missing current released module %q", requirement)
 		}
 	}
-	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.30"`) {
-		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.30")
+	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.31"`) {
+		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.31")
 	}
 }
 

@@ -272,15 +272,11 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 }
 
 func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []localAgent) ([]a2a.AgentCard, string, func(), error) {
-	listers, sources, err := a2a.NewEnvCardListers(os.Getenv)
+	bootstrap, sources, err := mesh.BootstrapEnv(ctx, os.Getenv)
 	if err != nil {
 		return nil, "", func() {}, err
 	}
-	if len(listers) > 0 {
-		bootstrap, err := mesh.Bootstrap(ctx, listers...)
-		if err != nil {
-			return nil, "", func() {}, err
-		}
+	if len(sources) > 0 {
 		return bootstrap.Cards, configuredDiscoveryLabel(sources), func() {}, nil
 	}
 
@@ -318,7 +314,7 @@ func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []local
 	if err != nil {
 		return nil, "", cleanupFile, err
 	}
-	bootstrap, err := mesh.Bootstrap(ctx, discoverer)
+	bootstrap, err = mesh.Bootstrap(ctx, discoverer)
 	if err != nil {
 		return nil, "", cleanupFile, err
 	}
