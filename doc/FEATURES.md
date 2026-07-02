@@ -25,6 +25,7 @@ This matrix is the executable contract for `gopact-examples`. CI uses mocks, loc
 | A2A local cluster policy deny and review | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
 | A2A local cluster retry evidence | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
 | Dev Agent test and review evidence | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
+| Dev Agent replay and command evidence | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
 | OpenAI-compatible chat | `quickstart/openai-chat` | `go test -count=1 ./quickstart/openai-chat` | Not required |
 | OpenAI-compatible streaming | `quickstart/openai-streaming` | `go test -count=1 ./quickstart/openai-streaming` | Not required |
 | tool calling | `quickstart/tool-calling` | `go test -count=1 ./quickstart/tool-calling` | Not required |
