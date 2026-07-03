@@ -87,6 +87,11 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/self-bootstrap",
 		},
 		{
+			capability:  "core release-bundle CLI with observed verification report",
+			path:        "quickstart/release-bundle",
+			mockCommand: "go test -count=1 ./quickstart/release-bundle",
+		},
+		{
 			capability:  "A2A child agent as typed graph node with nested evidence",
 			path:        "quickstart/agent-node",
 			mockCommand: "go test -count=1 ./quickstart/agent-node",

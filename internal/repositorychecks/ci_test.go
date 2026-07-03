@@ -352,6 +352,7 @@ func TestSelfBootstrapMockSuiteIsExecutableAndUsedByCI(t *testing.T) {
 		"go test -count=1 ./quickstart/supervisor",
 		"go test -count=1 ./quickstart/agent-as-tool",
 		"go test -count=1 ./quickstart/self-bootstrap",
+		"go test -count=1 ./quickstart/release-bundle",
 		"go test -count=1 ./quickstart/agent-node",
 		"go test -count=1 ./quickstart/agent-cluster",
 		"go test -count=1 ./quickstart/openai-chat",
@@ -493,7 +494,7 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 	generatedCluster := readText(t, "../../quickstart/generated-cluster/main.go")
 
 	for _, requirement := range []string{
-		"github.com/gopact-ai/gopact v0.0.48",
+		"github.com/gopact-ai/gopact v0.0.49",
 		"github.com/gopact-ai/gopact-ext/agents/agentnode v0.1.4",
 		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.23",
 		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.24",
@@ -512,11 +513,11 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 			t.Fatalf("go.mod missing current released module %q", requirement)
 		}
 	}
-	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.48"`) {
-		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.48")
+	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.49"`) {
+		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.49")
 	}
-	if !strings.Contains(generatedCluster, `gopactVersion = "v0.0.48"`) {
-		t.Fatal("quickstart/generated-cluster must exercise gopact agent init-cluster at current core SDK v0.0.48")
+	if !strings.Contains(generatedCluster, `gopactVersion = "v0.0.49"`) {
+		t.Fatal("quickstart/generated-cluster must exercise gopact agent init-cluster at current core SDK v0.0.49")
 	}
 }
 
@@ -530,6 +531,7 @@ func TestScaffoldPathUsesCredentialFreeQuickstarts(t *testing.T) {
 		"go run ./quickstart/supervisor",
 		"go run ./quickstart/agent-as-tool",
 		"go run ./quickstart/self-bootstrap",
+		"go run ./quickstart/release-bundle",
 		"go run ./quickstart/agent-node",
 		"go run ./quickstart/agent-cluster",
 		"Use provider quickstarts after `.env` is configured.",
