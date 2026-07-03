@@ -21,7 +21,7 @@ func TestRunShowsSelfBootstrapWorkflow(t *testing.T) {
 	for _, want := range []string{
 		"self-bootstrap: dev agent workflow",
 		"objective: ship a tested SDK slice",
-		"workspace: temp git repo + local go test gate",
+		"workspace: temp git repo + patch apply + local go test gate",
 		"workflow: analyze -> plan -> write -> test -> review",
 		"evidence: ci_gate, command, diff, file_snapshot, review, run_export",
 		"report: passed checks=6 failures=0",
@@ -99,8 +99,13 @@ func requireWorkspaceEvidence(t *testing.T, result demoResult) {
 	if len(write.FileSnapshots) != 1 || write.FileSnapshots[0].Path != "hello.go" {
 		t.Fatalf("file snapshots = %+v, want repo-relative hello.go snapshot", write.FileSnapshots)
 	}
-	if write.FileSnapshots[0].Metadata["source"] != "workspace" {
-		t.Fatalf("snapshot metadata = %+v, want workspace source", write.FileSnapshots[0].Metadata)
+	if write.FileSnapshots[0].Metadata["source"] != "workspace" ||
+		write.FileSnapshots[0].Metadata["patch_id"] != "quickstart-hello-patch" ||
+		write.FileSnapshots[0].Metadata["patch_applied"] != true {
+		t.Fatalf("snapshot metadata = %+v, want workspace patch metadata", write.FileSnapshots[0].Metadata)
+	}
+	if write.Metadata["patch_id"] != "quickstart-hello-patch" || write.Metadata["patch_applied"] != true {
+		t.Fatalf("write metadata = %+v, want patch apply metadata", write.Metadata)
 	}
 
 	test := result.Workflow.Test
