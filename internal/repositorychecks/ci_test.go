@@ -366,16 +366,16 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 
 	for _, requirement := range []string{
 		"github.com/gopact-ai/gopact v0.0.42",
-		"github.com/gopact-ai/gopact-ext/agents/agentnode v0.1.0",
-		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.19",
-		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.20",
-		"github.com/gopact-ai/gopact-ext/agents/react v0.2.18",
-		"github.com/gopact-ai/gopact-ext/agents/supervisor v0.1.6",
-		"github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.17",
-		"github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.17",
-		"github.com/gopact-ai/gopact-ext/models/agnes v0.1.21",
-		"github.com/gopact-ai/gopact-ext/models/ark v0.2.18",
-		"github.com/gopact-ai/gopact-ext/models/openai v0.5.20",
+		"github.com/gopact-ai/gopact-ext/agents/agentnode v0.1.1",
+		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.20",
+		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.21",
+		"github.com/gopact-ai/gopact-ext/agents/react v0.2.19",
+		"github.com/gopact-ai/gopact-ext/agents/supervisor v0.1.7",
+		"github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.18",
+		"github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.18",
+		"github.com/gopact-ai/gopact-ext/models/agnes v0.1.22",
+		"github.com/gopact-ai/gopact-ext/models/ark v0.2.19",
+		"github.com/gopact-ai/gopact-ext/models/openai v0.5.21",
 	} {
 		if !strings.Contains(goMod, requirement) {
 			t.Fatalf("go.mod missing current released module %q", requirement)
