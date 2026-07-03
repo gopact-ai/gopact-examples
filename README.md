@@ -24,6 +24,7 @@ go run ./quickstart/plan-exec
 go run ./quickstart/supervisor
 go run ./quickstart/agent-as-tool
 go run ./quickstart/background-scheduler
+go run ./quickstart/self-bootstrap
 go run ./quickstart/agent-node
 go run ./quickstart/agent-cluster
 ```
@@ -37,6 +38,7 @@ Run examples from the repository root:
 ```bash
 go run ./quickstart/agent-as-tool
 go run ./quickstart/background-scheduler
+go run ./quickstart/self-bootstrap
 go run ./quickstart/agent-cluster
 go run ./quickstart/agent-node
 go run ./quickstart/agent-scaffold
@@ -64,6 +66,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/supervisor` | Supervisor routing to named Plan-Execute child agents. | No |
 | `quickstart/agent-as-tool` | Agent as tool success and failure evidence. | No |
 | `quickstart/background-scheduler` | Leased background jobs with retry, dead-letter, drain, and schedule evidence. | No |
+| `quickstart/self-bootstrap` | Dev Agent self-bootstrap workflow with run export, failure attribution, and verification report evidence. | No |
 | `quickstart/agent-node` | A2A child agent mounted as a typed graph node with nested evidence. | No |
 | `quickstart/agent-cluster` | A2A local cluster, mesh-level HTTP options, `Mesh.SyncEnv`/`Mesh.SyncEnvEvery` discovery, tag route, fallback, policy, retry, cancel, and Dev Agent test, review, replay, and command evidence. | No |
 | `quickstart/openai-chat` | OpenAI-compatible chat. | Yes |

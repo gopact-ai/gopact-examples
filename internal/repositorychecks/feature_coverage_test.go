@@ -77,6 +77,11 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/background-scheduler",
 		},
 		{
+			capability:  "Dev Agent self-bootstrap workflow with run export, failure attribution, and verification report evidence",
+			path:        "quickstart/self-bootstrap",
+			mockCommand: "go test -count=1 ./quickstart/self-bootstrap",
+		},
+		{
 			capability:  "A2A child agent as typed graph node with nested evidence",
 			path:        "quickstart/agent-node",
 			mockCommand: "go test -count=1 ./quickstart/agent-node",
