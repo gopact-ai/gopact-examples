@@ -494,30 +494,30 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 	generatedCluster := readText(t, "../../quickstart/generated-cluster/main.go")
 
 	for _, requirement := range []string{
-		"github.com/gopact-ai/gopact v0.0.50",
-		"github.com/gopact-ai/gopact-ext/agents/agentnode v0.1.6",
-		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.25",
-		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.26",
-		"github.com/gopact-ai/gopact-ext/agents/react v0.2.24",
-		"github.com/gopact-ai/gopact-ext/agents/scheduler v0.1.3",
-		"github.com/gopact-ai/gopact-ext/agents/supervisor v0.1.12",
-		"github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.23",
-		"github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.23",
-		"github.com/gopact-ai/gopact-ext/devagent/selfbootstrap v0.1.4",
-		"github.com/gopact-ai/gopact-ext/devagent/workspace v0.1.5",
-		"github.com/gopact-ai/gopact-ext/models/agnes v0.1.27",
-		"github.com/gopact-ai/gopact-ext/models/ark v0.2.24",
-		"github.com/gopact-ai/gopact-ext/models/openai v0.5.26",
+		"github.com/gopact-ai/gopact v0.0.51",
+		"github.com/gopact-ai/gopact-ext/agents/agentnode v0.1.7",
+		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.26",
+		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.27",
+		"github.com/gopact-ai/gopact-ext/agents/react v0.2.25",
+		"github.com/gopact-ai/gopact-ext/agents/scheduler v0.1.4",
+		"github.com/gopact-ai/gopact-ext/agents/supervisor v0.1.13",
+		"github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.24",
+		"github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.24",
+		"github.com/gopact-ai/gopact-ext/devagent/selfbootstrap v0.1.5",
+		"github.com/gopact-ai/gopact-ext/devagent/workspace v0.1.6",
+		"github.com/gopact-ai/gopact-ext/models/agnes v0.1.28",
+		"github.com/gopact-ai/gopact-ext/models/ark v0.2.25",
+		"github.com/gopact-ai/gopact-ext/models/openai v0.5.27",
 	} {
 		if !strings.Contains(goMod, requirement) {
 			t.Fatalf("go.mod missing current released module %q", requirement)
 		}
 	}
-	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.50"`) {
-		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.50")
+	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.51"`) {
+		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.51")
 	}
-	if !strings.Contains(generatedCluster, `gopactVersion = "v0.0.50"`) {
-		t.Fatal("quickstart/generated-cluster must exercise gopact agent init-cluster at current core SDK v0.0.50")
+	if !strings.Contains(generatedCluster, `gopactVersion = "v0.0.51"`) {
+		t.Fatal("quickstart/generated-cluster must exercise gopact agent init-cluster at current core SDK v0.0.51")
 	}
 }
 
