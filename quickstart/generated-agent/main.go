@@ -22,7 +22,7 @@ type registryAgent struct {
 }
 
 const (
-	gopactVersion = "v0.0.49"
+	gopactVersion = "v0.0.50"
 	agentName     = "generated-agent"
 )
 
