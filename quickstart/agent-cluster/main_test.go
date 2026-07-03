@@ -44,6 +44,7 @@ func TestRunShowsLocalAgentCluster(t *testing.T) {
 		"dev agent evidence: unit gate passed -> review approved",
 		"release gate: passed checks=",
 		"requirements=15",
+		"replay plan evidence: replay-plan:self-bootstrap run_effect_replay_plan",
 		"replay evidence: run-effect-replay:self-bootstrap run_effect_replay",
 		"command evidence: command:(cd gopact-ext/models/agnes && go test -tags=integration -count=1 ./...)",
 		"command:(cd gopact-ext/tests/agents && go test -tags=integration -count=1 ./...)",
@@ -119,6 +120,9 @@ func TestRunExportCarriesReplayAndCommandEvidence(t *testing.T) {
 
 	replayCheck := requireVerificationCheck(t, report, gopacttest.SelfBootstrapCheckRunEffectReplay)
 	requireEvidenceType(t, replayCheck, gopact.VerificationEvidenceTypeRunEffectReplay)
+
+	replayPlanCheck := requireVerificationCheck(t, report, gopacttest.SelfBootstrapCheckReplayPlan)
+	requireEvidenceType(t, replayPlanCheck, gopacttest.SelfBootstrapEvidenceTypeReplayPlan)
 
 	for _, id := range []string{
 		gopacttest.SelfBootstrapCheckAgnesProviderIntegrationCommand,
