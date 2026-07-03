@@ -7,7 +7,7 @@
 
 Chinese documentation: [README_zh.md](README_zh.md)
 
-This example runs the core `gopact agent init` generator, then verifies that the generated A2A HTTP agent project can tidy and test successfully.
+This example runs the core `gopact agent init` generator, then verifies that the generated A2A HTTP agent project can tidy, test, and serve through `gopact agent run`.
 
 Run it from the repository root:
 
