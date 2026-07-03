@@ -17,7 +17,7 @@
 - 增加 `quickstart/background-scheduler`，无凭据演示带 lease 的后台任务、retry、dead-letter、drain 和 schedule verification evidence。
 - 增加 `quickstart/self-bootstrap`，无凭据演示可复用 Dev Agent self-bootstrap workflow、policy-approved plan patch apply、quickstart release requirements、diff、file snapshot、command、CI gate、run export 和 verification report evidence。
 - workflow graph quickstart 增加 completed step export/import resume 和 interrupted resume 的无凭据演示。
-- 示例仓库跟进 `gopact` core `v0.0.49` 和当前 `gopact-ext` 发布 tag。
+- 示例仓库跟进 `gopact` core `v0.0.49` 及对应的 `gopact-ext` 发布 tag。
 - agent cluster quickstart 演示通过 mesh-level HTTP options 配置环境变量驱动的 A2A discovery。
 - 增加 `quickstart/agent-node`，演示将 A2A 子 agent 挂成 typed graph node，并保留嵌套 evidence。
 - agent cluster quickstart 覆盖 `Mesh.SyncEnv` 与 `Mesh.SyncEnvEvery`，演示环境变量驱动的 A2A discovery、HTTP agent 注册、readiness pruning 和 registry changes。
