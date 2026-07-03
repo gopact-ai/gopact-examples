@@ -18,8 +18,8 @@ import (
 
 const (
 	gopactVersion = "v0.0.47"
-	agentName     = "generated-agent"
-	modulePath    = "example.com/generated-agent"
+	clusterName   = "generated-cluster"
+	modulePath    = "example.com/generated-cluster"
 )
 
 func main() {
@@ -33,14 +33,14 @@ func main() {
 }
 
 func run(ctx context.Context, out io.Writer) error {
-	dir, err := os.MkdirTemp("", "gopact-generated-agent-*")
+	dir, err := os.MkdirTemp("", "gopact-generated-cluster-*")
 	if err != nil {
 		return err
 	}
-	target := filepath.Join(dir, agentName)
+	target := filepath.Join(dir, clusterName)
 
 	if err := runCommand(ctx, "", "go", "run", "github.com/gopact-ai/gopact/cmd/gopact@"+gopactVersion,
-		"agent", "init", agentName,
+		"agent", "init-cluster", clusterName,
 		"-out", target,
 		"-module", modulePath,
 	); err != nil {
@@ -52,18 +52,18 @@ func run(ctx context.Context, out io.Writer) error {
 	if err := runCommand(ctx, "", "go", "run", "github.com/gopact-ai/gopact/cmd/gopact@"+gopactVersion, "agent", "verify", target); err != nil {
 		return err
 	}
-	url, err := runGeneratedAgentSmoke(ctx, target)
+	url, err := runGeneratedClusterSmoke(ctx, target)
 	if err != nil {
 		return err
 	}
 
-	if _, err := fmt.Fprintf(out, "generated %s at %s\n", agentName, target); err != nil {
+	if _, err := fmt.Fprintf(out, "generated %s at %s\n", clusterName, target); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintf(out, "verified %s with gopact agent verify\n", agentName); err != nil {
+	if _, err := fmt.Fprintf(out, "verified %s with gopact agent verify\n", clusterName); err != nil {
 		return err
 	}
-	_, err = fmt.Fprintf(out, "served %s at %s\n", agentName, url)
+	_, err = fmt.Fprintf(out, "served %s at %s\n", clusterName, url)
 	return err
 }
 
@@ -82,7 +82,7 @@ func runCommand(ctx context.Context, dir, name string, args ...string) error {
 	return nil
 }
 
-func runGeneratedAgentSmoke(ctx context.Context, target string) (string, error) {
+func runGeneratedClusterSmoke(ctx context.Context, target string) (string, error) {
 	addr, err := freeLocalAddr()
 	if err != nil {
 		return "", err
@@ -99,8 +99,8 @@ func runGeneratedAgentSmoke(ctx context.Context, target string) (string, error) 
 		"GOPRIVATE=github.com/gopact-ai/*",
 		"GONOSUMDB=github.com/gopact-ai/*",
 		"GONOPROXY=github.com/gopact-ai/*",
-		"GOPACT_AGENT_ADDR="+addr,
-		"GOPACT_AGENT_URL="+url,
+		"GOPACT_CLUSTER_ADDR="+addr,
+		"GOPACT_CLUSTER_URL="+url,
 	)
 	var output bytes.Buffer
 	cmd.Stdout = &output
@@ -113,17 +113,17 @@ func runGeneratedAgentSmoke(ctx context.Context, target string) (string, error) 
 		waitErr <- cmd.Wait()
 	}()
 
-	if err := waitForGeneratedAgent(smokeCtx, url); err != nil {
+	if err := waitForGeneratedCluster(smokeCtx, url); err != nil {
 		cancel()
-		stopGeneratedAgent(cmd, waitErr)
-		return "", fmt.Errorf("generated agent smoke: %w\n%s", err, output.String())
+		stopGeneratedCluster(cmd, waitErr)
+		return "", fmt.Errorf("generated cluster smoke: %w\n%s", err, output.String())
 	}
 	cancel()
-	stopGeneratedAgent(cmd, waitErr)
+	stopGeneratedCluster(cmd, waitErr)
 	return url, nil
 }
 
-func stopGeneratedAgent(cmd *exec.Cmd, waitErr <-chan error) {
+func stopGeneratedCluster(cmd *exec.Cmd, waitErr <-chan error) {
 	if cmd.Process != nil {
 		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 	}
@@ -141,14 +141,14 @@ func freeLocalAddr() (string, error) {
 	return listener.Addr().String(), nil
 }
 
-func waitForGeneratedAgent(ctx context.Context, url string) error {
+func waitForGeneratedCluster(ctx context.Context, url string) error {
 	client := http.Client{Timeout: 2 * time.Second}
 	var lastErr error
 	for {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		err := checkGeneratedAgent(client, url)
+		err := checkGeneratedCluster(client, url)
 		if err == nil {
 			return nil
 		}
@@ -163,17 +163,19 @@ func waitForGeneratedAgent(ctx context.Context, url string) error {
 	}
 }
 
-func checkGeneratedAgent(client http.Client, url string) error {
-	resp, err := client.Get(url + "/readyz")
-	if err != nil {
-		return err
-	}
-	_ = resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("readyz status %d", resp.StatusCode)
+func checkGeneratedCluster(client http.Client, url string) error {
+	for _, path := range []string{"/readyz", "/agents/planner-agent/readyz"} {
+		resp, err := client.Get(url + path)
+		if err != nil {
+			return err
+		}
+		_ = resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			return fmt.Errorf("%s status %d", path, resp.StatusCode)
+		}
 	}
 
-	resp, err = client.Get(url + "/agents.json")
+	resp, err := client.Get(url + "/agents.json")
 	if err != nil {
 		return err
 	}
@@ -192,8 +194,14 @@ func checkGeneratedAgent(client http.Client, url string) error {
 	if err := json.NewDecoder(resp.Body).Decode(&registry); err != nil {
 		return err
 	}
-	if len(registry.Agents) != 1 || registry.Agents[0].Name != agentName || registry.Agents[0].URL != url {
+	wantNames := []string{"planner-agent", "worker-agent", "reviewer-agent"}
+	if len(registry.Agents) != len(wantNames) {
 		return fmt.Errorf("agents.json agents = %+v", registry.Agents)
+	}
+	for i, want := range wantNames {
+		if registry.Agents[i].Name != want || registry.Agents[i].URL != url+"/agents/"+want {
+			return fmt.Errorf("agents.json agents = %+v", registry.Agents)
+		}
 	}
 	return nil
 }
