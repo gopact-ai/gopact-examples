@@ -441,7 +441,7 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 		"github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.20",
 		"github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.20",
 		"github.com/gopact-ai/gopact-ext/devagent/selfbootstrap v0.1.0",
-		"github.com/gopact-ai/gopact-ext/devagent/workspace v0.1.0",
+		"github.com/gopact-ai/gopact-ext/devagent/workspace v0.1.1",
 		"github.com/gopact-ai/gopact-ext/models/agnes v0.1.24",
 		"github.com/gopact-ai/gopact-ext/models/ark v0.2.21",
 		"github.com/gopact-ai/gopact-ext/models/openai v0.5.23",
