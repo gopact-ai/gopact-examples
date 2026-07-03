@@ -11,7 +11,7 @@
 ## Unreleased
 
 - workflow graph quickstart 增加 completed step export/import resume 和 interrupted resume 的无凭据演示。
-- 示例仓库跟进 `gopact` core `v0.0.44` 和当前 `gopact-ext` 发布 tag。
+- 示例仓库跟进 `gopact` core `v0.0.45` 和当前 `gopact-ext` 发布 tag。
 - agent cluster quickstart 演示通过 mesh-level HTTP options 配置环境变量驱动的 A2A discovery。
 - 增加 `quickstart/agent-node`，演示将 A2A 子 agent 挂成 typed graph node，并保留嵌套 evidence。
 - agent cluster quickstart 覆盖 `Mesh.SyncEnv` 与 `Mesh.SyncEnvEvery`，演示环境变量驱动的 A2A discovery、HTTP agent 注册、readiness pruning 和 registry changes。
