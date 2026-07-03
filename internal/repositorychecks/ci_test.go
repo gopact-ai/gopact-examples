@@ -351,6 +351,13 @@ func TestSelfBootstrapMockSuiteIsExecutableAndUsedByCI(t *testing.T) {
 		"go test -count=1 ./quickstart/agent-as-tool",
 		"go test -count=1 ./quickstart/agent-node",
 		"go test -count=1 ./quickstart/agent-cluster",
+		"go test -count=1 ./quickstart/openai-chat",
+		"go test -count=1 ./quickstart/openai-streaming",
+		"go test -count=1 ./quickstart/tool-calling",
+		"go test -count=1 ./quickstart/structured-output",
+		"go test -count=1 ./quickstart/ark-chat",
+		"go test -count=1 ./quickstart/ark-streaming",
+		"go test -count=1 ./quickstart/agnes-chat",
 	} {
 		if !strings.Contains(script, want) {
 			t.Fatalf("self-bootstrap mock suite missing %q", want)
