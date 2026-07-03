@@ -8,6 +8,7 @@ This changelog records user-visible changes for `gopact-examples`. The current u
 
 ## Unreleased
 
+- Add an ecosystem self-bootstrap mock suite that validates `gopact`, `gopact-ext`, and `gopact-examples` through their mock-only self-bootstrap gates.
 - Add `quickstart/background-scheduler` to demonstrate leased background jobs with retry, dead-letter, drain, and schedule verification evidence.
 - Add `quickstart/self-bootstrap` to demonstrate the reusable Dev Agent self-bootstrap workflow with policy-approved plan patch apply, quickstart release requirements, diff, file snapshot, command, CI gate, run export, and verification report evidence.
 - The workflow graph quickstart now demonstrates completed step export/import resume and interrupted resume without provider credentials.
