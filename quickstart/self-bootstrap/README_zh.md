@@ -6,10 +6,10 @@
 
 ## 中文
 
-这个 quickstart 使用 `gopact-ext/devagent/selfbootstrap` 运行一条无凭据 Dev Agent self-bootstrap workflow。示例注入本地 analyze、plan、write、test、review 阶段，并输出 run export 和 verification evidence 摘要。
+这个 quickstart 使用 `gopact-ext/devagent/selfbootstrap` 和 `gopact-ext/devagent/workspace` 运行一条无凭据 Dev Agent self-bootstrap workflow。示例会创建临时 git 仓库，采集 repo-relative worktree diff 与 file snapshot，在临时 workspace 内执行 `go test ./...`，并输出 run export 和 verification evidence 摘要。
 
 ```bash
 go run ./quickstart/self-bootstrap
 ```
 
-示例不会调用模型、执行命令或修改工作区。它展示宿主如何把已经观察到的 diff、file snapshot、command、CI gate 和 review result 交给可复用 self-bootstrap workflow。
+示例不会调用模型，也不会修改当前 examples 仓库。所有文件写入和命令执行都发生在临时 workspace 中，运行结束后会删除。

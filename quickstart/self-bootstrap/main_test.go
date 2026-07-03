@@ -21,6 +21,7 @@ func TestRunShowsSelfBootstrapWorkflow(t *testing.T) {
 	for _, want := range []string{
 		"self-bootstrap: dev agent workflow",
 		"objective: ship a tested SDK slice",
+		"workspace: temp git repo + local go test gate",
 		"workflow: analyze -> plan -> write -> test -> review",
 		"evidence: ci_gate, command, diff, file_snapshot, review, run_export",
 		"report: passed checks=6 failures=0",
@@ -59,6 +60,7 @@ func TestRunDemoProducesReleaseReadyEvidence(t *testing.T) {
 		gopacttest.VerificationEvidenceTypeFileSnapshot,
 		gopacttest.VerificationEvidenceTypeReview,
 	})
+	requireWorkspaceEvidence(t, result)
 }
 
 func requireNodes(t *testing.T, export gopact.RunExport, want []string) {
@@ -84,5 +86,31 @@ func requireEvidenceTypes(t *testing.T, report gopact.VerificationReport, want [
 		if !got[evidenceType] {
 			t.Fatalf("report missing evidence type %q; checks=%+v", evidenceType, report.Checks)
 		}
+	}
+}
+
+func requireWorkspaceEvidence(t *testing.T, result demoResult) {
+	t.Helper()
+
+	write := result.Workflow.Write
+	if write.Diff == nil || len(write.Diff.Files) != 1 || write.Diff.Files[0] != "hello.go" {
+		t.Fatalf("write diff = %+v, want hello.go workspace diff", write.Diff)
+	}
+	if len(write.FileSnapshots) != 1 || write.FileSnapshots[0].Path != "hello.go" {
+		t.Fatalf("file snapshots = %+v, want repo-relative hello.go snapshot", write.FileSnapshots)
+	}
+	if write.FileSnapshots[0].Metadata["source"] != "workspace" {
+		t.Fatalf("snapshot metadata = %+v, want workspace source", write.FileSnapshots[0].Metadata)
+	}
+
+	test := result.Workflow.Test
+	if len(test.Commands) != 1 || len(test.Commands[0].Command) != 3 {
+		t.Fatalf("commands = %+v, want one go test command", test.Commands)
+	}
+	if strings.Join(test.Commands[0].Command, " ") != "go test ./..." {
+		t.Fatalf("command = %+v, want go test ./...", test.Commands[0].Command)
+	}
+	if test.Commands[0].Dir != "." || test.Commands[0].ExitCode != 0 {
+		t.Fatalf("command result = %+v, want successful repo-root command", test.Commands[0])
 	}
 }

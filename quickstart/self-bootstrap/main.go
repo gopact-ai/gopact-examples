@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/gopact-ai/gopact"
 	"github.com/gopact-ai/gopact-examples/internal/exampleenv"
 	"github.com/gopact-ai/gopact-ext/devagent/selfbootstrap"
+	"github.com/gopact-ai/gopact-ext/devagent/workspace"
 	"github.com/gopact-ai/gopact/gopacttest"
 )
 
@@ -37,6 +40,9 @@ func run(ctx context.Context, out io.Writer) error {
 	if _, err := fmt.Fprintln(out, "objective: ship a tested SDK slice"); err != nil {
 		return err
 	}
+	if _, err := fmt.Fprintln(out, "workspace: temp git repo + local go test gate"); err != nil {
+		return err
+	}
 	if _, err := fmt.Fprintf(out, "workflow: %s\n", strings.Join(stepNodes(result.Workflow.RunExport), " -> ")); err != nil {
 		return err
 	}
@@ -58,6 +64,16 @@ func runDemo(ctx context.Context) (demoResult, error) {
 	if err := exampleenv.LoadDotEnv(); err != nil {
 		return demoResult{}, err
 	}
+	root, cleanup, err := prepareWorkspace(ctx)
+	if err != nil {
+		return demoResult{}, err
+	}
+	defer cleanup()
+
+	ws, err := workspace.New(root, workspace.WithMetadata(map[string]any{"quickstart": "self-bootstrap"}))
+	if err != nil {
+		return demoResult{}, err
+	}
 
 	workflow, err := selfbootstrap.New(
 		selfbootstrap.WithAnalyzer(selfbootstrap.AnalyzerFunc(func(context.Context, selfbootstrap.Request) (selfbootstrap.Analysis, error) {
@@ -76,41 +92,10 @@ func runDemo(ctx context.Context) (demoResult, error) {
 				},
 			}, nil
 		})),
-		selfbootstrap.WithWriter(selfbootstrap.WriterFunc(func(context.Context, selfbootstrap.WriteRequest) (selfbootstrap.WriteResult, error) {
-			return selfbootstrap.WriteResult{
-				Summary: "quickstart patch observed",
-				Diff: &gopacttest.DiffSnapshot{
-					ID:         "diff:self-bootstrap-quickstart",
-					Ref:        "git:worktree",
-					Diff:       "diff --git a/quickstart/self-bootstrap/main.go b/quickstart/self-bootstrap/main.go\n",
-					Files:      []string{"quickstart/self-bootstrap/main.go"},
-					Insertions: 64,
-				},
-				FileSnapshots: []gopacttest.FileSnapshot{
-					{
-						ID:            "file-snapshot:quickstart/self-bootstrap/main.go",
-						Path:          "quickstart/self-bootstrap/main.go",
-						Hash:          "demo-sha256",
-						HashAlgorithm: "sha256",
-						SizeBytes:     2048,
-					},
-				},
-			}, nil
-		})),
-		selfbootstrap.WithTester(selfbootstrap.TesterFunc(func(context.Context, selfbootstrap.TestRequest) (selfbootstrap.TestResult, error) {
-			command := gopacttest.CommandResult{
-				ID:       "command:go test -count=1 ./quickstart/self-bootstrap",
-				Command:  []string{"go", "test", "-count=1", "./quickstart/self-bootstrap"},
-				ExitCode: 0,
-			}
-			return selfbootstrap.TestResult{
-				Summary:       "mock self-bootstrap gate passed",
-				Commands:      []gopacttest.CommandResult{command},
-				RequiredGates: []string{gopacttest.SelfBootstrapCIGateUnit},
-				Gates: []gopacttest.CIGateResult{
-					{Gate: gopacttest.SelfBootstrapCIGateUnit, Result: command},
-				},
-			}, nil
+		selfbootstrap.WithWriter(ws.Writer("hello.go")),
+		selfbootstrap.WithTester(ws.Tester(workspace.Command{
+			Gate: gopacttest.SelfBootstrapCIGateUnit,
+			Args: []string{"go", "test", "./..."},
 		})),
 		selfbootstrap.WithReviewer(selfbootstrap.ReviewerFunc(func(context.Context, selfbootstrap.ReviewRequest) (gopacttest.ReviewResult, error) {
 			return gopacttest.ReviewResult{
@@ -139,6 +124,70 @@ func runDemo(ctx context.Context) (demoResult, error) {
 		return demoResult{}, err
 	}
 	return demoResult{Workflow: result}, nil
+}
+
+func prepareWorkspace(ctx context.Context) (string, func(), error) {
+	root, err := os.MkdirTemp("", "gopact-self-bootstrap-*")
+	if err != nil {
+		return "", nil, fmt.Errorf("create temp workspace: %w", err)
+	}
+	cleanup := func() {
+		_ = os.RemoveAll(root)
+	}
+	if err := writeWorkspaceFile(root, "go.mod", "module example.test/selfbootstrap\n\ngo 1.25\n"); err != nil {
+		cleanup()
+		return "", nil, err
+	}
+	initial := "package hello\n\nfunc Message() string {\n\treturn \"hello\"\n}\n"
+	if err := writeWorkspaceFile(root, "hello.go", initial); err != nil {
+		cleanup()
+		return "", nil, err
+	}
+	test := "package hello\n\nimport \"testing\"\n\nfunc TestMessage(t *testing.T) {\n\tif Message() != \"hello workspace\" {\n\t\tt.Fatalf(\"Message() = %q\", Message())\n\t}\n}\n"
+	if err := writeWorkspaceFile(root, "hello_test.go", test); err != nil {
+		cleanup()
+		return "", nil, err
+	}
+	if err := runGit(ctx, root, "init"); err != nil {
+		cleanup()
+		return "", nil, err
+	}
+	if err := runGit(ctx, root, "add", "."); err != nil {
+		cleanup()
+		return "", nil, err
+	}
+	if err := runGit(ctx, root, "-c", "user.name=gopact", "-c", "user.email=gopact@example.test", "commit", "-m", "initial"); err != nil {
+		cleanup()
+		return "", nil, err
+	}
+	updated := "package hello\n\nfunc Message() string {\n\treturn \"hello workspace\"\n}\n"
+	if err := writeWorkspaceFile(root, "hello.go", updated); err != nil {
+		cleanup()
+		return "", nil, err
+	}
+	return root, cleanup, nil
+}
+
+func writeWorkspaceFile(root, name, body string) error {
+	path := filepath.Join(root, filepath.FromSlash(name))
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return fmt.Errorf("create workspace dir: %w", err)
+	}
+	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+		return fmt.Errorf("write workspace file %s: %w", name, err)
+	}
+	return nil
+}
+
+func runGit(ctx context.Context, root string, args ...string) error {
+	gitArgs := append([]string{"-c", "gc.auto=0", "-c", "maintenance.auto=false"}, args...)
+	cmd := exec.CommandContext(ctx, "git", gitArgs...)
+	cmd.Dir = root
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("git %s: %w: %s", strings.Join(args, " "), err, strings.TrimSpace(string(out)))
+	}
+	return nil
 }
 
 func stepNodes(export gopact.RunExport) []string {
