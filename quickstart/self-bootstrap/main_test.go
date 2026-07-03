@@ -21,10 +21,10 @@ func TestRunShowsSelfBootstrapWorkflow(t *testing.T) {
 	for _, want := range []string{
 		"self-bootstrap: dev agent workflow",
 		"objective: ship a tested SDK slice",
-		"workspace: temp git repo + patch apply + local go test gate",
+		"workspace: temp git repo + policy-approved plan patch + local go test gate",
 		"workflow: analyze -> plan -> write -> test -> review",
-		"evidence: ci_gate, command, diff, file_snapshot, review, run_export",
-		"report: passed checks=6 failures=0",
+		"evidence: ci_gate, command, diff, file_snapshot, policy_decision, review, run_export",
+		"report: passed checks=7 failures=0",
 		"summary: release-ready self-bootstrap slice",
 	} {
 		if !strings.Contains(got, want) {
@@ -59,6 +59,7 @@ func TestRunDemoProducesReleaseReadyEvidence(t *testing.T) {
 		gopacttest.VerificationEvidenceTypeDiff,
 		gopacttest.VerificationEvidenceTypeFileSnapshot,
 		gopacttest.VerificationEvidenceTypeReview,
+		gopact.VerificationEvidenceTypePolicyDecision,
 	})
 	requireWorkspaceEvidence(t, result)
 }
@@ -101,11 +102,25 @@ func requireWorkspaceEvidence(t *testing.T, result demoResult) {
 	}
 	if write.FileSnapshots[0].Metadata["source"] != "workspace" ||
 		write.FileSnapshots[0].Metadata["patch_id"] != "quickstart-hello-patch" ||
-		write.FileSnapshots[0].Metadata["patch_applied"] != true {
+		write.FileSnapshots[0].Metadata["patch_applied"] != true ||
+		write.FileSnapshots[0].Metadata["patch_policy_action"] != string(gopact.PolicyAllow) {
 		t.Fatalf("snapshot metadata = %+v, want workspace patch metadata", write.FileSnapshots[0].Metadata)
 	}
-	if write.Metadata["patch_id"] != "quickstart-hello-patch" || write.Metadata["patch_applied"] != true {
+	if write.Metadata["patch_id"] != "quickstart-hello-patch" ||
+		write.Metadata["patch_applied"] != true ||
+		write.Metadata["patch_policy_action"] != string(gopact.PolicyAllow) ||
+		write.Metadata["patch_policy_reason"] != "quickstart plan patch approved" {
 		t.Fatalf("write metadata = %+v, want patch apply metadata", write.Metadata)
+	}
+	if result.Workflow.PatchDecision.Action != gopact.PolicyAllow ||
+		result.Workflow.PatchDecision.Reason != "quickstart plan patch approved" {
+		t.Fatalf("patch decision = %+v, want approved plan patch", result.Workflow.PatchDecision)
+	}
+	if result.Workflow.Plan.Patch == nil ||
+		result.Workflow.Plan.Patch.ID != "quickstart-hello-patch" ||
+		len(result.Workflow.Plan.Patch.Files) != 1 ||
+		result.Workflow.Plan.Patch.Files[0].Path != "hello.go" {
+		t.Fatalf("plan patch = %+v, want planner-owned patch proposal", result.Workflow.Plan.Patch)
 	}
 
 	test := result.Workflow.Test

@@ -40,7 +40,7 @@ func run(ctx context.Context, out io.Writer) error {
 	if _, err := fmt.Fprintln(out, "objective: ship a tested SDK slice"); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintln(out, "workspace: temp git repo + patch apply + local go test gate"); err != nil {
+	if _, err := fmt.Fprintln(out, "workspace: temp git repo + policy-approved plan patch + local go test gate"); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "workflow: %s\n", strings.Join(stepNodes(result.Workflow.RunExport), " -> ")); err != nil {
@@ -86,20 +86,38 @@ func runDemo(ctx context.Context) (demoResult, error) {
 			return selfbootstrap.Plan{
 				Summary: "implement one tested self-bootstrap slice",
 				Steps: []selfbootstrap.PlanStep{
-					{ID: "write", Summary: "apply a local code patch and capture evidence"},
+					{ID: "write", Summary: "apply a policy-approved plan patch and capture evidence"},
 					{ID: "test", Summary: "record command and CI gate evidence"},
 					{ID: "review", Summary: "capture explicit review decision"},
 				},
+				Patch: &selfbootstrap.PatchProposal{
+					ID:      "quickstart-hello-patch",
+					Summary: "update hello message",
+					Files: []selfbootstrap.PatchFile{
+						{Path: "hello.go", Intent: "modify"},
+					},
+					Diff: helloPatch(),
+					Metadata: map[string]any{
+						"source_step": "plan",
+					},
+				},
 			}, nil
 		})),
-		selfbootstrap.WithWriter(ws.PatchWriter(workspace.Patch{
-			ID:      "quickstart-hello-patch",
-			Summary: "update hello message",
-			Diff:    helloPatch(),
-			Metadata: map[string]any{
-				"source_step": "plan",
-			},
-		}, "hello.go")),
+		selfbootstrap.WithPatchPolicy(gopact.PolicyFunc(func(_ context.Context, request gopact.PolicyRequest) (gopact.PolicyDecision, error) {
+			input, ok := request.Input.(selfbootstrap.PatchPolicyInput)
+			if !ok || request.Boundary != gopact.PolicyBoundarySandbox || request.Action != gopact.PolicyActionWrite ||
+				input.ID != "quickstart-hello-patch" || !input.HasDiff {
+				return gopact.PolicyDecision{Action: gopact.PolicyDeny, Reason: "unexpected plan patch"}, nil
+			}
+			return gopact.PolicyDecision{
+				Action: gopact.PolicyAllow,
+				Reason: "quickstart plan patch approved",
+				Metadata: map[string]any{
+					"policy": "local-quickstart",
+				},
+			}, nil
+		})),
+		selfbootstrap.WithWriter(ws.PlanPatchWriter("hello.go")),
 		selfbootstrap.WithTester(ws.Tester(workspace.Command{
 			Gate: gopacttest.SelfBootstrapCIGateUnit,
 			Args: []string{"go", "test", "./..."},
