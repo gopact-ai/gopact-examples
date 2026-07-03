@@ -20,10 +20,13 @@ func TestRunGeneratesTestedA2AAgentScaffold(t *testing.T) {
 	}
 
 	line := strings.TrimSpace(out.String())
-	if !strings.HasPrefix(line, "generated generated-agent at ") {
+	if !strings.Contains(line, "generated generated-agent at ") {
 		t.Fatalf("output = %q, want generated scaffold path", out.String())
 	}
-	dir := strings.TrimPrefix(line, "generated generated-agent at ")
+	if !strings.Contains(line, "served generated-agent at http://") {
+		t.Fatalf("output = %q, want generated agent run smoke evidence", out.String())
+	}
+	dir := strings.TrimPrefix(strings.Split(line, "\n")[0], "generated generated-agent at ")
 	for _, file := range []string{"go.mod", "main.go", "main_test.go", "agents.json", "README.md", ".env.example", ".gitignore"} {
 		if _, err := os.Stat(filepath.Join(dir, file)); err != nil {
 			t.Fatalf("generated scaffold missing %s: %v", file, err)
