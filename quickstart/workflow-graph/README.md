@@ -7,4 +7,4 @@
 
 Chinese documentation: [README_zh.md](README_zh.md)
 
-This example uses the core graph runtime directly. It demonstrates typed state, branch fan-out, fan-in, nested runnable subgraphs, loop control, step limits, and event streaming without calling a model.
+This example uses the core graph runtime directly. It demonstrates typed state, branch fan-out, fan-in, nested runnable subgraphs, loop control, step limits, step export/import resume, interrupted resume, and event streaming without calling a model.

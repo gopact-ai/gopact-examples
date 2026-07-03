@@ -10,7 +10,7 @@ This matrix is the executable contract for `gopact-examples`. CI uses mocks, loc
 | --- | --- | --- | --- |
 | dotenv configuration | `internal/exampleenv` | `go test -count=1 ./internal/exampleenv` | Not required |
 | scripted ReAct loop | `quickstart/react-agent` | `go test -count=1 ./quickstart/react-agent` | Not required |
-| workflow graph branch, dynamic fan-out, fan-in, loop, subgraph, and step limit | `quickstart/workflow-graph` | `go test -count=1 ./quickstart/workflow-graph` | Not required |
+| workflow graph branch, dynamic fan-out, fan-in, loop, subgraph, step limit, step export/import, and interrupted resume | `quickstart/workflow-graph` | `go test -count=1 ./quickstart/workflow-graph` | Not required |
 | checkpoint approval resume | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | Not required |
 | verification bundle | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | Not required |
 | A2A file registry scaffold | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | Not required |

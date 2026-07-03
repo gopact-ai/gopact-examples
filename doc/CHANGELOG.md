@@ -8,6 +8,7 @@ This changelog records user-visible changes for `gopact-examples`. The current u
 
 ## Unreleased
 
+- The workflow graph quickstart now demonstrates completed step export/import resume and interrupted resume without provider credentials.
 - Examples now track `gopact` core `v0.0.43` and the current `gopact-ext` release tags.
 - Add `quickstart/agent-node` to demonstrate mounting an A2A child agent as a typed graph node with nested evidence.
 - The agent cluster quickstart now covers `Mesh.SyncEnv` and `Mesh.SyncEnvEvery` for env-driven A2A discovery, HTTP agent registration, readiness pruning, and registry changes.
