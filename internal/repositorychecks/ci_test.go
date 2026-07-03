@@ -493,7 +493,7 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 	generatedCluster := readText(t, "../../quickstart/generated-cluster/main.go")
 
 	for _, requirement := range []string{
-		"github.com/gopact-ai/gopact v0.0.47",
+		"github.com/gopact-ai/gopact v0.0.48",
 		"github.com/gopact-ai/gopact-ext/agents/agentnode v0.1.4",
 		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.23",
 		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.24",
@@ -512,11 +512,11 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 			t.Fatalf("go.mod missing current released module %q", requirement)
 		}
 	}
-	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.47"`) {
-		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.47")
+	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.48"`) {
+		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.48")
 	}
-	if !strings.Contains(generatedCluster, `gopactVersion = "v0.0.47"`) {
-		t.Fatal("quickstart/generated-cluster must exercise gopact agent init-cluster at current core SDK v0.0.47")
+	if !strings.Contains(generatedCluster, `gopactVersion = "v0.0.48"`) {
+		t.Fatal("quickstart/generated-cluster must exercise gopact agent init-cluster at current core SDK v0.0.48")
 	}
 }
 

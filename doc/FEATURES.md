@@ -14,8 +14,8 @@ This matrix is the executable contract for `gopact-examples`. CI uses mocks, loc
 | checkpoint approval resume | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | Not required |
 | verification bundle | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | Not required |
 | A2A file registry scaffold | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | Not required |
-| core agent init/verify/run scaffold | `quickstart/generated-agent` | `go test -count=1 ./quickstart/generated-agent` | Not required |
-| core agent init-cluster/verify/run scaffold | `quickstart/generated-cluster` | `go test -count=1 ./quickstart/generated-cluster` | Not required |
+| core agent init/verify/run scaffold with default module path | `quickstart/generated-agent` | `go test -count=1 ./quickstart/generated-agent` | Not required |
+| core agent init-cluster/verify/run scaffold with default module path and env registry bootstrap | `quickstart/generated-cluster` | `go test -count=1 ./quickstart/generated-cluster` | Not required |
 | Plan-Execute workflow with replan, approval resume, and cancel | `quickstart/plan-exec` | `go test -count=1 ./quickstart/plan-exec` | Not required |
 | Supervisor routing to named Plan-Execute child agents | `quickstart/supervisor` | `go test -count=1 ./quickstart/supervisor` | Not required |
 | agent as tool success and failure evidence | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | Not required |

@@ -39,10 +39,16 @@ func TestRunGeneratesTestedA2AClusterScaffold(t *testing.T) {
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewHTTPRegistryHandler")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewHTTPRegistry")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewMesh")
+	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), `clusterRegistryURLEnv = "GOPACT_A2A_REGISTRY_URL"`)
+	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "bootstrapClusterMeshFromEnv")
+	assertGeneratedFileStartsWith(t, filepath.Join(dir, "agents.json"), "[")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "TestClusterRegistryBootstrapsMesh")
+	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "TestClusterBootstrapsMeshFromEnvRegistryURL")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "TestClusterRoutesStreamingTasks")
 	assertGeneratedFileContains(t, filepath.Join(dir, "README.md"), "gopact agent verify .")
+	assertGeneratedFileContains(t, filepath.Join(dir, "README.md"), "GOPACT_A2A_REGISTRY_URL")
 	assertGeneratedFileContains(t, filepath.Join(dir, ".env.example"), "GOPACT_CLUSTER_URL=http://localhost:8080")
+	assertGeneratedFileContains(t, filepath.Join(dir, ".env.example"), "GOPACT_A2A_REGISTRY_URL=http://localhost:8080/agents.json")
 	assertGeneratedFileContains(t, filepath.Join(dir, ".gitignore"), ".env")
 }
 
@@ -62,13 +68,16 @@ func TestReadmeMentionsCoreAgentInitCluster(t *testing.T) {
 	}
 }
 
-func TestQuickstartUsesClusterScaffoldDefaultSDKVersion(t *testing.T) {
+func TestQuickstartUsesClusterScaffoldDefaults(t *testing.T) {
 	raw, err := os.ReadFile("main.go")
 	if err != nil {
 		t.Fatalf("read main.go: %v", err)
 	}
 	if strings.Contains(string(raw), "-sdk-version") {
 		t.Fatalf("quickstart should exercise gopact agent init-cluster default SDK version, not pass -sdk-version")
+	}
+	if strings.Contains(string(raw), "-module") {
+		t.Fatalf("quickstart should exercise gopact agent init-cluster default module path, not pass -module")
 	}
 }
 
@@ -80,5 +89,16 @@ func assertGeneratedFileContains(t *testing.T, path, want string) {
 	}
 	if !strings.Contains(string(raw), want) {
 		t.Fatalf("%s missing %q:\n%s", path, want, raw)
+	}
+}
+
+func assertGeneratedFileStartsWith(t *testing.T, path, want string) {
+	t.Helper()
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read %s: %v", path, err)
+	}
+	if !strings.HasPrefix(strings.TrimSpace(string(raw)), want) {
+		t.Fatalf("%s does not start with %q:\n%s", path, want, raw)
 	}
 }
