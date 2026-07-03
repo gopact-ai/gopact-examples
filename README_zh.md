@@ -62,7 +62,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/supervisor` | supervisor 路由到具名 Plan-Execute 子 agent。 | 否 |
 | `quickstart/agent-as-tool` | 父 ReAct agent 将 Plan-Execute 子 agent 当作 tool 调用。 | 否 |
 | `quickstart/background-scheduler` | 带 lease 的后台任务，覆盖 retry、dead-letter、drain 和 schedule evidence。 | 否 |
-| `quickstart/self-bootstrap` | Dev Agent self-bootstrap workflow，覆盖 workspace diff、file snapshot、command、CI gate、run export、failure attribution 和 verification report evidence。 | 否 |
+| `quickstart/self-bootstrap` | Dev Agent self-bootstrap workflow，覆盖 workspace patch apply、diff、file snapshot、command、CI gate、run export、failure attribution 和 verification report evidence。 | 否 |
 | `quickstart/agent-node` | 将 A2A 子 agent 挂成 typed graph node，并保留嵌套 evidence。 | 否 |
 | `quickstart/agent-cluster` | 本地 A2A cluster、mesh-level HTTP options、`Mesh.SyncEnv`/`Mesh.SyncEnvEvery` discovery、policy、retry、cancel、dev-agent replay 和 command evidence。 | 否 |
 | `quickstart/openai-chat` | OpenAI-compatible chat completions。 | 是 |

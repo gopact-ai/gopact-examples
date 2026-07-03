@@ -40,7 +40,7 @@ func run(ctx context.Context, out io.Writer) error {
 	if _, err := fmt.Fprintln(out, "objective: ship a tested SDK slice"); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintln(out, "workspace: temp git repo + local go test gate"); err != nil {
+	if _, err := fmt.Fprintln(out, "workspace: temp git repo + patch apply + local go test gate"); err != nil {
 		return err
 	}
 	if _, err := fmt.Fprintf(out, "workflow: %s\n", strings.Join(stepNodes(result.Workflow.RunExport), " -> ")); err != nil {
@@ -86,13 +86,20 @@ func runDemo(ctx context.Context) (demoResult, error) {
 			return selfbootstrap.Plan{
 				Summary: "implement one tested self-bootstrap slice",
 				Steps: []selfbootstrap.PlanStep{
-					{ID: "write", Summary: "produce local code evidence"},
+					{ID: "write", Summary: "apply a local code patch and capture evidence"},
 					{ID: "test", Summary: "record command and CI gate evidence"},
 					{ID: "review", Summary: "capture explicit review decision"},
 				},
 			}, nil
 		})),
-		selfbootstrap.WithWriter(ws.Writer("hello.go")),
+		selfbootstrap.WithWriter(ws.PatchWriter(workspace.Patch{
+			ID:      "quickstart-hello-patch",
+			Summary: "update hello message",
+			Diff:    helloPatch(),
+			Metadata: map[string]any{
+				"source_step": "plan",
+			},
+		}, "hello.go")),
 		selfbootstrap.WithTester(ws.Tester(workspace.Command{
 			Gate: gopacttest.SelfBootstrapCIGateUnit,
 			Args: []string{"go", "test", "./..."},
@@ -160,12 +167,23 @@ func prepareWorkspace(ctx context.Context) (string, func(), error) {
 		cleanup()
 		return "", nil, err
 	}
-	updated := "package hello\n\nfunc Message() string {\n\treturn \"hello workspace\"\n}\n"
-	if err := writeWorkspaceFile(root, "hello.go", updated); err != nil {
-		cleanup()
-		return "", nil, err
-	}
 	return root, cleanup, nil
+}
+
+func helloPatch() string {
+	return strings.Join([]string{
+		"diff --git a/hello.go b/hello.go",
+		"--- a/hello.go",
+		"+++ b/hello.go",
+		"@@ -1,5 +1,5 @@",
+		" package hello",
+		" ",
+		" func Message() string {",
+		"-\treturn \"hello\"",
+		"+\treturn \"hello workspace\"",
+		" }",
+		"",
+	}, "\n")
 }
 
 func writeWorkspaceFile(root, name, body string) error {
