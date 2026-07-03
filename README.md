@@ -123,6 +123,7 @@ Run the same gates before opening a pull request:
 ```bash
 git diff --check
 ./scripts/public-readiness-check.sh
+./scripts/self-bootstrap-mock-suite.sh
 go mod tidy
 git diff --exit-code
 go test -count=1 ./...
