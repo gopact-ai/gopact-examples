@@ -220,6 +220,9 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 	if _, err := fmt.Fprintf(out, "release gate: %s checks=%d requirements=%d\n", releaseGate.Report.Status, len(releaseGate.Report.Checks), len(gopacttest.SelfBootstrapReleaseGateRequirements())); err != nil {
 		return err
 	}
+	if _, err := fmt.Fprintf(out, "replay plan evidence: %s\n", releaseGateEvidenceSummary(releaseGate.Report, gopacttest.SelfBootstrapCheckReplayPlan)); err != nil {
+		return err
+	}
 	if _, err := fmt.Fprintf(out, "replay evidence: %s\n", releaseGateEvidenceSummary(releaseGate.Report, gopacttest.SelfBootstrapCheckRunEffectReplay)); err != nil {
 		return err
 	}
