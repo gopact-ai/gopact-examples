@@ -26,6 +26,9 @@ func TestRunGeneratesTestedA2AAgentScaffold(t *testing.T) {
 	if !strings.Contains(line, "served generated-agent at http://") {
 		t.Fatalf("output = %q, want generated agent run smoke evidence", out.String())
 	}
+	if !strings.Contains(line, "verified generated-agent with gopact agent verify") {
+		t.Fatalf("output = %q, want generated agent verify evidence", out.String())
+	}
 	dir := strings.TrimPrefix(strings.Split(line, "\n")[0], "generated generated-agent at ")
 	for _, file := range []string{"go.mod", "main.go", "main_test.go", "agents.json", "README.md", ".env.example", ".gitignore"} {
 		if _, err := os.Stat(filepath.Join(dir, file)); err != nil {
@@ -41,6 +44,7 @@ func TestRunGeneratesTestedA2AAgentScaffold(t *testing.T) {
 	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "TestScaffoldAgentServesHealthEndpoints")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "TestScaffoldServerStopsOnContextCancel")
 	assertGeneratedFileContains(t, filepath.Join(dir, "README.md"), "gopact agent run .")
+	assertGeneratedFileContains(t, filepath.Join(dir, "README.md"), "gopact agent verify .")
 	assertGeneratedFileContains(t, filepath.Join(dir, ".env.example"), "GOPACT_AGENT_URL=http://localhost:8080")
 	assertGeneratedFileContains(t, filepath.Join(dir, ".gitignore"), ".env")
 }

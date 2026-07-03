@@ -57,7 +57,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/react-agent` | scripted ReAct loop，演示本地 tool calling。 | 否 |
 | `quickstart/workflow-graph` | typed graph、branch fan-out/fan-in、subgraph、loop、step limit、step export/import resume。 | 否 |
 | `quickstart/agent-scaffold` | checkpoint、approval interrupt/resume、verification bundle、A2A file registry。 | 否 |
-| `quickstart/generated-agent` | 调用 core `gopact agent init`，验证生成 agent 的 run 和 registry。 | 否 |
+| `quickstart/generated-agent` | 调用 core `gopact agent init`、`agent verify` 和 `agent run`，验证生成 agent 的测试、registry 与运行路径。 | 否 |
 | `quickstart/plan-exec` | Plan-Execute、replan、approval resume、cancel 测试覆盖。 | 否 |
 | `quickstart/supervisor` | supervisor 路由到具名 Plan-Execute 子 agent。 | 否 |
 | `quickstart/agent-as-tool` | 父 ReAct agent 将 Plan-Execute 子 agent 当作 tool 调用。 | 否 |
