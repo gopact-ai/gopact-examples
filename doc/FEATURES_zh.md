@@ -21,7 +21,7 @@
 | Supervisor routing to named Plan-Execute child agents | `quickstart/supervisor` | `go test -count=1 ./quickstart/supervisor` | - |
 | agent as tool success and failure evidence | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | - |
 | leased background scheduler with retry, dead-letter, drain, lease release, and schedule evidence | `quickstart/background-scheduler` | `go test -count=1 ./quickstart/background-scheduler` | - |
-| Dev Agent self-bootstrap workflow with policy-approved plan patch apply, diff, file snapshot, command, CI gate, run export, failure attribution, and verification report evidence | `quickstart/self-bootstrap` | `go test -count=1 ./quickstart/self-bootstrap` | - |
+| Dev Agent self-bootstrap workflow with policy-approved plan patch apply, quickstart release requirements, diff, file snapshot, command, CI gate, run export, failure attribution, and verification report evidence | `quickstart/self-bootstrap` | `go test -count=1 ./quickstart/self-bootstrap` | - |
 | A2A child agent as typed graph node with nested evidence | `quickstart/agent-node` | `go test -count=1 ./quickstart/agent-node` | - |
 | A2A local cluster + multi-source discovery + tag route + fallback + cancel | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
 | A2A env mesh sync with mesh-level HTTP options and readiness pruning | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |

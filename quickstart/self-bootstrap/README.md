@@ -6,7 +6,7 @@
 
 <!-- gopact:doc-language: en -->
 
-This quickstart runs a credential-free Dev Agent self-bootstrap workflow using `gopact-ext/devagent/selfbootstrap` and `gopact-ext/devagent/workspace`. It creates a temporary git repository, has the planner propose a patch, authorizes that patch through a local policy, applies the approved plan patch through the workspace adapter, captures a repo-relative worktree diff and file snapshot, executes `go test ./...` inside that temporary workspace, and prints the run export and verification evidence summary.
+This quickstart runs a credential-free Dev Agent self-bootstrap workflow using `gopact-ext/devagent/selfbootstrap` and `gopact-ext/devagent/workspace`. It creates a temporary git repository, has the planner propose a patch, authorizes that patch through a local policy, applies the approved plan patch through the workspace adapter, captures a repo-relative worktree diff and file snapshot, executes `go test ./...` inside that temporary workspace, checks the quickstart release requirements, and prints the run export and verification evidence summary.
 
 ```bash
 go run ./quickstart/self-bootstrap
