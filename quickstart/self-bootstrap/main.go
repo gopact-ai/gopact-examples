@@ -56,6 +56,9 @@ func run(ctx context.Context, out io.Writer) error {
 	); err != nil {
 		return err
 	}
+	if _, err := fmt.Fprintf(out, "gate: quickstart release requirements=%d\n", len(selfBootstrapQuickstartRequirements())); err != nil {
+		return err
+	}
 	_, err = fmt.Fprintln(out, "summary: release-ready self-bootstrap slice")
 	return err
 }
@@ -149,6 +152,37 @@ func runDemo(ctx context.Context) (demoResult, error) {
 		return demoResult{}, err
 	}
 	return demoResult{Workflow: result}, nil
+}
+
+func selfBootstrapQuickstartRequirements() []gopacttest.VerificationEvidenceRequirement {
+	return []gopacttest.VerificationEvidenceRequirement{
+		{
+			Name:                  "self-bootstrap-quickstart-run-export",
+			RequiredEvidenceTypes: []string{gopact.VerificationEvidenceTypeRunExport},
+		},
+		{
+			Name: "self-bootstrap-quickstart-workspace-change",
+			RequiredEvidenceTypes: []string{
+				gopacttest.VerificationEvidenceTypeDiff,
+				gopacttest.VerificationEvidenceTypeFileSnapshot,
+			},
+		},
+		{
+			Name: "self-bootstrap-quickstart-ci",
+			RequiredEvidenceTypes: []string{
+				gopacttest.VerificationEvidenceTypeCommand,
+				gopacttest.VerificationEvidenceTypeCIGate,
+			},
+			RequiredCIGates: []string{gopacttest.SelfBootstrapCIGateUnit},
+		},
+		{
+			Name: "self-bootstrap-quickstart-governance",
+			RequiredEvidenceTypes: []string{
+				gopact.VerificationEvidenceTypePolicyDecision,
+				gopacttest.VerificationEvidenceTypeReview,
+			},
+		},
+	}
 }
 
 func prepareWorkspace(ctx context.Context) (string, func(), error) {

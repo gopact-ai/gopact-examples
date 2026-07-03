@@ -19,7 +19,7 @@ This matrix is the executable contract for `gopact-examples`. CI uses mocks, loc
 | Supervisor routing to named Plan-Execute child agents | `quickstart/supervisor` | `go test -count=1 ./quickstart/supervisor` | Not required |
 | agent as tool success and failure evidence | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | Not required |
 | leased background scheduler with retry, dead-letter, drain, lease release, and schedule evidence | `quickstart/background-scheduler` | `go test -count=1 ./quickstart/background-scheduler` | Not required |
-| Dev Agent self-bootstrap workflow with policy-approved plan patch apply, diff, file snapshot, command, CI gate, run export, failure attribution, and verification report evidence | `quickstart/self-bootstrap` | `go test -count=1 ./quickstart/self-bootstrap` | Not required |
+| Dev Agent self-bootstrap workflow with policy-approved plan patch apply, quickstart release requirements, diff, file snapshot, command, CI gate, run export, failure attribution, and verification report evidence | `quickstart/self-bootstrap` | `go test -count=1 ./quickstart/self-bootstrap` | Not required |
 | A2A child agent as typed graph node with nested evidence | `quickstart/agent-node` | `go test -count=1 ./quickstart/agent-node` | Not required |
 | A2A local cluster + multi-source discovery + tag route + fallback + cancel | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |
 | A2A env mesh sync with mesh-level HTTP options and readiness pruning | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | Not required |

@@ -66,7 +66,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/supervisor` | Supervisor routing to named Plan-Execute child agents. | No |
 | `quickstart/agent-as-tool` | Agent as tool success and failure evidence. | No |
 | `quickstart/background-scheduler` | Leased background jobs with retry, dead-letter, drain, and schedule evidence. | No |
-| `quickstart/self-bootstrap` | Dev Agent self-bootstrap workflow with policy-approved plan patch apply, diff, file snapshot, command, CI gate, run export, failure attribution, and verification report evidence. | No |
+| `quickstart/self-bootstrap` | Dev Agent self-bootstrap workflow with policy-approved plan patch apply, quickstart release requirements, diff, file snapshot, command, CI gate, run export, failure attribution, and verification report evidence. | No |
 | `quickstart/agent-node` | A2A child agent mounted as a typed graph node with nested evidence. | No |
 | `quickstart/agent-cluster` | A2A local cluster, mesh-level HTTP options, `Mesh.SyncEnv`/`Mesh.SyncEnvEvery` discovery, tag route, fallback, policy, retry, cancel, and Dev Agent test, review, replay, and command evidence. | No |
 | `quickstart/openai-chat` | OpenAI-compatible chat. | Yes |

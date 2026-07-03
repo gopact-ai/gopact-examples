@@ -25,6 +25,7 @@ func TestRunShowsSelfBootstrapWorkflow(t *testing.T) {
 		"workflow: analyze -> plan -> write -> test -> review",
 		"evidence: ci_gate, command, diff, file_snapshot, policy_decision, review, run_export",
 		"report: passed checks=7 failures=0",
+		"gate: quickstart release requirements=4",
 		"summary: release-ready self-bootstrap slice",
 	} {
 		if !strings.Contains(got, want) {
@@ -62,6 +63,19 @@ func TestRunDemoProducesReleaseReadyEvidence(t *testing.T) {
 		gopact.VerificationEvidenceTypePolicyDecision,
 	})
 	requireWorkspaceEvidence(t, result)
+}
+
+func TestRunDemoSatisfiesSelfBootstrapQuickstartGate(t *testing.T) {
+	result, err := runDemo(context.Background())
+	if err != nil {
+		t.Fatalf("runDemo() error = %v", err)
+	}
+
+	gopacttest.RequireVerificationEvidenceRequirements(
+		t,
+		result.Workflow.Report,
+		selfBootstrapQuickstartRequirements(),
+	)
 }
 
 func requireNodes(t *testing.T, export gopact.RunExport, want []string) {

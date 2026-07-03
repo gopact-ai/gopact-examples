@@ -77,7 +77,7 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/background-scheduler",
 		},
 		{
-			capability:  "Dev Agent self-bootstrap workflow with policy-approved plan patch apply, diff, file snapshot, command, CI gate, run export, failure attribution, and verification report evidence",
+			capability:  "Dev Agent self-bootstrap workflow with policy-approved plan patch apply, quickstart release requirements, diff, file snapshot, command, CI gate, run export, failure attribution, and verification report evidence",
 			path:        "quickstart/self-bootstrap",
 			mockCommand: "go test -count=1 ./quickstart/self-bootstrap",
 		},
