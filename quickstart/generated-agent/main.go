@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	gopactVersion = "v0.0.45"
+	gopactVersion = "v0.0.46"
 	agentName     = "generated-agent"
 	modulePath    = "example.com/generated-agent"
 )
@@ -49,7 +49,7 @@ func run(ctx context.Context, out io.Writer) error {
 	if err := runCommand(ctx, target, "go", "mod", "tidy"); err != nil {
 		return err
 	}
-	if err := runCommand(ctx, target, "go", "test", "./..."); err != nil {
+	if err := runCommand(ctx, "", "go", "run", "github.com/gopact-ai/gopact/cmd/gopact@"+gopactVersion, "agent", "verify", target); err != nil {
 		return err
 	}
 	url, err := runGeneratedAgentSmoke(ctx, target)
@@ -58,6 +58,9 @@ func run(ctx context.Context, out io.Writer) error {
 	}
 
 	if _, err := fmt.Fprintf(out, "generated %s at %s\n", agentName, target); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "verified %s with gopact agent verify\n", agentName); err != nil {
 		return err
 	}
 	_, err = fmt.Fprintf(out, "served %s at %s\n", agentName, url)
