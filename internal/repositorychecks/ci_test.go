@@ -347,6 +347,7 @@ func TestSelfBootstrapMockSuiteIsExecutableAndUsedByCI(t *testing.T) {
 		"go test -count=1 ./quickstart/workflow-graph",
 		"go test -count=1 ./quickstart/agent-scaffold",
 		"go test -count=1 ./quickstart/generated-agent",
+		"go test -count=1 ./quickstart/generated-cluster",
 		"go test -count=1 ./quickstart/plan-exec",
 		"go test -count=1 ./quickstart/supervisor",
 		"go test -count=1 ./quickstart/agent-as-tool",
@@ -489,9 +490,10 @@ func TestAgentClusterReadmesDocumentReleaseEvidence(t *testing.T) {
 func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 	goMod := readText(t, "../../go.mod")
 	generatedAgent := readText(t, "../../quickstart/generated-agent/main.go")
+	generatedCluster := readText(t, "../../quickstart/generated-cluster/main.go")
 
 	for _, requirement := range []string{
-		"github.com/gopact-ai/gopact v0.0.46",
+		"github.com/gopact-ai/gopact v0.0.47",
 		"github.com/gopact-ai/gopact-ext/agents/agentnode v0.1.3",
 		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.22",
 		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.23",
@@ -509,8 +511,11 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 			t.Fatalf("go.mod missing current released module %q", requirement)
 		}
 	}
-	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.46"`) {
-		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.46")
+	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.47"`) {
+		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.47")
+	}
+	if !strings.Contains(generatedCluster, `gopactVersion = "v0.0.47"`) {
+		t.Fatal("quickstart/generated-cluster must exercise gopact agent init-cluster at current core SDK v0.0.47")
 	}
 }
 
