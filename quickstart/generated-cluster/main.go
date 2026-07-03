@@ -16,10 +16,14 @@ import (
 	"time"
 )
 
+type registryAgent struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
 const (
-	gopactVersion = "v0.0.47"
+	gopactVersion = "v0.0.48"
 	clusterName   = "generated-cluster"
-	modulePath    = "example.com/generated-cluster"
 )
 
 func main() {
@@ -42,7 +46,6 @@ func run(ctx context.Context, out io.Writer) error {
 	if err := runCommand(ctx, "", "go", "run", "github.com/gopact-ai/gopact/cmd/gopact@"+gopactVersion,
 		"agent", "init-cluster", clusterName,
 		"-out", target,
-		"-module", modulePath,
 	); err != nil {
 		return err
 	}
@@ -101,6 +104,7 @@ func runGeneratedClusterSmoke(ctx context.Context, target string) (string, error
 		"GONOPROXY=github.com/gopact-ai/*",
 		"GOPACT_CLUSTER_ADDR="+addr,
 		"GOPACT_CLUSTER_URL="+url,
+		"GOPACT_A2A_REGISTRY_URL="+url+"/agents.json",
 	)
 	var output bytes.Buffer
 	cmd.Stdout = &output
@@ -185,23 +189,39 @@ func checkGeneratedCluster(client http.Client, url string) error {
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("agents.json status %d", resp.StatusCode)
 	}
-	var registry struct {
-		Agents []struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"agents"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&registry); err != nil {
+	agents, err := decodeRegistryAgents(resp.Body)
+	if err != nil {
 		return err
 	}
 	wantNames := []string{"planner-agent", "worker-agent", "reviewer-agent"}
-	if len(registry.Agents) != len(wantNames) {
-		return fmt.Errorf("agents.json agents = %+v", registry.Agents)
+	if len(agents) != len(wantNames) {
+		return fmt.Errorf("agents.json agents = %+v", agents)
 	}
 	for i, want := range wantNames {
-		if registry.Agents[i].Name != want || registry.Agents[i].URL != url+"/agents/"+want {
-			return fmt.Errorf("agents.json agents = %+v", registry.Agents)
+		if agents[i].Name != want || agents[i].URL != url+"/agents/"+want {
+			return fmt.Errorf("agents.json agents = %+v", agents)
 		}
 	}
 	return nil
+}
+
+func decodeRegistryAgents(r io.Reader) ([]registryAgent, error) {
+	var raw json.RawMessage
+	if err := json.NewDecoder(r).Decode(&raw); err != nil {
+		return nil, err
+	}
+	var agents []registryAgent
+	if err := json.Unmarshal(raw, &agents); err == nil {
+		return agents, nil
+	}
+	var wrapped struct {
+		Agents []registryAgent `json:"agents"`
+	}
+	if err := json.Unmarshal(raw, &wrapped); err != nil {
+		return nil, err
+	}
+	if wrapped.Agents == nil {
+		return nil, fmt.Errorf("agents.json missing agents")
+	}
+	return wrapped.Agents, nil
 }

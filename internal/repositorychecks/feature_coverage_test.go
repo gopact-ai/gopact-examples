@@ -52,12 +52,12 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/agent-scaffold",
 		},
 		{
-			capability:  "core agent init/verify/run scaffold",
+			capability:  "core agent init/verify/run scaffold with default module path",
 			path:        "quickstart/generated-agent",
 			mockCommand: "go test -count=1 ./quickstart/generated-agent",
 		},
 		{
-			capability:  "core agent init-cluster/verify/run scaffold",
+			capability:  "core agent init-cluster/verify/run scaffold with default module path and env registry bootstrap",
 			path:        "quickstart/generated-cluster",
 			mockCommand: "go test -count=1 ./quickstart/generated-cluster",
 		},

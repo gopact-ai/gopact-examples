@@ -13,4 +13,4 @@ This example runs the core `gopact agent init-cluster` generator, verifies the g
 go run ./quickstart/generated-cluster
 ```
 
-The generated project exposes `/agents.json`, planner/worker/reviewer A2A endpoints, health/readiness endpoints, and generated tests for mesh bootstrap, routing, streaming, cancel, and shutdown.
+The generated project exposes `/agents.json`, planner/worker/reviewer A2A endpoints, health/readiness endpoints, and generated tests for mesh bootstrap, `GOPACT_A2A_REGISTRY_URL` registry override, routing, streaming, cancel, and shutdown.
