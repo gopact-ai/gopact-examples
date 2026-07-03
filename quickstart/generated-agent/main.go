@@ -16,10 +16,14 @@ import (
 	"time"
 )
 
+type registryAgent struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
 const (
-	gopactVersion = "v0.0.47"
+	gopactVersion = "v0.0.48"
 	agentName     = "generated-agent"
-	modulePath    = "example.com/generated-agent"
 )
 
 func main() {
@@ -42,7 +46,6 @@ func run(ctx context.Context, out io.Writer) error {
 	if err := runCommand(ctx, "", "go", "run", "github.com/gopact-ai/gopact/cmd/gopact@"+gopactVersion,
 		"agent", "init", agentName,
 		"-out", target,
-		"-module", modulePath,
 	); err != nil {
 		return err
 	}
@@ -183,17 +186,33 @@ func checkGeneratedAgent(client http.Client, url string) error {
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("agents.json status %d", resp.StatusCode)
 	}
-	var registry struct {
-		Agents []struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"agents"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&registry); err != nil {
+	agents, err := decodeRegistryAgents(resp.Body)
+	if err != nil {
 		return err
 	}
-	if len(registry.Agents) != 1 || registry.Agents[0].Name != agentName || registry.Agents[0].URL != url {
-		return fmt.Errorf("agents.json agents = %+v", registry.Agents)
+	if len(agents) != 1 || agents[0].Name != agentName || agents[0].URL != url {
+		return fmt.Errorf("agents.json agents = %+v", agents)
 	}
 	return nil
+}
+
+func decodeRegistryAgents(r io.Reader) ([]registryAgent, error) {
+	var raw json.RawMessage
+	if err := json.NewDecoder(r).Decode(&raw); err != nil {
+		return nil, err
+	}
+	var agents []registryAgent
+	if err := json.Unmarshal(raw, &agents); err == nil {
+		return agents, nil
+	}
+	var wrapped struct {
+		Agents []registryAgent `json:"agents"`
+	}
+	if err := json.Unmarshal(raw, &wrapped); err != nil {
+		return nil, err
+	}
+	if wrapped.Agents == nil {
+		return nil, fmt.Errorf("agents.json missing agents")
+	}
+	return wrapped.Agents, nil
 }

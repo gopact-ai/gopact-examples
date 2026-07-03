@@ -40,6 +40,7 @@ func TestRunGeneratesTestedA2AAgentScaffold(t *testing.T) {
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "signal.NotifyContext")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "server.Shutdown")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewHTTPRegistryHandler")
+	assertGeneratedFileStartsWith(t, filepath.Join(dir, "agents.json"), "[")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "a2a.NewHTTPRegistry")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "TestScaffoldAgentServesHealthEndpoints")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "TestScaffoldServerStopsOnContextCancel")
@@ -65,13 +66,16 @@ func TestReadmeMentionsCoreAgentInit(t *testing.T) {
 	}
 }
 
-func TestQuickstartUsesScaffoldDefaultSDKVersion(t *testing.T) {
+func TestQuickstartUsesScaffoldDefaults(t *testing.T) {
 	raw, err := os.ReadFile("main.go")
 	if err != nil {
 		t.Fatalf("read main.go: %v", err)
 	}
 	if strings.Contains(string(raw), "-sdk-version") {
 		t.Fatalf("quickstart should exercise gopact agent init default SDK version, not pass -sdk-version")
+	}
+	if strings.Contains(string(raw), "-module") {
+		t.Fatalf("quickstart should exercise gopact agent init default module path, not pass -module")
 	}
 }
 
@@ -83,5 +87,16 @@ func assertGeneratedFileContains(t *testing.T, path, want string) {
 	}
 	if !strings.Contains(string(raw), want) {
 		t.Fatalf("%s missing %q:\n%s", path, want, raw)
+	}
+}
+
+func assertGeneratedFileStartsWith(t *testing.T, path, want string) {
+	t.Helper()
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read %s: %v", path, err)
+	}
+	if !strings.HasPrefix(strings.TrimSpace(string(raw)), want) {
+		t.Fatalf("%s does not start with %q:\n%s", path, want, raw)
 	}
 }

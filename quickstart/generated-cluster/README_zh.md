@@ -12,4 +12,4 @@
 go run ./quickstart/generated-cluster
 ```
 
-生成项目会暴露 `/agents.json`、planner/worker/reviewer A2A endpoint、health/readiness endpoint，并包含 mesh bootstrap、routing、streaming、cancel 和 shutdown 测试。
+生成项目会暴露 `/agents.json`、planner/worker/reviewer A2A endpoint、health/readiness endpoint，并包含 mesh bootstrap、`GOPACT_A2A_REGISTRY_URL` registry override、routing、streaming、cancel 和 shutdown 测试。
