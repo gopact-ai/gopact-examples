@@ -12,7 +12,7 @@ This changelog records user-visible changes for `gopact-examples`. The current u
 - Add `quickstart/background-scheduler` to demonstrate leased background jobs with retry, dead-letter, drain, and schedule verification evidence.
 - Add `quickstart/self-bootstrap` to demonstrate the reusable Dev Agent self-bootstrap workflow with policy-approved plan patch apply, quickstart release requirements, diff, file snapshot, command, CI gate, run export, and verification report evidence.
 - The workflow graph quickstart now demonstrates completed step export/import resume and interrupted resume without provider credentials.
-- Examples now track `gopact` core `v0.0.45` and the current `gopact-ext` release tags.
+- Examples now track `gopact` core `v0.0.46` and the current `gopact-ext` release tags.
 - The agent cluster quickstart now demonstrates mesh-level HTTP options for environment-driven A2A discovery.
 - Add `quickstart/agent-node` to demonstrate mounting an A2A child agent as a typed graph node with nested evidence.
 - The agent cluster quickstart now covers `Mesh.SyncEnv` and `Mesh.SyncEnvEvery` for env-driven A2A discovery, HTTP agent registration, readiness pruning, and registry changes.

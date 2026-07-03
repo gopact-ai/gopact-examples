@@ -52,7 +52,7 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/agent-scaffold",
 		},
 		{
-			capability:  "core agent init/run scaffold",
+			capability:  "core agent init/verify/run scaffold",
 			path:        "quickstart/generated-agent",
 			mockCommand: "go test -count=1 ./quickstart/generated-agent",
 		},

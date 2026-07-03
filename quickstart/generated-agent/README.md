@@ -7,7 +7,7 @@
 
 Chinese documentation: [README_zh.md](README_zh.md)
 
-This example runs the core `gopact agent init` generator, then verifies that the generated A2A HTTP agent project can tidy, test, and serve through `gopact agent run`.
+This example runs the core `gopact agent init` generator, verifies the generated A2A HTTP agent project through `gopact agent verify`, and serves it through `gopact agent run`.
 
 Run it from the repository root:
 
@@ -15,4 +15,4 @@ Run it from the repository root:
 go run ./quickstart/generated-agent
 ```
 
-The generated project exposes `/agents.json` and can be served with `gopact agent run .`.
+The generated project exposes `/agents.json`, validates through `gopact agent verify .`, and can be served with `gopact agent run .`.
