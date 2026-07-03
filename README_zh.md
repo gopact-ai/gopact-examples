@@ -58,7 +58,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/supervisor` | supervisor 路由到具名 Plan-Execute 子 agent。 | 否 |
 | `quickstart/agent-as-tool` | 父 ReAct agent 将 Plan-Execute 子 agent 当作 tool 调用。 | 否 |
 | `quickstart/agent-node` | 将 A2A 子 agent 挂成 typed graph node，并保留嵌套 evidence。 | 否 |
-| `quickstart/agent-cluster` | 本地 A2A cluster、`Mesh.SyncEnv`/`Mesh.SyncEnvEvery` discovery、policy、retry、cancel、dev-agent replay 和 command evidence。 | 否 |
+| `quickstart/agent-cluster` | 本地 A2A cluster、mesh-level HTTP options、`Mesh.SyncEnv`/`Mesh.SyncEnvEvery` discovery、policy、retry、cancel、dev-agent replay 和 command evidence。 | 否 |
 | `quickstart/openai-chat` | OpenAI-compatible chat completions。 | 是 |
 | `quickstart/openai-streaming` | OpenAI Chat Completions 和 Responses 两种 streaming API。 | 是 |
 | `quickstart/tool-calling` | OpenAI-compatible model tool calling。 | 是 |
@@ -101,7 +101,7 @@ A2A cluster discovery 支持：
 - `GOPACT_A2A_REGISTRY_URL`
 - `GOPACT_A2A_ENDPOINTS`
 
-agent-cluster quickstart 使用 `Mesh.SyncEnv` 导入环境变量配置的 agent cards，注册可调用 HTTP agents，并在路由任务前剔除未就绪 endpoint；测试使用 `Mesh.SyncEnvEvery` 覆盖连续 registry refresh。
+agent-cluster quickstart 通过 `WithMeshHTTPAgentOptions` 一次性配置 discovery，再使用 `Mesh.SyncEnv` 导入环境变量配置的 agent cards，注册可调用 HTTP agents，并在路由任务前剔除未就绪 endpoint；测试使用 `Mesh.SyncEnvEvery` 覆盖连续 registry refresh。
 
 ## 本地集成测试
 

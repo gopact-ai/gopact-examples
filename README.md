@@ -62,7 +62,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/supervisor` | Supervisor routing to named Plan-Execute child agents. | No |
 | `quickstart/agent-as-tool` | Agent as tool success and failure evidence. | No |
 | `quickstart/agent-node` | A2A child agent mounted as a typed graph node with nested evidence. | No |
-| `quickstart/agent-cluster` | A2A local cluster, `Mesh.SyncEnv`/`Mesh.SyncEnvEvery` discovery, tag route, fallback, policy, retry, cancel, and Dev Agent test, review, replay, and command evidence. | No |
+| `quickstart/agent-cluster` | A2A local cluster, mesh-level HTTP options, `Mesh.SyncEnv`/`Mesh.SyncEnvEvery` discovery, tag route, fallback, policy, retry, cancel, and Dev Agent test, review, replay, and command evidence. | No |
 | `quickstart/openai-chat` | OpenAI-compatible chat. | Yes |
 | `quickstart/openai-streaming` | OpenAI-compatible streaming. | Yes |
 | `quickstart/tool-calling` | Tool calling through an OpenAI-compatible provider. | Yes |
@@ -105,7 +105,7 @@ A2A cluster discovery reads:
 - `GOPACT_A2A_REGISTRY_URL`
 - `GOPACT_A2A_ENDPOINTS`
 
-The agent-cluster quickstart uses `Mesh.SyncEnv` to import env-configured cards, register callable HTTP agents, and prune unready endpoints before routing tasks. Its tests use `Mesh.SyncEnvEvery` to cover continuous registry refresh.
+The agent-cluster quickstart configures discovery once with `WithMeshHTTPAgentOptions`, then uses `Mesh.SyncEnv` to import env-configured cards, register callable HTTP agents, and prune unready endpoints before routing tasks. Its tests use `Mesh.SyncEnvEvery` to cover continuous registry refresh.
 
 ## Integration Tests
 
