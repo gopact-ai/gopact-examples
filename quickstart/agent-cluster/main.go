@@ -75,6 +75,7 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 	meshEvents := []gopact.Event{}
 	mesh, err := a2a.NewMesh(
 		a2a.WithMeshRetryPolicy(a2a.MeshRetryPolicy{MaxAttempts: 2}),
+		a2a.WithMeshHTTPAgentOptions(a2a.WithHTTPReadinessCheck()),
 		a2a.WithMeshEventSink(func(_ context.Context, event gopact.Event) error {
 			meshEvents = append(meshEvents, event)
 			return nil
@@ -296,7 +297,7 @@ func runClusterInto(ctx context.Context, out io.Writer, exportOut *gopact.RunExp
 }
 
 func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []localAgent) ([]a2a.AgentCard, string, func(), error) {
-	sync, err := mesh.SyncEnv(ctx, os.Getenv, a2a.WithHTTPReadinessCheck())
+	sync, err := mesh.SyncEnv(ctx, os.Getenv)
 	if err != nil {
 		return nil, "", func() {}, err
 	}
@@ -340,7 +341,7 @@ func bootstrapAgentDiscovery(ctx context.Context, mesh *a2a.Mesh, agents []local
 		}
 		return ""
 	}
-	sync, err = mesh.SyncEnv(ctx, lookup, a2a.WithHTTPReadinessCheck())
+	sync, err = mesh.SyncEnv(ctx, lookup)
 	if err != nil {
 		return nil, "", cleanupFile, err
 	}

@@ -397,6 +397,9 @@ func TestAgentClusterDiscoveryEnvIsDocumented(t *testing.T) {
 		if !strings.Contains(readText(t, path), "Mesh.SyncEnvEvery") {
 			t.Fatalf("%s must document Mesh.SyncEnvEvery for continuous A2A env mesh sync", path)
 		}
+		if !strings.Contains(readText(t, path), "WithMeshHTTPAgentOptions") {
+			t.Fatalf("%s must document mesh-level HTTP options for A2A env mesh sync", path)
+		}
 	}
 }
 
@@ -421,7 +424,7 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 	generatedAgent := readText(t, "../../quickstart/generated-agent/main.go")
 
 	for _, requirement := range []string{
-		"github.com/gopact-ai/gopact v0.0.43",
+		"github.com/gopact-ai/gopact v0.0.44",
 		"github.com/gopact-ai/gopact-ext/agents/agentnode v0.1.2",
 		"github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.21",
 		"github.com/gopact-ai/gopact-ext/agents/planexec v0.2.22",
@@ -437,8 +440,8 @@ func TestExamplesUseCurrentReleasedModules(t *testing.T) {
 			t.Fatalf("go.mod missing current released module %q", requirement)
 		}
 	}
-	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.43"`) {
-		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.43")
+	if !strings.Contains(generatedAgent, `gopactVersion = "v0.0.44"`) {
+		t.Fatal("quickstart/generated-agent must exercise gopact agent init at current core SDK v0.0.44")
 	}
 }
 
