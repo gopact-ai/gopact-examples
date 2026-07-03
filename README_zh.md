@@ -19,11 +19,12 @@ go run ./quickstart/react-agent
 go run ./quickstart/plan-exec
 go run ./quickstart/supervisor
 go run ./quickstart/agent-as-tool
+go run ./quickstart/background-scheduler
 go run ./quickstart/agent-node
 go run ./quickstart/agent-cluster
 ```
 
-这条路径从单个 scripted ReAct agent 开始，逐步扩展到 Plan-Execute、supervisor 路由、agent-as-tool 委托、agent-as-graph-node 编排和本地 A2A agent cluster。配置 `.env` 后再运行 provider quickstart。
+这条路径从单个 scripted ReAct agent 开始，逐步扩展到 Plan-Execute、supervisor 路由、agent-as-tool 委托、background scheduling、agent-as-graph-node 编排和本地 A2A agent cluster。配置 `.env` 后再运行 provider quickstart。
 
 ## Quickstarts
 
@@ -31,6 +32,7 @@ go run ./quickstart/agent-cluster
 
 ```bash
 go run ./quickstart/agent-as-tool
+go run ./quickstart/background-scheduler
 go run ./quickstart/agent-cluster
 go run ./quickstart/agent-node
 go run ./quickstart/agent-scaffold
@@ -57,6 +59,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/plan-exec` | Plan-Execute、replan、approval resume、cancel 测试覆盖。 | 否 |
 | `quickstart/supervisor` | supervisor 路由到具名 Plan-Execute 子 agent。 | 否 |
 | `quickstart/agent-as-tool` | 父 ReAct agent 将 Plan-Execute 子 agent 当作 tool 调用。 | 否 |
+| `quickstart/background-scheduler` | 带 lease 的后台任务，覆盖 retry、dead-letter、drain 和 schedule evidence。 | 否 |
 | `quickstart/agent-node` | 将 A2A 子 agent 挂成 typed graph node，并保留嵌套 evidence。 | 否 |
 | `quickstart/agent-cluster` | 本地 A2A cluster、mesh-level HTTP options、`Mesh.SyncEnv`/`Mesh.SyncEnvEvery` discovery、policy、retry、cancel、dev-agent replay 和 command evidence。 | 否 |
 | `quickstart/openai-chat` | OpenAI-compatible chat completions。 | 是 |

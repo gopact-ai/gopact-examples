@@ -8,6 +8,7 @@ This changelog records user-visible changes for `gopact-examples`. The current u
 
 ## Unreleased
 
+- Add `quickstart/background-scheduler` to demonstrate leased background jobs with retry, dead-letter, drain, and schedule verification evidence.
 - The workflow graph quickstart now demonstrates completed step export/import resume and interrupted resume without provider credentials.
 - Examples now track `gopact` core `v0.0.45` and the current `gopact-ext` release tags.
 - The agent cluster quickstart now demonstrates mesh-level HTTP options for environment-driven A2A discovery.

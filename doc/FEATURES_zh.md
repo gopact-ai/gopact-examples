@@ -20,6 +20,7 @@
 | Plan-Execute workflow with replan, approval resume, and cancel | `quickstart/plan-exec` | `go test -count=1 ./quickstart/plan-exec` | - |
 | Supervisor routing to named Plan-Execute child agents | `quickstart/supervisor` | `go test -count=1 ./quickstart/supervisor` | - |
 | agent as tool success and failure evidence | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | - |
+| leased background scheduler with retry, dead-letter, drain, lease release, and schedule evidence | `quickstart/background-scheduler` | `go test -count=1 ./quickstart/background-scheduler` | - |
 | A2A child agent as typed graph node with nested evidence | `quickstart/agent-node` | `go test -count=1 ./quickstart/agent-node` | - |
 | A2A local cluster + multi-source discovery + tag route + fallback + cancel | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
 | A2A env mesh sync with mesh-level HTTP options and readiness pruning | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |

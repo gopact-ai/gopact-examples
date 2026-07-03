@@ -10,6 +10,7 @@
 
 ## Unreleased
 
+- 增加 `quickstart/background-scheduler`，无凭据演示带 lease 的后台任务、retry、dead-letter、drain 和 schedule verification evidence。
 - workflow graph quickstart 增加 completed step export/import resume 和 interrupted resume 的无凭据演示。
 - 示例仓库跟进 `gopact` core `v0.0.45` 和当前 `gopact-ext` 发布 tag。
 - agent cluster quickstart 演示通过 mesh-level HTTP options 配置环境变量驱动的 A2A discovery。

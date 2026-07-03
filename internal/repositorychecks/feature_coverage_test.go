@@ -72,6 +72,11 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/agent-as-tool",
 		},
 		{
+			capability:  "leased background scheduler with retry, dead-letter, drain, lease release, and schedule evidence",
+			path:        "quickstart/background-scheduler",
+			mockCommand: "go test -count=1 ./quickstart/background-scheduler",
+		},
+		{
 			capability:  "A2A child agent as typed graph node with nested evidence",
 			path:        "quickstart/agent-node",
 			mockCommand: "go test -count=1 ./quickstart/agent-node",

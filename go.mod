@@ -8,6 +8,7 @@ require (
 	github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.22
 	github.com/gopact-ai/gopact-ext/agents/planexec v0.2.23
 	github.com/gopact-ai/gopact-ext/agents/react v0.2.21
+	github.com/gopact-ai/gopact-ext/agents/scheduler v0.1.0
 	github.com/gopact-ai/gopact-ext/agents/supervisor v0.1.9
 	github.com/gopact-ai/gopact-ext/devagent/filesnapshot v0.1.20
 	github.com/gopact-ai/gopact-ext/devagent/gitdiff v0.1.20
