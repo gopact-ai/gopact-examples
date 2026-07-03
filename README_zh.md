@@ -51,7 +51,7 @@ go run ./quickstart/workflow-graph
 | 示例 | 说明 | 是否需要真实凭据 |
 | --- | --- | --- |
 | `quickstart/react-agent` | scripted ReAct loop，演示本地 tool calling。 | 否 |
-| `quickstart/workflow-graph` | typed graph、branch fan-out/fan-in、subgraph、loop、step limit。 | 否 |
+| `quickstart/workflow-graph` | typed graph、branch fan-out/fan-in、subgraph、loop、step limit、step export/import resume。 | 否 |
 | `quickstart/agent-scaffold` | checkpoint、approval interrupt/resume、verification bundle、A2A file registry。 | 否 |
 | `quickstart/generated-agent` | 调用 core `gopact agent init`，验证生成 agent 的 run 和 registry。 | 否 |
 | `quickstart/plan-exec` | Plan-Execute、replan、approval resume、cancel 测试覆盖。 | 否 |

@@ -20,4 +20,6 @@ go run ./quickstart/workflow-graph
 - runnable subgraph 和 nested events。
 - branch-driven loop。
 - step-limit guard。
+- completed step export/import resume。
+- interrupted step export/import resume。
 - step boundary event streaming。
