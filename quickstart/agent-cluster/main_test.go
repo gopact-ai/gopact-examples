@@ -183,6 +183,54 @@ func TestRunBootstrapsConfiguredHTTPEndpoints(t *testing.T) {
 	}
 }
 
+func TestConfiguredHTTPEndpointDiscoveryUsesMeshHTTPOptions(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("X-Cluster") != "dev" {
+			http.Error(w, "missing cluster header", http.StatusUnauthorized)
+			return
+		}
+		switch r.URL.Path {
+		case "/.well-known/agent-card.json":
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(a2a.AgentCard{
+				Name:   "planner-agent",
+				URL:    "http://" + r.Host,
+				Health: &a2a.HealthHints{ReadinessPath: "/readyz"},
+			})
+		case "/readyz":
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(map[string]string{"status": "ready"})
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("GOPACT_A2A_REGISTRY_FILE", " ")
+	t.Setenv("GOPACT_A2A_REGISTRY_URL", " ")
+	t.Setenv("GOPACT_A2A_ENDPOINTS", server.URL)
+
+	mesh, err := a2a.NewMesh(a2a.WithMeshHTTPAgentOptions(
+		a2a.WithHTTPHeader("X-Cluster", "dev"),
+		a2a.WithHTTPReadinessCheck(),
+	))
+	if err != nil {
+		t.Fatalf("NewMesh() error = %v", err)
+	}
+	cards, source, cleanup, err := bootstrapAgentDiscovery(context.Background(), mesh, nil)
+	defer cleanup()
+	if err != nil {
+		t.Fatalf("bootstrapAgentDiscovery() error = %v", err)
+	}
+	if got, want := source, "configured HTTP endpoints"; got != want {
+		t.Fatalf("discovery source = %q, want %q", got, want)
+	}
+	if got, want := cardNames(cards), "planner-agent"; got != want {
+		t.Fatalf("cards = %q, want %q", got, want)
+	}
+}
+
 func TestConfiguredHTTPEndpointDiscoveryRequiresReadiness(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
@@ -206,7 +254,7 @@ func TestConfiguredHTTPEndpointDiscoveryRequiresReadiness(t *testing.T) {
 	t.Setenv("GOPACT_A2A_REGISTRY_URL", " ")
 	t.Setenv("GOPACT_A2A_ENDPOINTS", server.URL)
 
-	mesh, err := a2a.NewMesh()
+	mesh, err := a2a.NewMesh(a2a.WithMeshHTTPAgentOptions(a2a.WithHTTPReadinessCheck()))
 	if err != nil {
 		t.Fatalf("NewMesh() error = %v", err)
 	}

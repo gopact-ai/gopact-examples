@@ -22,7 +22,7 @@
 | agent as tool success and failure evidence | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | - |
 | A2A child agent as typed graph node with nested evidence | `quickstart/agent-node` | `go test -count=1 ./quickstart/agent-node` | - |
 | A2A local cluster + multi-source discovery + tag route + fallback + cancel | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
-| A2A env mesh sync with readiness pruning | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
+| A2A env mesh sync with mesh-level HTTP options and readiness pruning | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
 | A2A continuous env mesh sync with registry changes | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
 | A2A local cluster expiry-aware discovery and lease heartbeat evidence | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
 | A2A local cluster readiness-gated endpoint discovery | `quickstart/agent-cluster` | `go test -count=1 ./quickstart/agent-cluster` | - |
