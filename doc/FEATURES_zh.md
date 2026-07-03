@@ -12,7 +12,7 @@
 | --- | --- | --- | --- |
 | dotenv configuration | `internal/exampleenv` | `go test -count=1 ./internal/exampleenv` | - |
 | scripted ReAct loop | `quickstart/react-agent` | `go test -count=1 ./quickstart/react-agent` | - |
-| workflow graph branch, dynamic fan-out, fan-in, loop, subgraph, and step limit | `quickstart/workflow-graph` | `go test -count=1 ./quickstart/workflow-graph` | - |
+| workflow graph branch, dynamic fan-out, fan-in, loop, subgraph, step limit, step export/import, and interrupted resume | `quickstart/workflow-graph` | `go test -count=1 ./quickstart/workflow-graph` | - |
 | checkpoint approval resume | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |
 | verification bundle | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |
 | A2A file registry scaffold | `quickstart/agent-scaffold` | `go test -count=1 ./quickstart/agent-scaffold` | - |

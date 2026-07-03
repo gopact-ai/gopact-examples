@@ -67,6 +67,16 @@ func run(ctx context.Context, out io.Writer) error {
 	if _, err := fmt.Fprintf(out, "step limit: %s\n", stepLimit); err != nil {
 		return err
 	}
+	completedResume, interruptedResume, err := stepResumeDemos(ctx)
+	if err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "step export resume: %s\n", completedResume); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(out, "interrupt resume: %s\n", interruptedResume); err != nil {
+		return err
+	}
 	_, err = fmt.Fprintf(out, "summary: %s\n", state.Summary)
 	return err
 }
@@ -153,6 +163,106 @@ func stepLimitGuard(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("step limit guard did not fail")
 	}
 	return err.Error(), nil
+}
+
+func stepResumeDemos(ctx context.Context) (string, string, error) {
+	completed, err := completedStepExportResume(ctx)
+	if err != nil {
+		return "", "", err
+	}
+	interrupted, err := interruptedStepExportResume(ctx)
+	if err != nil {
+		return "", "", err
+	}
+	return completed, interrupted, nil
+}
+
+func completedStepExportResume(ctx context.Context) (string, error) {
+	ids := gopact.RuntimeIDs{RunID: "workflow-step-export"}
+	g := graph.New[workflowState]()
+	g.AddNode("first", func(_ context.Context, state workflowState) (workflowState, error) {
+		return state, fmt.Errorf("completed exported step reran")
+	})
+	g.AddNode("next", func(_ context.Context, state workflowState) (workflowState, error) {
+		state.Trace = append(state.Trace, "next")
+		return state, nil
+	})
+	g.AddEdge(graph.Start, "first")
+	g.AddEdge("first", "next")
+	g.AddEdge("next", graph.End)
+	run, err := g.Compile()
+	if err != nil {
+		return "", err
+	}
+	return eventTypes(run.Run(ctx, workflowState{}, graph.WithStepExport(gopact.StepExport{
+		Version: gopact.RunExportVersion,
+		Step: gopact.StepSnapshot{
+			ID:     "workflow-step-export:1",
+			Step:   1,
+			Node:   "first",
+			Phase:  gopact.StepCompleted,
+			IDs:    ids,
+			Output: workflowState{Trace: []string{"first"}},
+			Queue:  []string{"next"},
+		},
+	})))
+}
+
+func interruptedStepExportResume(ctx context.Context) (string, error) {
+	ids := gopact.RuntimeIDs{RunID: "workflow-step-interrupt"}
+	g := graph.New[workflowState]()
+	g.AddNode("ask", func(_ context.Context, state workflowState) (workflowState, error) {
+		return state, fmt.Errorf("interrupted exported step reran")
+	})
+	g.AddNode("answer", func(_ context.Context, state workflowState) (workflowState, error) {
+		state.Trace = append(state.Trace, "answer")
+		return state, nil
+	})
+	g.AddEdge(graph.Start, "ask")
+	g.AddEdge("ask", "answer")
+	g.AddEdge("answer", graph.End)
+	run, err := g.Compile()
+	if err != nil {
+		return "", err
+	}
+	return eventTypes(run.Run(ctx, workflowState{},
+		graph.WithStepExport(gopact.StepExport{
+			Version: gopact.RunExportVersion,
+			Step: gopact.StepSnapshot{
+				ID:     "workflow-step-interrupt:1",
+				Step:   1,
+				Node:   "ask",
+				Phase:  gopact.StepInterrupted,
+				IDs:    ids,
+				Output: workflowState{Trace: []string{"ask"}},
+				Queue:  []string{"answer"},
+				Pending: &gopact.InterruptRecord{
+					ID:     "interrupt-ask",
+					Type:   gopact.InterruptInput,
+					Reason: "need input",
+				},
+			},
+		}),
+		graph.WithResumeRequest(gopact.ResumeRequest{
+			StepID:      "workflow-step-interrupt:1",
+			InterruptID: "interrupt-ask",
+			Payload:     "continue",
+		}),
+	))
+}
+
+func eventTypes(seq func(func(gopact.Event, error) bool)) (string, error) {
+	events := []string{}
+	for event, err := range seq {
+		if err != nil {
+			return "", err
+		}
+		if event.Type == gopact.EventRunStarted {
+			continue
+		}
+		events = append(events, string(event.Type))
+	}
+	return strings.Join(events, " -> "), nil
 }
 
 func eventLabel(event gopact.Event) string {
