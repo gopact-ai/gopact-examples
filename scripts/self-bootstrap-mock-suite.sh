@@ -3,6 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+go test -count=1 ./internal/exampleenv
 go test -count=1 ./quickstart/react-agent
 go test -count=1 ./quickstart/workflow-graph
 go test -count=1 ./quickstart/agent-scaffold

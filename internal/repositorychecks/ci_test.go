@@ -343,6 +343,7 @@ func TestSelfBootstrapMockSuiteIsExecutableAndUsedByCI(t *testing.T) {
 
 	command := "./scripts/self-bootstrap-mock-suite.sh"
 	for _, want := range []string{
+		"go test -count=1 ./internal/exampleenv",
 		"go test -count=1 ./quickstart/react-agent",
 		"go test -count=1 ./quickstart/workflow-graph",
 		"go test -count=1 ./quickstart/agent-scaffold",
@@ -351,6 +352,7 @@ func TestSelfBootstrapMockSuiteIsExecutableAndUsedByCI(t *testing.T) {
 		"go test -count=1 ./quickstart/plan-exec",
 		"go test -count=1 ./quickstart/supervisor",
 		"go test -count=1 ./quickstart/agent-as-tool",
+		"go test -count=1 ./quickstart/background-scheduler",
 		"go test -count=1 ./quickstart/self-bootstrap",
 		"go test -count=1 ./quickstart/release-bundle",
 		"go test -count=1 ./quickstart/agent-node",
