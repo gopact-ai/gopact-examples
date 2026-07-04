@@ -22,6 +22,7 @@ Start without credentials:
 go run ./quickstart/react-agent
 go run ./quickstart/plan-exec
 go run ./quickstart/supervisor
+go run ./quickstart/human-review
 go run ./quickstart/agent-as-tool
 go run ./quickstart/background-scheduler
 go run ./quickstart/self-bootstrap
@@ -30,7 +31,7 @@ go run ./quickstart/agent-node
 go run ./quickstart/agent-cluster
 ```
 
-This path starts with a scripted ReAct agent, then adds Plan-Execute, supervisor routing, agent-as-tool delegation, background scheduling, self-bootstrap release evidence bundling, agent-as-graph-node composition, and a local A2A agent cluster. Use provider quickstarts after `.env` is configured.
+This path starts with a scripted ReAct agent, then adds Plan-Execute, supervisor routing, human review approval, agent-as-tool delegation, background scheduling, self-bootstrap release evidence bundling, agent-as-graph-node composition, and a local A2A agent cluster. Use provider quickstarts after `.env` is configured.
 
 ## Quickstarts
 
@@ -49,6 +50,7 @@ go run ./quickstart/ark-chat
 go run ./quickstart/ark-streaming
 go run ./quickstart/generated-agent
 go run ./quickstart/generated-cluster
+go run ./quickstart/human-review
 go run ./quickstart/openai-chat
 go run ./quickstart/openai-streaming
 go run ./quickstart/plan-exec
@@ -68,6 +70,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/generated-cluster` | Core agent cluster init/verify/run scaffold generated through `gopact agent init-cluster` with default module path and env registry bootstrap. | No |
 | `quickstart/plan-exec` | Plan-Execute workflow with replan, approval resume, and cancel. | No |
 | `quickstart/supervisor` | Supervisor routing to named Plan-Execute child agents. | No |
+| `quickstart/human-review` | HumanReview approval gate with step export resume and checkpoint resume. | No |
 | `quickstart/agent-as-tool` | Agent as tool success and failure evidence. | No |
 | `quickstart/background-scheduler` | Leased background jobs with retry, dead-letter, drain, and schedule evidence. | No |
 | `quickstart/self-bootstrap` | Dev Agent self-bootstrap workflow with policy-approved plan patch apply, quickstart release requirements, diff, file snapshot, command, CI gate, run export, failure attribution, and verification report evidence. | No |
