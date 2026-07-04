@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -39,7 +40,7 @@ func TestRunGeneratesTestedA2AClusterScaffold(t *testing.T) {
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewHTTPRegistryHandler")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewHTTPRegistry")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "a2a.NewMesh")
-	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), `clusterRegistryURLEnv = "GOPACT_A2A_REGISTRY_URL"`)
+	assertGeneratedFileMatches(t, filepath.Join(dir, "main.go"), regexp.MustCompile(`clusterRegistryURLEnv\s*=\s*"GOPACT_A2A_REGISTRY_URL"`))
 	assertGeneratedFileContains(t, filepath.Join(dir, "main.go"), "bootstrapClusterMeshFromEnv")
 	assertGeneratedFileStartsWith(t, filepath.Join(dir, "agents.json"), "[")
 	assertGeneratedFileContains(t, filepath.Join(dir, "main_test.go"), "TestClusterRegistryBootstrapsMesh")
@@ -89,6 +90,17 @@ func assertGeneratedFileContains(t *testing.T, path, want string) {
 	}
 	if !strings.Contains(string(raw), want) {
 		t.Fatalf("%s missing %q:\n%s", path, want, raw)
+	}
+}
+
+func assertGeneratedFileMatches(t *testing.T, path string, want *regexp.Regexp) {
+	t.Helper()
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read %s: %v", path, err)
+	}
+	if !want.Match(raw) {
+		t.Fatalf("%s missing pattern %q:\n%s", path, want, raw)
 	}
 }
 
