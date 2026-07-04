@@ -6,6 +6,7 @@ require (
 	github.com/gopact-ai/gopact v0.0.55
 	github.com/gopact-ai/gopact-ext/agents/agentnode v0.1.11
 	github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.30
+	github.com/gopact-ai/gopact-ext/agents/humanreview v0.1.8
 	github.com/gopact-ai/gopact-ext/agents/planexec v0.2.31
 	github.com/gopact-ai/gopact-ext/agents/react v0.2.29
 	github.com/gopact-ai/gopact-ext/agents/scheduler v0.1.8

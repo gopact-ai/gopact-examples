@@ -11,6 +11,7 @@ go test -count=1 ./quickstart/generated-agent
 go test -count=1 ./quickstart/generated-cluster
 go test -count=1 ./quickstart/plan-exec
 go test -count=1 ./quickstart/supervisor
+go test -count=1 ./quickstart/human-review
 go test -count=1 ./quickstart/agent-as-tool
 go test -count=1 ./quickstart/background-scheduler
 go test -count=1 ./quickstart/self-bootstrap

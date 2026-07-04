@@ -72,6 +72,11 @@ func TestFeatureCoverageMatrixDocumentsExpectedCapabilities(t *testing.T) {
 			mockCommand: "go test -count=1 ./quickstart/supervisor",
 		},
 		{
+			capability:  "HumanReview approval gate with step export resume and checkpoint resume",
+			path:        "quickstart/human-review",
+			mockCommand: "go test -count=1 ./quickstart/human-review",
+		},
+		{
 			capability:  "agent as tool success and failure evidence",
 			path:        "quickstart/agent-as-tool",
 			mockCommand: "go test -count=1 ./quickstart/agent-as-tool",

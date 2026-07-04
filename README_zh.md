@@ -18,6 +18,7 @@ Start without credentials:
 go run ./quickstart/react-agent
 go run ./quickstart/plan-exec
 go run ./quickstart/supervisor
+go run ./quickstart/human-review
 go run ./quickstart/agent-as-tool
 go run ./quickstart/background-scheduler
 go run ./quickstart/self-bootstrap
@@ -26,7 +27,7 @@ go run ./quickstart/agent-node
 go run ./quickstart/agent-cluster
 ```
 
-这条路径从单个 scripted ReAct agent 开始，逐步扩展到 Plan-Execute、supervisor 路由、agent-as-tool 委托、background scheduling、self-bootstrap release evidence bundling、agent-as-graph-node 编排和本地 A2A agent cluster。配置 `.env` 后再运行 provider quickstart。
+这条路径从单个 scripted ReAct agent 开始，逐步扩展到 Plan-Execute、supervisor 路由、human review 审批、agent-as-tool 委托、background scheduling、self-bootstrap release evidence bundling、agent-as-graph-node 编排和本地 A2A agent cluster。配置 `.env` 后再运行 provider quickstart。
 
 ## Quickstarts
 
@@ -45,6 +46,7 @@ go run ./quickstart/ark-chat
 go run ./quickstart/ark-streaming
 go run ./quickstart/generated-agent
 go run ./quickstart/generated-cluster
+go run ./quickstart/human-review
 go run ./quickstart/openai-chat
 go run ./quickstart/openai-streaming
 go run ./quickstart/plan-exec
@@ -64,6 +66,7 @@ go run ./quickstart/workflow-graph
 | `quickstart/generated-cluster` | 调用 core `gopact agent init-cluster`、`agent verify` 和 `agent run`，验证默认 module path、生成 cluster 的 registry、env registry bootstrap、mesh 和运行路径。 | 否 |
 | `quickstart/plan-exec` | Plan-Execute、replan、approval resume、cancel 测试覆盖。 | 否 |
 | `quickstart/supervisor` | supervisor 路由到具名 Plan-Execute 子 agent。 | 否 |
+| `quickstart/human-review` | HumanReview approval gate，覆盖 step export resume 和 checkpoint resume。 | 否 |
 | `quickstart/agent-as-tool` | 父 ReAct agent 将 Plan-Execute 子 agent 当作 tool 调用。 | 否 |
 | `quickstart/background-scheduler` | 带 lease 的后台任务，覆盖 retry、dead-letter、drain 和 schedule evidence。 | 否 |
 | `quickstart/self-bootstrap` | Dev Agent self-bootstrap workflow，覆盖 policy-approved plan patch apply、quickstart release requirements、diff、file snapshot、command、CI gate、run export、failure attribution 和 verification report evidence。 | 否 |

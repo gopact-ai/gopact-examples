@@ -20,6 +20,7 @@
 | core agent init-cluster/verify/run scaffold with default module path and env registry bootstrap | `quickstart/generated-cluster` | `go test -count=1 ./quickstart/generated-cluster` | - |
 | Plan-Execute workflow with replan, approval resume, and cancel | `quickstart/plan-exec` | `go test -count=1 ./quickstart/plan-exec` | - |
 | Supervisor routing to named Plan-Execute child agents | `quickstart/supervisor` | `go test -count=1 ./quickstart/supervisor` | - |
+| HumanReview approval gate with step export resume and checkpoint resume | `quickstart/human-review` | `go test -count=1 ./quickstart/human-review` | - |
 | agent as tool success and failure evidence | `quickstart/agent-as-tool` | `go test -count=1 ./quickstart/agent-as-tool` | - |
 | leased background scheduler with retry, dead-letter, drain, lease release, and schedule evidence | `quickstart/background-scheduler` | `go test -count=1 ./quickstart/background-scheduler` | - |
 | Dev Agent self-bootstrap workflow with policy-approved plan patch apply, quickstart release requirements, diff, file snapshot, command, CI gate, run export, failure attribution, and verification report evidence | `quickstart/self-bootstrap` | `go test -count=1 ./quickstart/self-bootstrap` | - |

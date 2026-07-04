@@ -35,6 +35,8 @@ github.com/gopact-ai/gopact-ext/agents/agentnode v0.1.11 h1:cgPLyPqe2Z4ViVyaOHkj
 github.com/gopact-ai/gopact-ext/agents/agentnode v0.1.11/go.mod h1:sOdog5iLfux8cHk/8Mkbxdvjkun3cNjqXwS5Kpt20IE=
 github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.30 h1:V+fXnIlAAn7g65ifKFlQ4R6VLUNj8xIaMj2uXDT7MXM=
 github.com/gopact-ai/gopact-ext/agents/agenttool v0.1.30/go.mod h1:1glmTgkQwdVVrXKnIjkk9QROjgmKNfTqCw3D1GVukSI=
+github.com/gopact-ai/gopact-ext/agents/humanreview v0.1.8 h1:oSbeEjUNbX33VKDCowWaIhqb4DmLsmnCAaSl9QkKCeU=
+github.com/gopact-ai/gopact-ext/agents/humanreview v0.1.8/go.mod h1:ZIXWss9lTsUdEXCVsBml58j5+7w2B0YXFuw/H/479cU=
 github.com/gopact-ai/gopact-ext/agents/planexec v0.2.31 h1:Zas9GMb5kUg7BMsh9Dp4RgFbTfWHBS3XRDbHtFwIMAE=
 github.com/gopact-ai/gopact-ext/agents/planexec v0.2.31/go.mod h1:ixNoJqUlvvPKxivZXIe3ZVuQpA6ChfknVjxKstnpYn4=
 github.com/gopact-ai/gopact-ext/agents/react v0.2.29 h1:iVfy9/BOeyOaKklgZC6xL1A1uELyMQSZSMyEkd4oRxQ=

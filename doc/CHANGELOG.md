@@ -8,6 +8,7 @@ This changelog records user-visible changes for `gopact-examples`. The current u
 
 ## Unreleased
 
+- Add `quickstart/human-review` to demonstrate the HumanReview approval gate with step export resume and checkpoint resume.
 - Add an ecosystem self-bootstrap mock suite that validates `gopact`, `gopact-ext`, and `gopact-examples` through their mock-only self-bootstrap gates.
 - Add `quickstart/release-bundle` to demonstrate core `gopact release-bundle` using a recorded run export and observed verification report.
 - Add `quickstart/generated-cluster` to exercise core `gopact agent init-cluster`, `agent verify`, and `agent run` against a generated local A2A cluster.

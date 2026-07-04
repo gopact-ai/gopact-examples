@@ -10,6 +10,7 @@
 
 ## Unreleased
 
+- 增加 `quickstart/human-review`，无凭据演示 HumanReview approval gate、step export resume 和 checkpoint resume。
 - 增加生态级 self-bootstrap mock suite，串联验证 `gopact`、`gopact-ext` 和 `gopact-examples` 的 mock-only 自举门禁。
 - 增加 `quickstart/release-bundle`，演示 core `gopact release-bundle` 如何使用已记录 run export 和已观察 verification report。
 - 增加 `quickstart/generated-cluster`，通过生成的本地 A2A cluster 验证 core `gopact agent init-cluster`、`agent verify` 和 `agent run`。
