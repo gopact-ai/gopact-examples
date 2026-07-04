@@ -474,6 +474,15 @@ func TestAgentClusterDiscoveryEnvIsDocumented(t *testing.T) {
 	}
 }
 
+func TestEnvExampleDocumentsArkSDKCredentialPaths(t *testing.T) {
+	envExample := readText(t, "../../.env.example")
+	for _, key := range []string{"GOPACT_ARK_API_KEY", "GOPACT_ARK_ACCESS_KEY", "GOPACT_ARK_SECRET_KEY", "GOPACT_ARK_MODEL", "GOPACT_ARK_REGION"} {
+		if !strings.Contains(envExample, key) {
+			t.Fatalf(".env.example missing Ark SDK credential key %q", key)
+		}
+	}
+}
+
 func TestAgentClusterReadmesDocumentReleaseEvidence(t *testing.T) {
 	for _, path := range []string{
 		"../../README.md",
