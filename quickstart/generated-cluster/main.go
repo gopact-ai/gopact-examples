@@ -22,7 +22,7 @@ type registryAgent struct {
 }
 
 const (
-	gopactVersion = "v0.0.54"
+	gopactVersion = "v0.0.55"
 	clusterName   = "generated-cluster"
 )
 
