@@ -11,6 +11,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
+// TestRunExampleExportsWorkflowIdentity verifies that workflow identity and events reach the caller-owned span.
 func TestRunExampleExportsWorkflowIdentity(t *testing.T) {
 	exporter := tracetest.NewInMemoryExporter()
 	provider := sdktrace.NewTracerProvider(sdktrace.WithSyncer(exporter))
@@ -36,6 +37,7 @@ func TestRunExampleExportsWorkflowIdentity(t *testing.T) {
 		}
 	}
 
+	// Inspect the exported span instead of relying on global tracer state.
 	spans := exporter.GetSpans()
 	if len(spans) != 1 {
 		t.Fatalf("exported spans = %d, want 1", len(spans))
@@ -68,7 +70,9 @@ func TestRunExampleExportsWorkflowIdentity(t *testing.T) {
 	}
 }
 
+// TestRunProgramShutsDownProviderAfterWorkflowFailure verifies that workflow and provider shutdown errors are both retained.
 func TestRunProgramShutsDownProviderAfterWorkflowFailure(t *testing.T) {
+	// Cancel the workflow while the exporter contributes an independent shutdown failure.
 	shutdownErr := errors.New("shutdown exporter")
 	memory := tracetest.NewInMemoryExporter()
 	provider := sdktrace.NewTracerProvider(sdktrace.WithSyncer(shutdownErrorExporter{
@@ -99,6 +103,7 @@ func (e shutdownErrorExporter) Shutdown(ctx context.Context) error {
 	return errors.Join(e.InMemoryExporter.Shutdown(ctx), e.err)
 }
 
+// TestEventEnvelopeDoesNotPersistTelemetryTraceIdentity verifies that telemetry trace IDs stay out of durable workflow events.
 func TestEventEnvelopeDoesNotPersistTelemetryTraceIdentity(t *testing.T) {
 	eventType := reflect.TypeFor[gopact.Event]()
 	for _, field := range []string{"TraceID", "SpanID"} {

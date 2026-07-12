@@ -7,6 +7,7 @@ import (
 	"github.com/gopact-ai/gopact/workflow"
 )
 
+// TestRunExample verifies that two runs share one session and an interrupted run resumes with its timeline intact.
 func TestRunExample(t *testing.T) {
 	result, err := runExample(context.Background())
 	if err != nil {
@@ -15,6 +16,7 @@ func TestRunExample(t *testing.T) {
 	if result.sessionID != "customer-case-42" {
 		t.Fatalf("session ID = %q, want customer-case-42", result.sessionID)
 	}
+	// Before resume, the session contains one completed run and one interrupted run.
 	if len(result.beforeRuns) != 2 || len(result.afterRuns) != 2 {
 		t.Fatalf("run counts before/after = %d/%d, want 2/2", len(result.beforeRuns), len(result.afterRuns))
 	}
@@ -34,6 +36,7 @@ func TestRunExample(t *testing.T) {
 	if len(result.snapshot.Timeline) == 0 || len(result.snapshot.Checkpoints) == 0 {
 		t.Fatalf("snapshot timeline/checkpoints = %d/%d, want both non-empty", len(result.snapshot.Timeline), len(result.snapshot.Checkpoints))
 	}
+	// Resume completes the selected RunID without creating a replacement run.
 	if result.afterRuns[0].RunID != "run-intake" || result.afterRuns[0].Status != workflow.CheckpointCompleted {
 		t.Fatalf("first run after resume = %+v, want completed intake", result.afterRuns[0])
 	}

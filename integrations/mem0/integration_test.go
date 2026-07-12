@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// TestMem0Smoke verifies that a configured Mem0 endpoint accepts a scoped search request.
 func TestMem0Smoke(t *testing.T) {
 	if os.Getenv("MEM0_INTEGRATION") != "1" {
 		t.Skip("set MEM0_INTEGRATION=1 to run the Mem0 smoke test")
