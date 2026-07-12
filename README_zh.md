@@ -2,154 +2,59 @@
 
 <!-- gopact:doc-language: zh -->
 
-[英文文档](./README.md)
+当前 `gopact` 新 API 的可运行示例仓库。
 
-## 中文
+> **仅支持 Go 1.27+。** 本项目围绕泛型方法构建，也借此庆祝我们眼中 Go 近十年来最具影响力的语言演进之一。Go 1.27 正式发布前，本项目需要开发版工具链，应视为预览而非稳定版本。
 
-`gopact-examples` 是 `github.com/gopact-ai/gopact` 和 `gopact-ext` 的可运行示例仓库。它的目标不是展示孤立代码片段，而是把 core workflow、agent template、provider adapter、A2A discovery、verification 和 dev-agent evidence 串成可以本地执行、可以被 CI 固化的用法。
+当前示例默认全部离线可运行：
 
-CI 使用 fake LLM server、scripted model 和本地 A2A agent，不需要真实 provider credential。真实 provider 示例保留为本地 opt-in 测试，必须由 `.env` 提供凭据。
+- `quickstart/workflow-basic`
+- `quickstart/model-basic`
+- `quickstart/react-basic`
+- [`concepts/session-correlation`](./concepts/session-correlation) — 用 Session 关联多个独立 Run，再检查并恢复选中的 Run
+- [`integrations/otel`](./integrations/otel) — 把 Workflow 身份映射到调用方拥有的 OpenTelemetry span
+- [`integrations/mem0`](./integrations/mem0) — 在显式节点中检索语义 Memory，并由业务代码构造 Agent Context
 
-## Scaffold Path
+Session 查询用于列出相关 Run。Snapshot 和恢复操作必须用 `RunID` 选择具体 Run；不存在 Session Snapshot。共享 `workflow.MemoryStore` 仅保存进程生命周期内的执行检查点和日志记录，不是语义 Memory。
 
-Start without credentials:
+## OpenTelemetry 集成
 
-```bash
-go run ./quickstart/react-agent
-go run ./quickstart/plan-exec
-go run ./quickstart/supervisor
-go run ./quickstart/human-review
-go run ./quickstart/agent-as-tool
-go run ./quickstart/background-scheduler
-go run ./quickstart/self-bootstrap
-go run ./quickstart/release-bundle
-go run ./quickstart/agent-node
-go run ./quickstart/agent-cluster
+应用已经拥有 OpenTelemetry 配置，并希望把 Workflow 事件关联到当前 span 时，可使用 `integrations/otel`。示例把 `SessionID` 映射为 `gen_ai.conversation.id`，把 `RunID` 映射为 `gopact.run.id`，把 Workflow definition ID 映射为 `gopact.workflow.name`。
+
+这种方式不会把遥测身份写入领域 Event 或存储 schema，core 也无需依赖 OpenTelemetry，并可接入任意 SDK exporter。限制是 adapter 只能增强调用 `context.Context` 中的有效 span；没有有效 span 时，OpenTelemetry API 只执行空操作。
+
+## Mem0 集成
+
+Agent 需要从 Mem0 或兼容 HTTP 服务获取语义 Memory 时，可使用 `integrations/mem0`。示例用显式 typed topology 解决检索和作用域映射：
+
+```text
+load-memory（HTTP I/O）-> build-model-request（纯函数）-> model
 ```
 
-这条路径从单个 scripted ReAct agent 开始，逐步扩展到 Plan-Execute、supervisor 路由、human review 审批、agent-as-tool 委托、background scheduling、self-bootstrap release evidence bundling、agent-as-graph-node 编排和本地 A2A agent cluster。配置 `.env` 后再运行 provider quickstart。
+决定模型能看到什么的 Agent Context 由业务构造；Memory 只是 Context 的一个输入，不是框架拥有的容器或 provider 接口。
 
-## Quickstarts
+检索节点通过 `workflow.RunInfoFromContext` 读取 SessionID 与 Workflow RunID，业务 Context 不重复保存执行 meta。调用方用 RunOptions 指定身份，框架再把最终身份传播给节点。
 
-所有示例都可以从仓库根目录运行：
+| 应用身份 | Mem0 / model 映射 |
+| --- | --- |
+| UserID | `user_id` |
+| Agent identity | `agent_id` |
+| SessionID | Mem0 `run_id` |
+| Workflow RunID | 写入 `ModelRequest.Metadata` 的 `gopact.workflow.run_id`，仅用于 provenance |
 
-```bash
-go run ./quickstart/agent-as-tool
-go run ./quickstart/background-scheduler
-go run ./quickstart/agent-cluster
-go run ./quickstart/agent-node
-go run ./quickstart/agent-scaffold
-go run ./quickstart/self-bootstrap
-go run ./quickstart/release-bundle
-go run ./quickstart/agnes-chat
-go run ./quickstart/ark-chat
-go run ./quickstart/ark-streaming
-go run ./quickstart/generated-agent
-go run ./quickstart/generated-cluster
-go run ./quickstart/human-review
-go run ./quickstart/openai-chat
-go run ./quickstart/openai-streaming
-go run ./quickstart/plan-exec
-go run ./quickstart/react-agent
-go run ./quickstart/structured-output
-go run ./quickstart/supervisor
-go run ./quickstart/tool-calling
-go run ./quickstart/workflow-graph
-```
+优点：Workflow 中能直接看到 I/O 边界，provider 策略保留在业务代码里，core 和 ext 不引入 Mem0 依赖。缺点与限制：结果选择、prompt 构造、HTTP 兼容和失败策略都由业务负责；这个最小 client 只演示一次 `POST /search` 合约，不是完整 Mem0 SDK。为了避免 API key 泄露，它拒绝所有重定向（包括同源重定向），应直接配置最终 endpoint URL。
 
-| 示例 | 说明 | 是否需要真实凭据 |
-| --- | --- | --- |
-| `quickstart/react-agent` | scripted ReAct loop，演示本地 tool calling。 | 否 |
-| `quickstart/workflow-graph` | typed graph、branch fan-out/fan-in、subgraph、loop、step limit、step export/import resume。 | 否 |
-| `quickstart/agent-scaffold` | checkpoint、approval interrupt/resume、verification bundle、A2A file registry。 | 否 |
-| `quickstart/generated-agent` | 调用 core `gopact agent init`、`agent verify` 和 `agent run`，验证默认 module path、生成 agent 的测试、registry 与运行路径。 | 否 |
-| `quickstart/generated-cluster` | 调用 core `gopact agent init-cluster`、`agent verify` 和 `agent run`，验证默认 module path、生成 cluster 的 registry、env registry bootstrap、mesh 和运行路径。 | 否 |
-| `quickstart/plan-exec` | Plan-Execute、replan、approval resume、cancel 测试覆盖。 | 否 |
-| `quickstart/supervisor` | supervisor 路由到具名 Plan-Execute 子 agent。 | 否 |
-| `quickstart/human-review` | HumanReview approval gate，覆盖 step export resume 和 checkpoint resume。 | 否 |
-| `quickstart/agent-as-tool` | 父 ReAct agent 将 Plan-Execute 子 agent 当作 tool 调用。 | 否 |
-| `quickstart/background-scheduler` | 带 lease 的后台任务，覆盖 retry、dead-letter、drain 和 schedule evidence。 | 否 |
-| `quickstart/self-bootstrap` | Dev Agent self-bootstrap workflow，覆盖 policy-approved plan patch apply、quickstart release requirements、diff、file snapshot、command、CI gate、run export、failure attribution 和 verification report evidence。 | 否 |
-| `quickstart/release-bundle` | core `gopact release-bundle` CLI，使用已记录 run export 和已观察 verification report。 | 否 |
-| `quickstart/agent-node` | 将 A2A 子 agent 挂成 typed graph node，并保留嵌套 evidence。 | 否 |
-| `quickstart/agent-cluster` | 本地 A2A cluster、mesh-level HTTP options、`Mesh.SyncEnv`/`Mesh.SyncEnvEvery` discovery、policy、retry、cancel、dev-agent replay 和 command evidence。 | 否 |
-| `quickstart/openai-chat` | OpenAI-compatible chat completions。 | 是 |
-| `quickstart/openai-streaming` | OpenAI Chat Completions 和 Responses 两种 streaming API。 | 是 |
-| `quickstart/tool-calling` | OpenAI-compatible model tool calling。 | 是 |
-| `quickstart/structured-output` | JSON schema structured output。 | 是 |
-| `quickstart/ark-chat` | Ark SDK provider。 | 是 |
-| `quickstart/ark-streaming` | Ark OpenAI-compatible Responses streaming。 | 是 |
-| `quickstart/agnes-chat` | Agnes provider。 | 是 |
-
-## 配置
-
-默认情况下，示例会从当前目录或父目录加载 `.env`。`.env` 已在 `.gitignore` 中排除；仓库只提交 `.env.example`。
+确定性示例使用离线结果。若要运行有 15 秒超时的外部 smoke test，可先加载仓库根目录的本地 `.env`：
 
 ```bash
-cp .env.example .env
+set -a; [ ! -f .env ] || . ./.env; set +a
+MEM0_INTEGRATION=1 go test -tags=integration ./integrations/mem0 -run TestMem0Smoke -count=1 -v
 ```
 
-通用 OpenAI-shaped provider 示例读取：
+`MEM0_BASE_URL` 缺省为 `http://localhost:8888`，`MEM0_API_KEY` 可选。
 
-- `GOPACT_LLM_BASEURL`
-- `GOPACT_LLM_TOKEN`
-- `GOPACT_LLM_MODEL`
-
-Agnes 示例支持通用变量，也支持 provider-specific override：
-
-- `GOPACT_AGNES_API_KEY`
-- `GOPACT_AGNES_SK`
-- `GOPACT_AGNES_MODEL`
-
-Ark SDK 示例读取：
-
-- `GOPACT_ARK_API_KEY`
-- `GOPACT_ARK_ACCESS_KEY`
-- `GOPACT_ARK_SECRET_KEY`
-- `GOPACT_ARK_MODEL`
-- `GOPACT_ARK_REGION`
-
-A2A cluster discovery 支持：
-
-- `GOPACT_A2A_REGISTRY_FILE`
-- `GOPACT_A2A_REGISTRY_URL`
-- `GOPACT_A2A_ENDPOINTS`
-
-agent-cluster quickstart 通过 `WithMeshHTTPAgentOptions` 一次性配置 discovery，再使用 `Mesh.SyncEnv` 导入环境变量配置的 agent cards，注册可调用 HTTP agents，并在路由任务前剔除未就绪 endpoint；测试使用 `Mesh.SyncEnvEvery` 覆盖连续 registry refresh。
-
-## 本地集成测试
-
-CI 必须保持 mock-only。真实 provider 测试只在本地显式运行：
+运行全部示例：
 
 ```bash
-./scripts/local-agnes-integration.sh
-go test -tags=integration -count=1 ./quickstart/agnes-chat
+go test ./...
 ```
-
-## 开发验证
-
-提交 PR 前运行：
-
-```bash
-git diff --check
-./scripts/public-readiness-check.sh
-./scripts/self-bootstrap-mock-suite.sh
-./scripts/ecosystem-self-bootstrap-mock-suite.sh
-go mod tidy
-git diff --exit-code
-go test -count=1 ./...
-go test -race -count=1 ./...
-go vet ./...
-golangci-lint run ./...
-go test -coverprofile=coverage.out ./...
-govulncheck ./...
-```
-
-## 文档索引
-
-- [doc/README.md](./doc/README.md)：文档地图与推荐阅读顺序。
-- [doc/FEATURES.md](./doc/FEATURES.md)：可执行能力覆盖矩阵。
-- [doc/CONTRIBUTING.md](./doc/CONTRIBUTING.md)：贡献流程、本地验证和 PR 要求。
-- [doc/SECURITY.md](./doc/SECURITY.md)：安全策略与漏洞报告方式。
-- [doc/CHANGELOG.md](./doc/CHANGELOG.md)：变更记录。
-- [doc/maintainers/repository-governance.md](./doc/maintainers/repository-governance.md)：PR-only、CI 门禁、admin auto-merge 和公开前检查。
