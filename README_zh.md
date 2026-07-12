@@ -1,21 +1,37 @@
-# gopact-examples
+# 🧪 gopact-examples
 
 <!-- gopact:doc-language: zh -->
+
+[English documentation](README.md)
 
 当前 `gopact` 新 API 的可运行示例仓库。
 
 > **仅支持 Go 1.27+。** 本项目围绕泛型方法构建，也借此庆祝我们眼中 Go 近十年来最具影响力的语言演进之一。Go 1.27 正式发布前，本项目需要开发版工具链，应视为预览而非稳定版本。
 
-当前示例默认全部离线可运行：
+当前示例默认全部离线可运行。
 
-- `quickstart/workflow-basic`
-- `quickstart/model-basic`
-- `quickstart/react-basic`
-- [`concepts/session-correlation`](./concepts/session-correlation) — 用 Session 关联多个独立 Run，再检查并恢复选中的 Run
-- [`integrations/otel`](./integrations/otel) — 把 Workflow 身份映射到调用方拥有的 OpenTelemetry span
-- [`integrations/mem0`](./integrations/mem0) — 在显式节点中检索语义 Memory，并由业务代码构造 Agent Context
+## Quickstart
+
+| 示例 | 你将学到什么 |
+| --- | --- |
+| [`quickstart/model-basic`](./quickstart/model-basic) | 实现并调用最小的 `gopact.Model` contract |
+| [`quickstart/workflow-basic`](./quickstart/workflow-basic) | 构建带可观测事件的 typed Workflow |
+| [`quickstart/react-basic`](./quickstart/react-basic) | 通过 ReAct Agent 连接 model 与 tool |
+
+## 核心概念
+
+| 示例 | 你将学到什么 |
+| --- | --- |
+| [`concepts/session-correlation`](./concepts/session-correlation) | 用 Session 关联多个独立 Run，再检查并恢复选中的 Run |
 
 Session 查询用于列出相关 Run。Snapshot 和恢复操作必须用 `RunID` 选择具体 Run；不存在 Session Snapshot。共享 `workflow.MemoryStore` 仅保存进程生命周期内的执行检查点和日志记录，不是语义 Memory。
+
+## 集成
+
+| 示例 | 你将学到什么 |
+| --- | --- |
+| [`integrations/otel`](./integrations/otel) | 把 Workflow 身份和事件映射到调用方拥有的 OpenTelemetry span |
+| [`integrations/mem0`](./integrations/mem0) | 显式检索语义 Memory，并由业务代码构造 Agent Context |
 
 ## OpenTelemetry 集成
 
@@ -53,7 +69,7 @@ MEM0_INTEGRATION=1 go test -tags=integration ./integrations/mem0 -run TestMem0Sm
 
 `MEM0_BASE_URL` 缺省为 `http://localhost:8888`，`MEM0_API_KEY` 可选。
 
-运行全部示例：
+## 运行全部示例
 
 ```bash
 go test ./...

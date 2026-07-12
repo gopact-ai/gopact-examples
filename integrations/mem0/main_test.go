@@ -13,6 +13,7 @@ import (
 	"github.com/gopact-ai/gopact"
 )
 
+// TestMemoryWorkflowMapsScopesAndBuildsModelRequest verifies that memory scopes reach Mem0 and recalled memory becomes model context.
 func TestMemoryWorkflowMapsScopesAndBuildsModelRequest(t *testing.T) {
 	t.Parallel()
 
@@ -22,6 +23,7 @@ func TestMemoryWorkflowMapsScopesAndBuildsModelRequest(t *testing.T) {
 		"agent_id": "support-agent",
 		"run_id":   "session-memory-9",
 	}
+	// The in-process server makes the Mem0 I/O boundary deterministic while preserving its wire contract.
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost || r.URL.Path != "/search" {
 			t.Errorf("request = %s %s, want POST /search", r.Method, r.URL.Path)
@@ -73,6 +75,7 @@ func TestMemoryWorkflowMapsScopesAndBuildsModelRequest(t *testing.T) {
 	}
 }
 
+// TestMem0ClientSendsAPIKeyOnlyWhenConfigured verifies that the credential header is omitted unless an API key is configured.
 func TestMem0ClientSendsAPIKeyOnlyWhenConfigured(t *testing.T) {
 	t.Parallel()
 
@@ -104,9 +107,11 @@ func TestMem0ClientSendsAPIKeyOnlyWhenConfigured(t *testing.T) {
 	}
 }
 
+// TestMem0ClientDoesNotFollowRedirects verifies that credentials cannot cross hosts through HTTP redirects.
 func TestMem0ClientDoesNotFollowRedirects(t *testing.T) {
 	t.Parallel()
 
+	// Separate hosts prove that the client never forwards an API key through a redirect.
 	var targetVisited atomic.Bool
 	target := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		targetVisited.Store(true)

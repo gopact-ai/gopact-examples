@@ -1,21 +1,37 @@
-# gopact-examples
+# 🧪 gopact-examples
 
 <!-- gopact:doc-language: en -->
+
+Chinese documentation: [README_zh.md](README_zh.md)
 
 Executable examples for the redesigned `gopact` API.
 
 > **Go 1.27+ only.** This project is built around generic methods and celebrates what we see as one of Go's most consequential language changes of the past decade. Until Go 1.27 is officially released, it requires a development toolchain and should be treated as a preview, not a stable release.
 
-Default example runs are intentionally offline:
+Default example runs are intentionally offline.
 
-- `quickstart/workflow-basic`
-- `quickstart/model-basic`
-- `quickstart/react-basic`
-- [`concepts/session-correlation`](./concepts/session-correlation) — correlate independent Runs with a Session, then inspect and resume one selected Run
-- [`integrations/otel`](./integrations/otel) — map Workflow identity onto a caller-owned OpenTelemetry span
-- [`integrations/mem0`](./integrations/mem0) — retrieve semantic Memory in an explicit node and build the Agent Context in application code
+## Quickstarts
+
+| Example | What it teaches |
+| --- | --- |
+| [`quickstart/model-basic`](./quickstart/model-basic) | Implement and invoke the minimal `gopact.Model` contract |
+| [`quickstart/workflow-basic`](./quickstart/workflow-basic) | Build and run a typed Workflow with observable events |
+| [`quickstart/react-basic`](./quickstart/react-basic) | Connect a model and tool through the ReAct Agent |
+
+## Concepts
+
+| Example | What it teaches |
+| --- | --- |
+| [`concepts/session-correlation`](./concepts/session-correlation) | Correlate independent Runs with a Session, then inspect and resume one selected Run |
 
 The session query lists related Runs. Snapshot and resume select a mandatory `RunID`; there is no Session snapshot. The shared `workflow.MemoryStore` holds process-lifetime execution checkpoints and journal records, not semantic Memory.
+
+## Integrations
+
+| Example | What it teaches |
+| --- | --- |
+| [`integrations/otel`](./integrations/otel) | Map Workflow identity and events onto a caller-owned OpenTelemetry span |
+| [`integrations/mem0`](./integrations/mem0) | Retrieve semantic Memory explicitly and build Agent Context in application code |
 
 ## OpenTelemetry integration
 
@@ -53,7 +69,7 @@ MEM0_INTEGRATION=1 go test -tags=integration ./integrations/mem0 -run TestMem0Sm
 
 `MEM0_BASE_URL` defaults to `http://localhost:8888`; `MEM0_API_KEY` is optional.
 
-Run all examples:
+## Run all examples
 
 ```bash
 go test ./...
