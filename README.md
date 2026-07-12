@@ -1,163 +1,60 @@
 # gopact-examples
 
-#### Runnable examples for gopact workflows, providers, A2A discovery, and agent templates.
-
-[![CI](https://github.com/gopact-ai/gopact-examples/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gopact-ai/gopact-examples/actions/workflows/ci.yml)
-[![Go Reference](https://pkg.go.dev/badge/github.com/gopact-ai/gopact-examples.svg)](https://pkg.go.dev/github.com/gopact-ai/gopact-examples)
-[![License](https://img.shields.io/github/license/gopact-ai/gopact-examples)](LICENSE)
-
 <!-- gopact:doc-language: en -->
 
-Chinese documentation: [README_zh.md](README_zh.md)
+Executable examples for the redesigned `gopact` API.
 
-`gopact-examples` contains executable examples for [`gopact`](https://github.com/gopact-ai/gopact) and [`gopact-ext`](https://github.com/gopact-ai/gopact-ext). The repository favors complete local flows over isolated snippets: workflow graphs, agent templates, provider adapters, A2A discovery, verification, and development-agent evidence are all covered by tests.
+> **Go 1.27+ only.** This project is built around generic methods and celebrates what we see as one of Go's most consequential language changes of the past decade. Until Go 1.27 is officially released, it requires a development toolchain and should be treated as a preview, not a stable release.
 
-CI uses fake LLM servers, scripted models, and local A2A agents. Real provider checks are local opt-in tests driven by `.env`.
+Default example runs are intentionally offline:
 
-## Scaffold Path
+- `quickstart/workflow-basic`
+- `quickstart/model-basic`
+- `quickstart/react-basic`
+- [`concepts/session-correlation`](./concepts/session-correlation) — correlate independent Runs with a Session, then inspect and resume one selected Run
+- [`integrations/otel`](./integrations/otel) — map Workflow identity onto a caller-owned OpenTelemetry span
+- [`integrations/mem0`](./integrations/mem0) — retrieve semantic Memory in an explicit node and build the Agent Context in application code
 
-Start without credentials:
+The session query lists related Runs. Snapshot and resume select a mandatory `RunID`; there is no Session snapshot. The shared `workflow.MemoryStore` holds process-lifetime execution checkpoints and journal records, not semantic Memory.
 
-```bash
-go run ./quickstart/react-agent
-go run ./quickstart/plan-exec
-go run ./quickstart/supervisor
-go run ./quickstart/human-review
-go run ./quickstart/agent-as-tool
-go run ./quickstart/background-scheduler
-go run ./quickstart/self-bootstrap
-go run ./quickstart/release-bundle
-go run ./quickstart/agent-node
-go run ./quickstart/agent-cluster
+## OpenTelemetry integration
+
+Use `integrations/otel` when an application already owns OpenTelemetry setup and wants Workflow events on the active span. The example maps `SessionID` to `gen_ai.conversation.id`, `RunID` to `gopact.run.id`, and the Workflow definition ID to `gopact.workflow.name`.
+
+This keeps telemetry identity out of the domain Event and storage schema, leaves the core free of an OpenTelemetry dependency, and works with any SDK exporter. The adapter only enriches a valid span carried by the invocation `context.Context`; without one, the OpenTelemetry API is a no-op.
+
+## Mem0 integration
+
+Use `integrations/mem0` when an Agent needs semantic Memory from Mem0 or a compatible HTTP service. It solves retrieval and scope mapping with an explicit typed topology:
+
+```text
+load-memory (HTTP I/O) -> build-model-request (pure) -> model
 ```
 
-This path starts with a scripted ReAct agent, then adds Plan-Execute, supervisor routing, human review approval, agent-as-tool delegation, background scheduling, self-bootstrap release evidence bundling, agent-as-graph-node composition, and a local A2A agent cluster. Use provider quickstarts after `.env` is configured.
+The application constructs the Agent Context that determines what the model sees; Memory is one input to that Context, not a framework-owned container or provider interface.
 
-## Quickstarts
+The retrieval node reads SessionID and Workflow RunID from `workflow.RunInfoFromContext`; business Context does not duplicate execution metadata. The caller supplies identity through RunOptions, and the framework propagates the resulting identity to the node.
 
-Run examples from the repository root:
+| Application identity | Mem0 / model mapping |
+| --- | --- |
+| UserID | `user_id` |
+| Agent identity | `agent_id` |
+| SessionID | Mem0 `run_id` |
+| Workflow RunID | `gopact.workflow.run_id` in `ModelRequest.Metadata` for provenance |
 
-```bash
-go run ./quickstart/agent-as-tool
-go run ./quickstart/background-scheduler
-go run ./quickstart/agent-cluster
-go run ./quickstart/agent-node
-go run ./quickstart/agent-scaffold
-go run ./quickstart/self-bootstrap
-go run ./quickstart/release-bundle
-go run ./quickstart/agnes-chat
-go run ./quickstart/ark-chat
-go run ./quickstart/ark-streaming
-go run ./quickstart/generated-agent
-go run ./quickstart/generated-cluster
-go run ./quickstart/human-review
-go run ./quickstart/openai-chat
-go run ./quickstart/openai-streaming
-go run ./quickstart/plan-exec
-go run ./quickstart/react-agent
-go run ./quickstart/structured-output
-go run ./quickstart/supervisor
-go run ./quickstart/tool-calling
-go run ./quickstart/workflow-graph
-```
+Advantages: the I/O boundary is visible in the Workflow, provider policy stays in application code, and no Mem0 dependency enters core or ext. Limitations: the application owns result selection, prompt construction, HTTP compatibility, and failure policy; the minimal client demonstrates one `POST /search` contract rather than a complete Mem0 SDK. To prevent API-key disclosure, it rejects every redirect, including same-origin redirects; configure the final endpoint URL directly.
 
-| Example | Demonstrates | Credentials |
-| --- | --- | --- |
-| `quickstart/react-agent` | Scripted ReAct loop and local tool calling. | No |
-| `quickstart/workflow-graph` | Typed graph, branch fan-out and fan-in, subgraph, loop, step limit, and step export/import resume. | No |
-| `quickstart/agent-scaffold` | Checkpoint approval resume, verification bundle, and A2A file registry scaffold. | No |
-| `quickstart/generated-agent` | Core agent init/verify/run scaffold generated through `gopact agent init` with default module path. | No |
-| `quickstart/generated-cluster` | Core agent cluster init/verify/run scaffold generated through `gopact agent init-cluster` with default module path and env registry bootstrap. | No |
-| `quickstart/plan-exec` | Plan-Execute workflow with replan, approval resume, and cancel. | No |
-| `quickstart/supervisor` | Supervisor routing to named Plan-Execute child agents. | No |
-| `quickstart/human-review` | HumanReview approval gate with step export resume and checkpoint resume. | No |
-| `quickstart/agent-as-tool` | Agent as tool success and failure evidence. | No |
-| `quickstart/background-scheduler` | Leased background jobs with retry, dead-letter, drain, and schedule evidence. | No |
-| `quickstart/self-bootstrap` | Dev Agent self-bootstrap workflow with policy-approved plan patch apply, quickstart release requirements, diff, file snapshot, command, CI gate, run export, failure attribution, and verification report evidence. | No |
-| `quickstart/release-bundle` | Core `gopact release-bundle` CLI with recorded run export and observed verification report. | No |
-| `quickstart/agent-node` | A2A child agent mounted as a typed graph node with nested evidence. | No |
-| `quickstart/agent-cluster` | A2A local cluster, mesh-level HTTP options, `Mesh.SyncEnv`/`Mesh.SyncEnvEvery` discovery, tag route, fallback, policy, retry, cancel, and Dev Agent test, review, replay, and command evidence. | No |
-| `quickstart/openai-chat` | OpenAI-compatible chat. | Yes |
-| `quickstart/openai-streaming` | OpenAI-compatible streaming. | Yes |
-| `quickstart/tool-calling` | Tool calling through an OpenAI-compatible provider. | Yes |
-| `quickstart/structured-output` | Structured output through JSON schema. | Yes |
-| `quickstart/ark-chat` | Ark SDK provider. | Yes |
-| `quickstart/ark-streaming` | Ark OpenAI-compatible streaming. | Yes |
-| `quickstart/agnes-chat` | Agnes provider. | Yes |
-
-## Configuration
-
-Examples load `.env` from the current directory or a parent directory. `.env` is ignored; only `.env.example` is committed.
+The deterministic example uses an offline response. To run the bounded external smoke test, optionally load the repository-local `.env` first:
 
 ```bash
-cp .env.example .env
+set -a; [ ! -f .env ] || . ./.env; set +a
+MEM0_INTEGRATION=1 go test -tags=integration ./integrations/mem0 -run TestMem0Smoke -count=1 -v
 ```
 
-OpenAI-shaped provider examples read:
+`MEM0_BASE_URL` defaults to `http://localhost:8888`; `MEM0_API_KEY` is optional.
 
-- `GOPACT_LLM_BASEURL`
-- `GOPACT_LLM_TOKEN`
-- `GOPACT_LLM_MODEL`
-
-Agnes examples also support:
-
-- `GOPACT_AGNES_API_KEY`
-- `GOPACT_AGNES_SK`
-- `GOPACT_AGNES_MODEL`
-
-Ark SDK examples read:
-
-- `GOPACT_ARK_API_KEY`
-- `GOPACT_ARK_ACCESS_KEY`
-- `GOPACT_ARK_SECRET_KEY`
-- `GOPACT_ARK_MODEL`
-- `GOPACT_ARK_REGION`
-
-A2A cluster discovery reads:
-
-- `GOPACT_A2A_REGISTRY_FILE`
-- `GOPACT_A2A_REGISTRY_URL`
-- `GOPACT_A2A_ENDPOINTS`
-
-The agent-cluster quickstart configures discovery once with `WithMeshHTTPAgentOptions`, then uses `Mesh.SyncEnv` to import env-configured cards, register callable HTTP agents, and prune unready endpoints before routing tasks. Its tests use `Mesh.SyncEnvEvery` to cover continuous registry refresh.
-
-## Integration Tests
-
-CI is mock-only. Run real provider tests explicitly from a local machine:
+Run all examples:
 
 ```bash
-./scripts/local-agnes-integration.sh
-go test -tags=integration -count=1 ./quickstart/agnes-chat
+go test ./...
 ```
-
-## Verification
-
-Run the same gates before opening a pull request:
-
-```bash
-git diff --check
-./scripts/public-readiness-check.sh
-./scripts/self-bootstrap-mock-suite.sh
-./scripts/ecosystem-self-bootstrap-mock-suite.sh
-go mod tidy
-git diff --exit-code
-go test -count=1 ./...
-go test -race -count=1 ./...
-go vet ./...
-golangci-lint run ./...
-go test -coverprofile=coverage.out ./...
-govulncheck ./...
-```
-
-## Documentation
-
-- [doc/README.md](doc/README.md): documentation index.
-- [doc/FEATURES.md](doc/FEATURES.md): executable capability matrix.
-- [doc/CONTRIBUTING.md](doc/CONTRIBUTING.md): development setup, local checks, and pull request rules.
-- [doc/SECURITY.md](doc/SECURITY.md): security policy and vulnerability reporting.
-- [doc/CHANGELOG.md](doc/CHANGELOG.md): user-visible changes.
-- [doc/maintainers/repository-governance.md](doc/maintainers/repository-governance.md): PR-only flow, CI gates, admin auto-merge, and public repository governance.
-
-## Contributing
-
-Keep examples runnable from the repository root, covered by mock tests, and documented with the exact command users should run. Provider credentials belong only in local `.env` files.
