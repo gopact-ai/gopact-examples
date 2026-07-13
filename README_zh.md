@@ -22,9 +22,12 @@
 
 | 示例 | 你将学到什么 |
 | --- | --- |
+| [`concepts/durable-resume`](./concepts/durable-resume) | 恢复重复执行同一个 activation 时，如何对外部副作用去重 |
 | [`concepts/session-correlation`](./concepts/session-correlation) | 用 Session 关联多个独立 Run，再检查并恢复选中的 Run |
 
-Session 查询用于列出相关 Run。Snapshot 和恢复操作必须用 `RunID` 选择具体 Run；不存在 Session Snapshot。共享 `workflow.MemoryStore` 仅保存进程生命周期内的执行检查点和日志记录，不是语义 Memory。
+durable-resume 示例使用 `RunInfo.RunID + "/" + RunInfo.ActivationID`，证明模拟进程丢失后节点可能执行两次，但副作用只落地一次。示例中的内存幂等 API 只用于确定性演示，不是生产 outbox。生产中应把稳定 key 传给原生支持去重的外部 API，或者在修改业务数据的同一事务中写入带唯一约束的 dedup/outbox 记录。如果显式业务重试需要产生一次新副作用，必须使用新的 operation key。
+
+Session 查询用于列出相关 Run。Snapshot 和恢复操作必须用 `RunID` 选择具体 Run；不存在 Session Snapshot。共享 `workflow.MemoryStore` 仅保存进程生命周期内的执行检查点和日志记录，不是语义 Memory，也只适合测试或短生命周期进程。SQLite 适用于单机，或安全共享同一个本地数据库文件的多进程；多主机必须使用支持原子 Claim 与 fencing 的分布式数据库 Store。
 
 ## 集成
 

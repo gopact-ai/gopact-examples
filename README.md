@@ -22,9 +22,12 @@ Default example runs are intentionally offline.
 
 | Example | What it teaches |
 | --- | --- |
+| [`concepts/durable-resume`](./concepts/durable-resume) | Deduplicate an external side effect when recovery reruns the same activation |
 | [`concepts/session-correlation`](./concepts/session-correlation) | Correlate independent Runs with a Session, then inspect and resume one selected Run |
 
-The session query lists related Runs. Snapshot and resume select a mandatory `RunID`; there is no Session snapshot. The shared `workflow.MemoryStore` holds process-lifetime execution checkpoints and journal records, not semantic Memory.
+The durable-resume example derives `RunInfo.RunID + "/" + RunInfo.ActivationID`, then proves that a node may run twice after simulated process loss while the side effect is applied once. Its in-memory idempotent API is a deterministic demonstration, not a production outbox. In production, pass the stable key to an external API that natively deduplicates it, or write a uniquely constrained dedup/outbox record in the same transaction as the business data. An explicit business retry intended to create a new side effect needs a new operation key.
+
+The session query lists related Runs. Snapshot and resume select a mandatory `RunID`; there is no Session snapshot. The shared `workflow.MemoryStore` holds process-lifetime execution checkpoints and journal records, not semantic Memory, and is only for tests or short-lived processes. Use SQLite on one machine or from processes that safely share one local database file; use a distributed database Store with atomic Claim and fencing for multiple hosts.
 
 ## Integrations
 
