@@ -8,6 +8,10 @@
 
 > **仅支持 Go 1.27+。** 本项目围绕泛型方法构建，也借此庆祝我们眼中 Go 近十年来最具影响力的语言演进之一。Go 1.27 正式发布前，本项目需要开发版工具链，应视为预览而非稳定版本。
 
+在协调发布各 RC 模块之前，请把 `gopact`、`gopact-ext` 和 `gopact-examples`
+并排 clone。当前预览源码中的本地 `replace` 会有意解析这些相邻仓库；只有各标签通过
+clean-consumer 验证后才会删除这些配置。
+
 当前示例默认全部离线可运行。
 
 ## Quickstart
@@ -73,6 +77,8 @@ MEM0_INTEGRATION=1 go test -tags=integration ./integrations/mem0 -run TestMem0Sm
 `MEM0_BASE_URL` 缺省为 `http://localhost:8888`，`MEM0_API_KEY` 可选。
 
 ## 运行全部示例
+
+在上述并排源码布局中执行：
 
 ```bash
 go test ./...

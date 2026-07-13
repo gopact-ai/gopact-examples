@@ -8,6 +8,11 @@ Executable examples for the redesigned `gopact` API.
 
 > **Go 1.27+ only.** This project is built around generic methods and celebrates what we see as one of Go's most consequential language changes of the past decade. Until Go 1.27 is officially released, it requires a development toolchain and should be treated as a preview, not a stable release.
 
+Before the coordinated RC modules are published, clone `gopact`, `gopact-ext`, and
+`gopact-examples` as sibling directories. The local `replace` directives in this preview
+checkout intentionally resolve those siblings; they are removed only after the tagged
+modules pass clean-consumer verification.
+
 Default example runs are intentionally offline.
 
 ## Quickstarts
@@ -73,6 +78,8 @@ MEM0_INTEGRATION=1 go test -tags=integration ./integrations/mem0 -run TestMem0Sm
 `MEM0_BASE_URL` defaults to `http://localhost:8888`; `MEM0_API_KEY` is optional.
 
 ## Run all examples
+
+From the sibling source layout described above:
 
 ```bash
 go test ./...
