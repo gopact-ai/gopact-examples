@@ -4,7 +4,7 @@ go 1.27
 
 require (
 	github.com/gopact-ai/gopact v0.1.0-rc.2
-	github.com/gopact-ai/gopact-ext v0.6.0-rc.1
+	github.com/gopact-ai/gopact-ext v0.6.0-rc.2
 	go.opentelemetry.io/otel v1.44.0
 	go.opentelemetry.io/otel/sdk v1.44.0
 	go.opentelemetry.io/otel/trace v1.44.0
