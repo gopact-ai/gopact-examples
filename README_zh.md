@@ -8,6 +8,12 @@
 
 > **仅支持 Go 1.27+。** 本项目围绕泛型方法构建，也借此庆祝我们眼中 Go 近十年来最具影响力的语言演进之一。Go 1.27 正式发布前，本项目需要开发版工具链，应视为预览而非稳定版本。
 
+协调发布各 RC 模块之前，手动 source E2E workflow 要求传入已 review 的 core 与 ext
+40 位 commit SHA，checkout 对应精确提交，打印三个仓库的 SHA，再用临时 Go workspace
+联调。普通 CI 使用 `GOWORK=off` 消费 examples module 声明的 immutable versions。
+
+发布顺序固定为 core → 两个 ext module → examples。获批的 immutable dependency tags 发布后，本 module 必须固定这些精确版本，并在 `GOWORK=off` 下通过。该 post-tag 门禁目前尚未通过；Go 1.27 stable 验证和 RC burn-in 完成前，RC 只能称为 production evaluation candidate。
+
 当前示例默认全部离线可运行。
 
 ## Quickstart
@@ -22,9 +28,15 @@
 
 | 示例 | 你将学到什么 |
 | --- | --- |
+| [`concepts/durable-resume`](./concepts/durable-resume) | 从 checkpoint 恢复一个 interrupted Run |
+| [`concepts/run-control`](./concepts/run-control) | 把 failed Run Retry 或 Fork 为带 source lineage 的新 Run |
 | [`concepts/session-correlation`](./concepts/session-correlation) | 用 Session 关联多个独立 Run，再检查并恢复选中的 Run |
 
-Session 查询用于列出相关 Run。Snapshot 和恢复操作必须用 `RunID` 选择具体 Run；不存在 Session Snapshot。共享 `workflow.MemoryStore` 仅保存进程生命周期内的执行检查点和日志记录，不是语义 Memory。
+durable-resume 只保留公开的 interrupt/resume 主路径。fresh-process decode、fencing、crash window 与副作用幂等由 core 和 Store integration suites 验证，不在概念示例中重复搭建。示例为离线运行使用 `MemoryStore`；需要跨进程恢复时必须替换成 durable Store。
+
+run-control 保持 failed source Run 不可变。`Retry` 把一次失败的 node activation 重放到新 Run，`Fork` 则从 replay-safe root 创建另一个新 Run并修改 workflow input；两个新 Run 都保留 `SourceRunID` lineage。
+
+Session 查询用于列出相关 Run。Snapshot 和恢复操作必须用 `RunID` 选择具体 Run；不存在 Session Snapshot。共享 `workflow.MemoryStore` 仅保存进程生命周期内的执行检查点和日志记录，不是语义 Memory，也只适合测试或短生命周期进程。SQLite 适用于单机，或安全共享同一个本地数据库文件的多进程；多主机必须使用支持原子 Claim 与 fencing 的分布式数据库 Store。
 
 ## 集成
 
@@ -35,9 +47,9 @@ Session 查询用于列出相关 Run。Snapshot 和恢复操作必须用 `RunID`
 
 ## OpenTelemetry 集成
 
-应用已经拥有 OpenTelemetry 配置，并希望把 Workflow 事件关联到当前 span 时，可使用 `integrations/otel`。示例把 `SessionID` 映射为 `gen_ai.conversation.id`，把 `RunID` 映射为 `gopact.run.id`，把 Workflow definition ID 映射为 `gopact.workflow.name`。
+应用已经拥有 OpenTelemetry 配置时，可使用 `integrations/otel`。示例把 Workflow domain Events 投影到 run span：`SessionID` 映射为 `gen_ai.conversation.id`，`RunID` 映射为 `gopact.run.id`，Workflow definition ID 映射为 `gopact.workflow.name`。应用 adapter 另由 infrastructure span 包装，这个 span 不会伪造 Workflow Event。
 
-这种方式不会把遥测身份写入领域 Event 或存储 schema，core 也无需依赖 OpenTelemetry，并可接入任意 SDK exporter。限制是 adapter 只能增强调用 `context.Context` 中的有效 span；没有有效 span 时，OpenTelemetry API 只执行空操作。
+这种方式不会把遥测身份写入领域 Event 或存储 schema，core 也无需依赖 OpenTelemetry，并可接入任意 SDK exporter。两种投影都沿用调用方的 `context.Context`；使用 OpenTelemetry no-op provider 时不会产生运行时遥测。
 
 ## Mem0 集成
 
@@ -70,6 +82,15 @@ MEM0_INTEGRATION=1 go test -tags=integration ./integrations/mem0 -run TestMem0Sm
 `MEM0_BASE_URL` 缺省为 `http://localhost:8888`，`MEM0_API_KEY` 可选。
 
 ## 运行全部示例
+
+发布后的 checkout 使用：
+
+```bash
+GOWORK=off go mod download
+GOWORK=off go test -count=1 ./...
+```
+
+tag 前的 source E2E 则对三个协调 source checkout 创建临时 workspace，并执行：
 
 ```bash
 go test ./...

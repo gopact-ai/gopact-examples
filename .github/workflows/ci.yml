@@ -1,6 +1,16 @@
 name: ci
 
 on:
+  workflow_dispatch:
+    inputs:
+      core_sha:
+        description: Reviewed 40-character gopact commit SHA
+        required: true
+        type: string
+      ext_sha:
+        description: Reviewed 40-character gopact-ext commit SHA
+        required: true
+        type: string
   pull_request:
   push:
     branches:
@@ -11,14 +21,15 @@ permissions:
 
 jobs:
   test:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: source/gopact-examples
+        working-directory: gopact-examples
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          path: source/gopact-examples
+          path: gopact-examples
       - name: reject private development documents
         shell: bash
         run: |
@@ -27,18 +38,64 @@ jobs:
             printf 'private development documents are tracked:\n%s\n' "$files"
             exit 1
           }
-      - uses: actions/checkout@v7
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version: '1.27.0-rc.2'
+          cache-dependency-path: gopact-examples/go.sum
+      - run: test -z "$(gofmt -l .)"
+      - run: GOWORK=off go mod tidy -diff
+      - run: GOWORK=off go test -count=1 ./...
+      - run: GOWORK=off go test -race -count=1 ./...
+      - run: GOWORK=off go vet ./...
+      - run: go install golang.org/x/vuln/cmd/govulncheck@v1.5.0
+      - run: GOWORK=off govulncheck ./...
+
+  source-e2e:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: source/gopact-examples
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          path: source/gopact-examples
+      - name: validate coordinated commit SHAs
+        env:
+          CORE_SHA: ${{ inputs.core_sha }}
+          EXT_SHA: ${{ inputs.ext_sha }}
+        run: |
+          [[ "${CORE_SHA}" =~ ^[0-9a-f]{40}$ ]] || { echo "core_sha must be a 40-character lowercase hexadecimal commit SHA" >&2; exit 1; }
+          [[ "${EXT_SHA}" =~ ^[0-9a-f]{40}$ ]] || { echo "ext_sha must be a 40-character lowercase hexadecimal commit SHA" >&2; exit 1; }
+          printf 'requested core=%s ext=%s examples=%s\n' "${CORE_SHA}" "${EXT_SHA}" "$(git rev-parse HEAD)"
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: gopact-ai/gopact
+          ref: ${{ inputs.core_sha }}
           path: source/gopact
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: gopact-ai/gopact-ext
+          ref: ${{ inputs.ext_sha }}
           path: source/gopact-ext
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
           go-version: '1.27.0-rc.2'
           cache-dependency-path: source/gopact-examples/go.sum
+      - name: print coordinated commit SHAs
+        env:
+          CORE_SHA: ${{ inputs.core_sha }}
+          EXT_SHA: ${{ inputs.ext_sha }}
+        run: |
+          actual_core="$(git -C ../gopact rev-parse HEAD)"
+          actual_ext="$(git -C ../gopact-ext rev-parse HEAD)"
+          actual_examples="$(git rev-parse HEAD)"
+          [[ "${actual_core}" == "${CORE_SHA}" ]]
+          [[ "${actual_ext}" == "${EXT_SHA}" ]]
+          printf 'source E2E core=%s ext=%s examples=%s\n' "${actual_core}" "${actual_ext}" "${actual_examples}"
+      - name: create coordinated source workspace
+        working-directory: source
+        run: go work init ./gopact ./gopact-ext ./gopact-ext/stores ./gopact-examples
       - run: test -z "$(gofmt -l .)"
       - run: go mod tidy -diff
       - run: go test -count=1 ./...

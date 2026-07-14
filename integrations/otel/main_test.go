@@ -11,8 +11,10 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
-// TestRunExampleExportsWorkflowIdentity verifies that workflow identity and events reach the caller-owned span.
-func TestRunExampleExportsWorkflowIdentity(t *testing.T) {
+// TestRunExampleSeparatesDomainProjectionFromInfrastructureTracing verifies
+// that Workflow Events project onto the run span while adapter telemetry stays
+// on an application-owned infrastructure span.
+func TestRunExampleSeparatesDomainProjectionFromInfrastructureTracing(t *testing.T) {
 	exporter := tracetest.NewInMemoryExporter()
 	provider := sdktrace.NewTracerProvider(sdktrace.WithSyncer(exporter))
 	t.Cleanup(func() {
@@ -39,10 +41,22 @@ func TestRunExampleExportsWorkflowIdentity(t *testing.T) {
 
 	// Inspect the exported span instead of relying on global tracer state.
 	spans := exporter.GetSpans()
-	if len(spans) != 1 {
-		t.Fatalf("exported spans = %d, want 1", len(spans))
+	if len(spans) != 2 {
+		t.Fatalf("exported spans = %d, want workflow and adapter spans", len(spans))
 	}
-	span := spans[0]
+	var workflowSpan, adapterSpan tracetest.SpanStub
+	for _, span := range spans {
+		switch span.Name {
+		case "workflow.run":
+			workflowSpan = span
+		case "adapter.lookup":
+			adapterSpan = span
+		}
+	}
+	if workflowSpan.Name == "" || adapterSpan.Name == "" {
+		t.Fatalf("span names = %q/%q, want workflow.run/adapter.lookup", workflowSpan.Name, adapterSpan.Name)
+	}
+	span := workflowSpan
 	if traceID := span.SpanContext.TraceID(); !traceID.IsValid() {
 		t.Fatalf("trace ID = %s, want valid non-zero ID", traceID)
 	}
@@ -67,6 +81,12 @@ func TestRunExampleExportsWorkflowIdentity(t *testing.T) {
 		if got := span.Events[i].Name; got != event.Type {
 			t.Fatalf("span event %d name = %q, want %q", i, got, event.Type)
 		}
+	}
+	if len(adapterSpan.Events) != 0 {
+		t.Fatalf("adapter span events = %d, want infrastructure telemetry without domain events", len(adapterSpan.Events))
+	}
+	if adapterSpan.Parent.SpanID() != workflowSpan.SpanContext.SpanID() {
+		t.Fatalf("adapter parent = %s, want workflow span %s", adapterSpan.Parent.SpanID(), workflowSpan.SpanContext.SpanID())
 	}
 }
 
