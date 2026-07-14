@@ -13,6 +13,8 @@ Before the coordinated RC modules are published, source E2E checks clone `gopact
 Go workspace. Published examples consume immutable module versions and require neither
 sibling checkouts nor committed `replace` directives.
 
+The release order is core → the two ext modules → examples. Before tags, CI creates a temporary workspace over coordinated source checkouts. After the approved immutable dependency tags exist, this module must remove development `replace` directives, pin those exact versions, and pass with `GOWORK=off`. That post-tag gate has not passed yet; RCs remain production-evaluation candidates until Go 1.27 stable validation and burn-in complete.
+
 Default example runs are intentionally offline.
 
 ## Quickstarts

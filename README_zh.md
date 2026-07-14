@@ -12,6 +12,8 @@
 `gopact-ext` 和 `gopact-examples`，再用临时 Go workspace 联调。发布后的 examples
 只消费 immutable module versions，不需要 sibling checkout 或提交到仓库的 `replace`。
 
+发布顺序固定为 core → 两个 ext module → examples。tag 前，CI 会为协调源码 checkout 创建临时 workspace；获批的 immutable dependency tags 发布后，本 module 必须删除开发期 `replace`、固定这些精确版本，并在 `GOWORK=off` 下通过。该 post-tag 门禁目前尚未通过；Go 1.27 stable 验证和 RC burn-in 完成前，RC 只能称为 production evaluation candidate。
+
 当前示例默认全部离线可运行。
 
 ## Quickstart
