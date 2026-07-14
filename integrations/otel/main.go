@@ -31,10 +31,6 @@ func (spanEventSink) Emit(ctx context.Context, event gopact.Event) error {
 	return nil
 }
 
-type lookupAdapter interface {
-	Lookup(context.Context, string) (string, error)
-}
-
 type staticLookup struct{}
 
 func (staticLookup) Lookup(_ context.Context, input string) (string, error) {
@@ -44,7 +40,7 @@ func (staticLookup) Lookup(_ context.Context, input string) (string, error) {
 // tracedLookup is application-owned infrastructure instrumentation. It wraps
 // the adapter call directly instead of manufacturing a Workflow domain event.
 type tracedLookup struct {
-	next   lookupAdapter
+	next   staticLookup
 	tracer trace.Tracer
 }
 

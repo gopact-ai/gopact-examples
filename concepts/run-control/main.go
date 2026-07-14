@@ -65,6 +65,9 @@ func runExample(ctx context.Context) (exampleResult, error) {
 	if nodeID == "" || nodeExecutionVersion == 0 || rootSequence == 0 {
 		return exampleResult{}, errors.New("failed run has no retry or fork point")
 	}
+	if len(snapshot.Checkpoints) == 0 {
+		return exampleResult{}, errors.New("failed run has no checkpoint status")
+	}
 
 	retryOutput, err := wf.Retry(ctx, workflow.RetryRequest{
 		RunID:                sourceRunID,
@@ -85,22 +88,20 @@ func runExample(ctx context.Context) (exampleResult, error) {
 		return exampleResult{}, fmt.Errorf("fork failed run: %w", err)
 	}
 
-	source, err := store.Load(ctx, sourceRunID)
-	if err != nil {
-		return exampleResult{}, fmt.Errorf("load source: %w", err)
-	}
-	retry, err := store.Load(ctx, retryRunID)
+	retrySnapshot, err := wf.Snapshot(ctx, workflow.SnapshotRequest{RunID: retryRunID})
 	if err != nil {
 		return exampleResult{}, fmt.Errorf("load retry: %w", err)
 	}
-	fork, err := store.Load(ctx, forkRunID)
+	forkSnapshot, err := wf.Snapshot(ctx, workflow.SnapshotRequest{RunID: forkRunID})
 	if err != nil {
 		return exampleResult{}, fmt.Errorf("load fork: %w", err)
 	}
 	return exampleResult{
-		retryOutput: retryOutput, forkOutput: forkOutput, sourceStatus: source.Status,
-		retryRunID: retry.RunID, forkRunID: fork.RunID,
-		retrySourceRunID: retry.SourceRunID, forkSourceRunID: fork.SourceRunID,
+		retryOutput: retryOutput, forkOutput: forkOutput,
+		sourceStatus: snapshot.Checkpoints[len(snapshot.Checkpoints)-1].Status,
+		retryRunID:   retrySnapshot.RunMeta.RunID, forkRunID: forkSnapshot.RunMeta.RunID,
+		retrySourceRunID: retrySnapshot.RunMeta.SourceRunID,
+		forkSourceRunID:  forkSnapshot.RunMeta.SourceRunID,
 	}, nil
 }
 

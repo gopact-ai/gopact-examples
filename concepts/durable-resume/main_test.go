@@ -13,7 +13,7 @@ func TestRunExampleResumesInterruptedRun(t *testing.T) {
 	if result.output != "processed:order-42" {
 		t.Fatalf("output = %q, want processed:order-42", result.output)
 	}
-	if result.nodeRunID != exampleRunID {
-		t.Fatalf("resumed RunID = %q, want %q", result.nodeRunID, exampleRunID)
+	if result.resumedRunID != exampleRunID {
+		t.Fatalf("resumed RunID = %q, want %q", result.resumedRunID, exampleRunID)
 	}
 }

@@ -12,8 +12,8 @@ import (
 const exampleRunID = "durable-run-42"
 
 type exampleResult struct {
-	output    string
-	nodeRunID string
+	output       string
+	resumedRunID string
 }
 
 func runExample(ctx context.Context) (exampleResult, error) {
@@ -55,7 +55,7 @@ func runExample(ctx context.Context) (exampleResult, error) {
 	if err != nil {
 		return exampleResult{}, fmt.Errorf("load completed run: %w", err)
 	}
-	return exampleResult{output: output, nodeRunID: snapshot.RunMeta.RunID}, nil
+	return exampleResult{output: output, resumedRunID: snapshot.RunMeta.RunID}, nil
 }
 
 func main() {
@@ -63,5 +63,5 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("run=%s output=%s\n", result.nodeRunID, result.output)
+	fmt.Printf("run=%s output=%s\n", result.resumedRunID, result.output)
 }
