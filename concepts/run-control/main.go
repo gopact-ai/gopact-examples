@@ -19,6 +19,8 @@ type exampleResult struct {
 	retryOutput      string
 	forkOutput       string
 	sourceStatus     workflow.CheckpointStatus
+	retryRunID       string
+	forkRunID        string
 	retrySourceRunID string
 	forkSourceRunID  string
 }
@@ -97,6 +99,7 @@ func runExample(ctx context.Context) (exampleResult, error) {
 	}
 	return exampleResult{
 		retryOutput: retryOutput, forkOutput: forkOutput, sourceStatus: source.Status,
+		retryRunID: retry.RunID, forkRunID: fork.RunID,
 		retrySourceRunID: retry.SourceRunID, forkSourceRunID: fork.SourceRunID,
 	}, nil
 }
@@ -107,10 +110,12 @@ func main() {
 		panic(err)
 	}
 	fmt.Printf(
-		"source=%s status=%s retry=%s fork=%s\n",
+		"source=%s status=%s retry=%s:%s fork=%s:%s\n",
 		sourceRunID,
 		result.sourceStatus,
+		result.retryRunID,
 		result.retryOutput,
+		result.forkRunID,
 		result.forkOutput,
 	)
 }

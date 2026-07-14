@@ -18,6 +18,9 @@ func TestRunExampleCreatesNewRunsFromFailedSource(t *testing.T) {
 	if result.sourceStatus != workflow.CheckpointFailed {
 		t.Fatalf("source status = %q, want failed", result.sourceStatus)
 	}
+	if result.retryRunID != retryRunID || result.forkRunID != forkRunID || result.retryRunID == result.forkRunID {
+		t.Fatalf("retry/fork RunID = %q/%q, want distinct %q/%q", result.retryRunID, result.forkRunID, retryRunID, forkRunID)
+	}
 	if result.retrySourceRunID != sourceRunID || result.forkSourceRunID != sourceRunID {
 		t.Fatalf(
 			"retry/fork source = %q/%q, want %q",
