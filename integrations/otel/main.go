@@ -31,13 +31,38 @@ func (spanEventSink) Emit(ctx context.Context, event gopact.Event) error {
 	return nil
 }
 
-func runExample(ctx context.Context, provider trace.TracerProvider) (string, []gopact.Event, error) {
-	ctx, span := provider.Tracer("gopact-examples/integrations/otel").Start(ctx, "workflow.run")
+type lookupAdapter interface {
+	Lookup(context.Context, string) (string, error)
+}
+
+type staticLookup struct{}
+
+func (staticLookup) Lookup(_ context.Context, input string) (string, error) {
+	return "observed:" + input, nil
+}
+
+// tracedLookup is application-owned infrastructure instrumentation. It wraps
+// the adapter call directly instead of manufacturing a Workflow domain event.
+type tracedLookup struct {
+	next   lookupAdapter
+	tracer trace.Tracer
+}
+
+func (adapter tracedLookup) Lookup(ctx context.Context, input string) (string, error) {
+	ctx, span := adapter.tracer.Start(ctx, "adapter.lookup")
 	defer span.End()
+	return adapter.next.Lookup(ctx, input)
+}
+
+func runExample(ctx context.Context, provider trace.TracerProvider) (string, []gopact.Event, error) {
+	tracer := provider.Tracer("gopact-examples/integrations/otel")
+	ctx, span := tracer.Start(ctx, "workflow.run")
+	defer span.End()
+	lookup := tracedLookup{next: staticLookup{}, tracer: tracer}
 
 	wf := workflow.New[string, string]("observed-workflow")
-	observe := wf.Node("observe", func(_ context.Context, input string) (string, error) {
-		return "observed:" + input, nil
+	observe := wf.Node("observe", func(ctx context.Context, input string) (string, error) {
+		return lookup.Lookup(ctx, input)
 	})
 	wf.Entry(observe)
 	wf.Exit(observe)
@@ -63,7 +88,12 @@ func runExample(ctx context.Context, provider trace.TracerProvider) (string, []g
 func runProgram(ctx context.Context, provider *sdktrace.TracerProvider, exporter *tracetest.InMemoryExporter) (string, int, bool, error) {
 	output, events, runErr := runExample(ctx, provider)
 	spans := exporter.GetSpans()
-	traceValid := len(spans) == 1 && spans[0].SpanContext.TraceID().IsValid()
+	traceValid := false
+	for _, span := range spans {
+		if span.Name == "workflow.run" {
+			traceValid = span.SpanContext.TraceID().IsValid()
+		}
+	}
 	shutdownErr := provider.Shutdown(context.WithoutCancel(ctx))
 	return output, len(events), traceValid, errors.Join(runErr, shutdownErr)
 }

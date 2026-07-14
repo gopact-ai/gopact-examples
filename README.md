@@ -8,10 +8,10 @@ Executable examples for the redesigned `gopact` API.
 
 > **Go 1.27+ only.** This project is built around generic methods and celebrates what we see as one of Go's most consequential language changes of the past decade. Until Go 1.27 is officially released, it requires a development toolchain and should be treated as a preview, not a stable release.
 
-Before the coordinated RC modules are published, clone `gopact`, `gopact-ext`, and
-`gopact-examples` as sibling directories. The local `replace` directives in this preview
-checkout intentionally resolve those siblings; they are removed only after the tagged
-modules pass clean-consumer verification.
+Before the coordinated RC modules are published, source E2E checks clone `gopact`,
+`gopact-ext`, and `gopact-examples` at reviewed commits and join them with a temporary
+Go workspace. Published examples consume immutable module versions and require neither
+sibling checkouts nor committed `replace` directives.
 
 Default example runs are intentionally offline.
 
@@ -27,10 +27,13 @@ Default example runs are intentionally offline.
 
 | Example | What it teaches |
 | --- | --- |
-| [`concepts/durable-resume`](./concepts/durable-resume) | Deduplicate an external side effect when recovery reruns the same activation |
+| [`concepts/durable-resume`](./concepts/durable-resume) | Resume one interrupted Run from its checkpoint |
+| [`concepts/run-control`](./concepts/run-control) | Retry or fork a failed Run into a new Run with source lineage |
 | [`concepts/session-correlation`](./concepts/session-correlation) | Correlate independent Runs with a Session, then inspect and resume one selected Run |
 
-The durable-resume example derives `RunInfo.RunID + "/" + RunInfo.ActivationID`, then proves that a node may run twice after simulated process loss while the side effect is applied once. Its in-memory idempotent API is a deterministic demonstration, not a production outbox. In production, pass the stable key to an external API that natively deduplicates it, or write a uniquely constrained dedup/outbox record in the same transaction as the business data. An explicit business retry intended to create a new side effect needs a new operation key.
+The durable-resume example keeps only the public interrupt/resume path. Fresh-process decoding, fencing, crash windows, and side-effect idempotency belong to the core and Store integration suites rather than a quick conceptual example. `MemoryStore` keeps this example offline; replace it with a durable Store before relying on process recovery.
+
+The run-control example leaves the failed source Run immutable. `Retry` replays one failed node activation into a new Run, while `Fork` starts another new Run from a replay-safe root with a patched workflow input. Both new Runs retain `SourceRunID` lineage.
 
 The session query lists related Runs. Snapshot and resume select a mandatory `RunID`; there is no Session snapshot. The shared `workflow.MemoryStore` holds process-lifetime execution checkpoints and journal records, not semantic Memory, and is only for tests or short-lived processes. Use SQLite on one machine or from processes that safely share one local database file; use a distributed database Store with atomic Claim and fencing for multiple hosts.
 
@@ -43,9 +46,9 @@ The session query lists related Runs. Snapshot and resume select a mandatory `Ru
 
 ## OpenTelemetry integration
 
-Use `integrations/otel` when an application already owns OpenTelemetry setup and wants Workflow events on the active span. The example maps `SessionID` to `gen_ai.conversation.id`, `RunID` to `gopact.run.id`, and the Workflow definition ID to `gopact.workflow.name`.
+Use `integrations/otel` when an application already owns OpenTelemetry setup. The example projects Workflow domain Events onto the run span, mapping `SessionID` to `gen_ai.conversation.id`, `RunID` to `gopact.run.id`, and the Workflow definition ID to `gopact.workflow.name`. It separately wraps an application adapter with an infrastructure span; that span does not manufacture a Workflow Event.
 
-This keeps telemetry identity out of the domain Event and storage schema, leaves the core free of an OpenTelemetry dependency, and works with any SDK exporter. The adapter only enriches a valid span carried by the invocation `context.Context`; without one, the OpenTelemetry API is a no-op.
+This keeps telemetry identity out of the domain Event and storage schema, leaves the core free of an OpenTelemetry dependency, and works with any SDK exporter. Both projections use the invocation `context.Context`; with the OpenTelemetry no-op provider they add no runtime telemetry.
 
 ## Mem0 integration
 
@@ -79,7 +82,15 @@ MEM0_INTEGRATION=1 go test -tags=integration ./integrations/mem0 -run TestMem0Sm
 
 ## Run all examples
 
-From the sibling source layout described above:
+From a published checkout:
+
+```bash
+GOWORK=off go mod download
+GOWORK=off go test -count=1 ./...
+```
+
+The pre-tag source E2E workflow instead creates a temporary workspace over the three
+coordinated source checkouts and runs:
 
 ```bash
 go test ./...
