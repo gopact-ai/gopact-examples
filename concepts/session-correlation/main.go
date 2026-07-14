@@ -27,8 +27,7 @@ type exampleResult struct {
 func runExample(ctx context.Context) (exampleResult, error) {
 	store := workflow.NewMemoryStore()
 	storeOptions := []workflow.BuildOption{
-		workflow.WithStrictCheckpointer(store),
-		workflow.WithStrictJournal(store),
+		workflow.WithStore(store),
 	}
 
 	intake := workflow.New[agent.Request, agent.Response]("intake", storeOptions...)

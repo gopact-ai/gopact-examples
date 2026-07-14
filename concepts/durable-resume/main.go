@@ -53,8 +53,7 @@ func runExample(ctx context.Context) (exampleResult, error) {
 
 	wf := workflow.New[string, string](
 		"durable-resume",
-		workflow.WithCheckpointer(store),
-		workflow.WithJournal(store),
+		workflow.WithStore(store),
 	)
 	charge := wf.Node("charge", func(ctx context.Context, orderID string) (string, error) {
 		info := workflow.RunInfoFromContext(ctx)
