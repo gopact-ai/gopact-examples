@@ -127,12 +127,7 @@ func buildModelRequest(input contextInput) gopact.ModelRequest {
 	return request
 }
 
-func runMemoryWorkflow(
-	ctx context.Context,
-	config memoryWorkflowConfig,
-	input workflowInput,
-	opts ...gopact.RunOption,
-) (string, error) {
+func runMemoryWorkflow(ctx context.Context, config memoryWorkflowConfig, input workflowInput, opts ...gopact.RunOption) (string, error) {
 	if strings.TrimSpace(config.userID) == "" || strings.TrimSpace(config.agentID) == "" {
 		return "", fmt.Errorf("memory context: trusted user and agent identity are required")
 	}
