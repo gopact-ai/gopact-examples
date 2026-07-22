@@ -105,6 +105,36 @@ func TestWorkflowInputDoesNotOwnTrustDecisions(t *testing.T) {
 	}
 }
 
+func TestBuildModelRequestOmitsBlankMemoryEvidence(t *testing.T) {
+	t.Parallel()
+	for _, test := range []struct {
+		name   string
+		memory string
+	}{
+		{name: "empty"},
+		{name: "whitespace", memory: " \n\t"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			request := buildModelRequest(contextInput{
+				Model:         &recordingModel{},
+				RunID:         "run-memory-empty",
+				MemorySummary: test.memory,
+				UserText:      "Answer without recalled memory.",
+			})
+			if len(request.Messages) != 2 {
+				t.Fatalf("model messages = %d, want policy and current user only", len(request.Messages))
+			}
+			if got := request.Messages[0].Role; got != gopact.MessageRoleSystem {
+				t.Errorf("policy role = %q, want system", got)
+			}
+			if got := request.Messages[1]; !reflect.DeepEqual(got, gopact.UserMessage("Answer without recalled memory.")) {
+				t.Errorf("current user message = %#v", got)
+			}
+		})
+	}
+}
+
 func TestMemoryWorkflowRejectsMissingTrustedScope(t *testing.T) {
 	for _, test := range []struct {
 		name   string
