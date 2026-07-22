@@ -60,18 +60,18 @@ Use `integrations/mem0` when an Agent needs semantic Memory from Mem0 or a compa
 load-memory (HTTP I/O) -> build-model-request (pure) -> model
 ```
 
-The application constructs the Agent Context that determines what the model sees; Memory is one input to that Context, not a framework-owned container or provider interface.
+The application constructs the Agent Context that determines what the model sees; Memory is one input to that Context, not a framework-owned container or provider interface. Retrieved Memory is external, mutable, and untrusted. The example places a fixed application-owned policy in the system role, puts recalled Memory in a separate user-role message labeled as untrusted evidence, and keeps the current user message last. Ordinary workflow input carries user text rather than a role-bearing model message, so request data cannot select a higher-trust role. Memory is never promoted to a system instruction.
 
-The retrieval node reads SessionID and Workflow RunID from `workflow.RunInfoFromContext`; business Context does not duplicate execution metadata. The caller supplies identity through RunOptions, and the framework propagates the resulting identity to the node.
+The retrieval node reads SessionID and Workflow RunID from `workflow.RunInfoFromContext`; business Context does not duplicate execution metadata. User and Agent identity live in application-owned `memoryWorkflowConfig`, outside the ordinary `workflowInput`. The runnable demo uses fixed values; a real service must derive them from authenticated server-side state rather than copying fields from a request body. The application also assigns SessionID through RunOptions after establishing the caller's scope.
 
 | Application identity | Mem0 / model mapping |
 | --- | --- |
-| UserID | `user_id` |
-| Agent identity | `agent_id` |
-| SessionID | Mem0 `run_id` |
+| Authenticated UserID in application config | `user_id` |
+| Application-owned Agent identity | `agent_id` |
+| Application-assigned SessionID | Mem0 `run_id` |
 | Workflow RunID | `gopact.workflow.run_id` in `ModelRequest.Metadata` for provenance |
 
-Advantages: the I/O boundary is visible in the Workflow, provider policy stays in application code, and no Mem0 dependency enters core or ext. Limitations: the application owns result selection, prompt construction, HTTP compatibility, and failure policy; the minimal client demonstrates one `POST /search` contract rather than a complete Mem0 SDK. To prevent API-key disclosure, it rejects every redirect, including same-origin redirects; configure the final endpoint URL directly.
+Advantages: the I/O boundary is visible in the Workflow, provider policy stays in application code, and no Mem0 dependency enters core or ext. Limitations: role separation is defense in depth, not complete prompt-injection protection or authorization. The application still owns identity authentication, scope authorization, result selection, provenance validation, ranking, prompt construction, HTTP compatibility, and failure policy. The minimal client demonstrates one `POST /search` contract rather than a complete Mem0 SDK. To prevent API-key disclosure, it rejects every redirect, including same-origin redirects; configure the final endpoint URL directly.
 
 The deterministic example uses an offline response. To run the bounded external smoke test, optionally load the repository-local `.env` first:
 
