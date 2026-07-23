@@ -6,14 +6,14 @@ Chinese documentation: [README_zh.md](README_zh.md)
 
 Executable examples for the redesigned `gopact` API.
 
-> **Go 1.27+ only.** This project is built around generic methods and celebrates what we see as one of Go's most consequential language changes of the past decade. Until Go 1.27 is officially released, it requires a development toolchain and should be treated as a preview, not a stable release.
+> **Go 1.27+ only.** This project is built around generic methods and celebrates what we see as one of Go's most consequential language changes of the past decade.
 
-Before the coordinated RC modules are published, the manual source E2E workflow requires
-reviewed 40-character core and ext commit SHAs, checks out those exact commits, prints all
-three SHAs, and joins them with a temporary Go workspace. Ordinary CI consumes the immutable
-module versions declared by the examples module with `GOWORK=off`.
+The manual source E2E workflow requires reviewed 40-character core and ext commit SHAs,
+checks out those exact commits, prints all three SHAs, and joins them with a temporary Go
+workspace. Ordinary CI consumes the immutable stable module versions declared by the
+examples module with `GOWORK=off`.
 
-The release order is core → the two ext modules → examples. After the approved immutable dependency tags exist, this module must pin those exact versions and pass with `GOWORK=off`. That post-tag gate has not passed yet; RCs remain production-evaluation candidates until Go 1.27 stable validation and burn-in complete.
+The release order is core → ext modules → examples. This module pins the approved immutable dependency tags and must pass with `GOWORK=off` before its own release tag is created.
 
 Default example runs are intentionally offline.
 

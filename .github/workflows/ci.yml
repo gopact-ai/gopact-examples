@@ -40,6 +40,7 @@ jobs:
           }
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
+          # ponytail: setup-go does not publish 1.27.0 yet; switch once available.
           go-version: '1.27.0-rc.2'
           cache-dependency-path: gopact-examples/go.sum
       - run: test -z "$(gofmt -l .)"
@@ -80,6 +81,7 @@ jobs:
           path: source/gopact-ext
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
+          # ponytail: setup-go does not publish 1.27.0 yet; switch once available.
           go-version: '1.27.0-rc.2'
           cache-dependency-path: source/gopact-examples/go.sum
       - name: print coordinated commit SHAs

@@ -6,13 +6,13 @@
 
 当前 `gopact` 新 API 的可运行示例仓库。
 
-> **仅支持 Go 1.27+。** 本项目围绕泛型方法构建，也借此庆祝我们眼中 Go 近十年来最具影响力的语言演进之一。Go 1.27 正式发布前，本项目需要开发版工具链，应视为预览而非稳定版本。
+> **仅支持 Go 1.27+。** 本项目围绕泛型方法构建，也借此庆祝我们眼中 Go 近十年来最具影响力的语言演进之一。
 
-协调发布各 RC 模块之前，手动 source E2E workflow 要求传入已 review 的 core 与 ext
-40 位 commit SHA，checkout 对应精确提交，打印三个仓库的 SHA，再用临时 Go workspace
-联调。普通 CI 使用 `GOWORK=off` 消费 examples module 声明的 immutable versions。
+手动 source E2E workflow 要求传入已 review 的 core 与 ext 40 位 commit SHA，
+checkout 对应精确提交，打印三个仓库的 SHA，再用临时 Go workspace 联调。
+普通 CI 使用 `GOWORK=off` 消费 examples module 声明的 immutable stable versions。
 
-发布顺序固定为 core → 两个 ext module → examples。获批的 immutable dependency tags 发布后，本 module 必须固定这些精确版本，并在 `GOWORK=off` 下通过。该 post-tag 门禁目前尚未通过；Go 1.27 stable 验证和 RC burn-in 完成前，RC 只能称为 production evaluation candidate。
+发布顺序固定为 core → ext modules → examples。本 module 固定获批的 immutable dependency tags，并且必须在自己的 release tag 创建前通过 `GOWORK=off`。
 
 当前示例默认全部离线可运行。
 
