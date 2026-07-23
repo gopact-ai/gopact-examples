@@ -76,19 +76,17 @@ jobs:
             "$(git -C source/gopact-ext rev-parse HEAD)" \
             "$(git -C source/gopact-examples rev-parse HEAD)"
       - name: create source workspace
-        working-directory: source
-        run: |
-          go work init ./gopact ./gopact-examples
-          go work use -r ./gopact-ext
+        working-directory: source/gopact-ext
+        run: go work use ../gopact ../gopact-examples
       - name: test extensions
         working-directory: source/gopact-ext
         env:
-          GOWORK: ${{ github.workspace }}/source/go.work
+          GOWORK: ${{ github.workspace }}/source/gopact-ext/go.work
         run: make fmt-check tidy test
       - name: test examples
         working-directory: source/gopact-examples
         env:
-          GOWORK: ${{ github.workspace }}/source/go.work
+          GOWORK: ${{ github.workspace }}/source/gopact-ext/go.work
         run: |
           test -z "$(gofmt -l .)"
           go mod tidy -diff
