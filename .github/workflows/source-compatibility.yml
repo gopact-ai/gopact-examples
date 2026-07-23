@@ -1,0 +1,95 @@
+name: source compatibility
+
+on:
+  workflow_call:
+    inputs:
+      core_ref:
+        required: true
+        type: string
+      ext_ref:
+        required: true
+        type: string
+      examples_ref:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      core_ref:
+        description: gopact main or reviewed 40-character commit SHA
+        required: true
+        type: string
+      ext_ref:
+        description: gopact-ext main or reviewed 40-character commit SHA
+        required: true
+        type: string
+      examples_ref:
+        description: gopact-examples main or reviewed 40-character commit SHA
+        default: main
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: validate refs
+        env:
+          CORE_REF: ${{ inputs.core_ref }}
+          EXT_REF: ${{ inputs.ext_ref }}
+          EXAMPLES_REF: ${{ inputs.examples_ref }}
+        run: |
+          set -euo pipefail
+          for ref in "${CORE_REF}" "${EXT_REF}" "${EXAMPLES_REF}"; do
+            [[ "${ref}" == "main" || "${ref}" =~ ^[0-9a-f]{40}$ ]] || {
+              echo "refs must be main or a 40-character lowercase commit SHA" >&2
+              exit 1
+            }
+          done
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: gopact-ai/gopact
+          ref: ${{ inputs.core_ref }}
+          path: source/gopact
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: gopact-ai/gopact-ext
+          ref: ${{ inputs.ext_ref }}
+          path: source/gopact-ext
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: gopact-ai/gopact-examples
+          ref: ${{ inputs.examples_ref }}
+          path: source/gopact-examples
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: source/gopact/go.mod
+          cache-dependency-path: |
+            source/gopact-ext/**/go.sum
+            source/gopact-examples/go.sum
+      - name: print resolved commits
+        run: |
+          printf 'source compatibility core=%s ext=%s examples=%s\n' \
+            "$(git -C source/gopact rev-parse HEAD)" \
+            "$(git -C source/gopact-ext rev-parse HEAD)" \
+            "$(git -C source/gopact-examples rev-parse HEAD)"
+      - name: create source workspace
+        working-directory: source
+        run: |
+          go work init ./gopact ./gopact-examples
+          go work use -r ./gopact-ext
+      - name: test extensions
+        working-directory: source/gopact-ext
+        env:
+          GOWORK: ${{ github.workspace }}/source/go.work
+        run: make fmt-check tidy test
+      - name: test examples
+        working-directory: source/gopact-examples
+        env:
+          GOWORK: ${{ github.workspace }}/source/go.work
+        run: |
+          test -z "$(gofmt -l .)"
+          go mod tidy -diff
+          go test -count=1 ./...
