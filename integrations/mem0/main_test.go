@@ -135,23 +135,22 @@ func TestBuildModelRequestOmitsBlankMemoryEvidence(t *testing.T) {
 	}
 }
 
-func TestMemoryWorkflowRejectsMissingTrustedScope(t *testing.T) {
+func TestMemoryWorkflowRejectsInvalidConfig(t *testing.T) {
+	search := func(context.Context, searchRequest) (string, error) { return "", nil }
 	for _, test := range []struct {
 		name   string
 		config memoryWorkflowConfig
+		want   string
 	}{
-		{name: "user", config: memoryWorkflowConfig{agentID: "support-agent"}},
-		{name: "agent", config: memoryWorkflowConfig{userID: "user-7"}},
+		{name: "user", config: memoryWorkflowConfig{agentID: "support-agent"}, want: "trusted user and agent identity are required"},
+		{name: "agent", config: memoryWorkflowConfig{userID: "user-7"}, want: "trusted user and agent identity are required"},
+		{name: "search", config: memoryWorkflowConfig{userID: "user-7", agentID: "support-agent", model: &recordingModel{}}, want: "search is required"},
+		{name: "model", config: memoryWorkflowConfig{userID: "user-7", agentID: "support-agent", search: search}, want: "model is required"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			test.config.search = func(context.Context, searchRequest) (string, error) {
-				t.Fatal("search called with incomplete trusted scope")
-				return "", nil
-			}
-			test.config.model = &recordingModel{}
 			_, err := runMemoryWorkflow(t.Context(), test.config, workflowInput{})
-			if err == nil || !strings.Contains(err.Error(), "trusted user and agent identity are required") {
-				t.Fatalf("runMemoryWorkflow() error = %v, want trusted identity error", err)
+			if err == nil || !strings.Contains(err.Error(), test.want) {
+				t.Fatalf("runMemoryWorkflow() error = %v, want %q", err, test.want)
 			}
 		})
 	}

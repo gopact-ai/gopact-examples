@@ -131,6 +131,12 @@ func runMemoryWorkflow(ctx context.Context, config memoryWorkflowConfig, input w
 	if strings.TrimSpace(config.userID) == "" || strings.TrimSpace(config.agentID) == "" {
 		return "", fmt.Errorf("memory context: trusted user and agent identity are required")
 	}
+	if config.search == nil {
+		return "", fmt.Errorf("memory context: search is required")
+	}
+	if config.model == nil {
+		return "", fmt.Errorf("memory context: model is required")
+	}
 	wf := workflow.New[workflowInput, string]("memory-context")
 	loadMemory := wf.Node("load-memory", func(ctx context.Context, input workflowInput) (memoryContext, error) {
 		info := workflow.RunInfoFromContext(ctx)
