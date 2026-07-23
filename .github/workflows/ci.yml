@@ -40,6 +40,7 @@ jobs:
           }
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
+          # ponytail: setup-go does not publish 1.27.0 yet; switch once available.
           go-version: '1.27.0-rc.2'
           cache-dependency-path: gopact-examples/go.sum
       - run: test -z "$(gofmt -l .)"
@@ -80,6 +81,7 @@ jobs:
           path: source/gopact-ext
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
+          # ponytail: setup-go does not publish 1.27.0 yet; switch once available.
           go-version: '1.27.0-rc.2'
           cache-dependency-path: source/gopact-examples/go.sum
       - name: print coordinated commit SHAs
@@ -93,9 +95,12 @@ jobs:
           [[ "${actual_core}" == "${CORE_SHA}" ]]
           [[ "${actual_ext}" == "${EXT_SHA}" ]]
           printf 'source E2E core=%s ext=%s examples=%s\n' "${actual_core}" "${actual_ext}" "${actual_examples}"
-      - name: create coordinated source workspace
+      - name: test coordinated extension workspace
+        working-directory: source/gopact-ext
+        run: make fmt-check tidy test race vet
+      - name: create coordinated consumer workspace
         working-directory: source
-        run: go work init ./gopact ./gopact-ext ./gopact-ext/stores ./gopact-examples
+        run: go work init ./gopact ./gopact-ext ./gopact-ext/models/openai ./gopact-examples
       - run: test -z "$(gofmt -l .)"
       - run: go mod tidy -diff
       - run: go test -count=1 ./...

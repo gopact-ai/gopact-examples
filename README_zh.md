@@ -6,13 +6,13 @@
 
 当前 `gopact` 新 API 的可运行示例仓库。
 
-> **仅支持 Go 1.27+。** 本项目围绕泛型方法构建，也借此庆祝我们眼中 Go 近十年来最具影响力的语言演进之一。Go 1.27 正式发布前，本项目需要开发版工具链，应视为预览而非稳定版本。
+> **仅支持 Go 1.27+。** 本项目围绕泛型方法构建，也借此庆祝我们眼中 Go 近十年来最具影响力的语言演进之一。
 
-协调发布各 RC 模块之前，手动 source E2E workflow 要求传入已 review 的 core 与 ext
-40 位 commit SHA，checkout 对应精确提交，打印三个仓库的 SHA，再用临时 Go workspace
-联调。普通 CI 使用 `GOWORK=off` 消费 examples module 声明的 immutable versions。
+手动 source E2E workflow 要求传入已 review 的 core 与 ext 40 位 commit SHA，
+checkout 对应精确提交，打印三个仓库的 SHA，再用临时 Go workspace 联调。
+普通 CI 使用 `GOWORK=off` 消费 examples module 声明的 immutable stable versions。
 
-发布顺序固定为 core → 两个 ext module → examples。获批的 immutable dependency tags 发布后，本 module 必须固定这些精确版本，并在 `GOWORK=off` 下通过。该 post-tag 门禁目前尚未通过；Go 1.27 stable 验证和 RC burn-in 完成前，RC 只能称为 production evaluation candidate。
+发布顺序固定为 core → ext modules → examples。本 module 固定获批的 immutable dependency tags，并且必须在自己的 release tag 创建前通过 `GOWORK=off`。
 
 当前示例默认全部离线可运行。
 
@@ -59,18 +59,18 @@ Agent 需要从 Mem0 或兼容 HTTP 服务获取语义 Memory 时，可使用 `i
 load-memory（HTTP I/O）-> build-model-request（纯函数）-> model
 ```
 
-决定模型能看到什么的 Agent Context 由业务构造；Memory 只是 Context 的一个输入，不是框架拥有的容器或 provider 接口。
+决定模型能看到什么的 Agent Context 由业务构造；Memory 只是 Context 的一个输入，不是框架拥有的容器或 provider 接口。检索到的 Memory 是外部、可变且不可信的数据。示例只把固定的 application policy 放入 system role，把 recalled Memory 放入单独的 user-role message 并标记为 untrusted evidence，最后再放当前 user message。普通 workflow input 只携带 user text，而不是可指定 role 的 model message，因此请求数据不能自行选择更高信任级别；Memory 永远不会被提升成 system instruction。
 
-检索节点通过 `workflow.RunInfoFromContext` 读取 SessionID 与 Workflow RunID，业务 Context 不重复保存执行 meta。调用方用 RunOptions 指定身份，框架再把最终身份传播给节点。
+检索节点通过 `workflow.RunInfoFromContext` 读取 SessionID 与 Workflow RunID，业务 Context 不重复保存执行 meta。User 与 Agent identity 位于 application-owned `memoryWorkflowConfig`，不进入普通 `workflowInput`。可运行 demo 使用固定值；真实服务必须从认证后的服务端状态取得这些值，不能复制普通请求 body 字段。application 也应在确定调用方 scope 后通过 RunOptions 分配 SessionID。
 
 | 应用身份 | Mem0 / model 映射 |
 | --- | --- |
-| UserID | `user_id` |
-| Agent identity | `agent_id` |
-| SessionID | Mem0 `run_id` |
+| application config 中已认证的 UserID | `user_id` |
+| application-owned Agent identity | `agent_id` |
+| application 分配的 SessionID | Mem0 `run_id` |
 | Workflow RunID | 写入 `ModelRequest.Metadata` 的 `gopact.workflow.run_id`，仅用于 provenance |
 
-优点：Workflow 中能直接看到 I/O 边界，provider 策略保留在业务代码里，core 和 ext 不引入 Mem0 依赖。缺点与限制：结果选择、prompt 构造、HTTP 兼容和失败策略都由业务负责；这个最小 client 只演示一次 `POST /search` 合约，不是完整 Mem0 SDK。为了避免 API key 泄露，它拒绝所有重定向（包括同源重定向），应直接配置最终 endpoint URL。
+优点：Workflow 中能直接看到 I/O 边界，provider 策略保留在业务代码里，core 和 ext 不引入 Mem0 依赖。缺点与限制：role separation 只是纵深防御，不是完整的 prompt-injection 防护或 authorization。identity authentication、scope authorization、结果选择、provenance 验证、ranking、prompt 构造、HTTP 兼容和失败策略仍由业务负责；这个最小 client 只演示一次 `POST /search` 合约，不是完整 Mem0 SDK。为了避免 API key 泄露，它拒绝所有重定向（包括同源重定向），应直接配置最终 endpoint URL。
 
 确定性示例使用离线结果。若要运行有 15 秒超时的外部 smoke test，可先加载仓库根目录的本地 `.env`：
 
