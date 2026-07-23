@@ -45,4 +45,4 @@ jobs:
     with:
       core_ref: main
       ext_ref: main
-      examples_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      examples_ref: ${{ github.sha }}
