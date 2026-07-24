@@ -48,6 +48,28 @@ jobs:
       - run: go install golang.org/x/vuln/cmd/govulncheck@v1.5.0
       - run: GOWORK=off govulncheck ./...
 
+  # The eval module has its own go.mod (it pins released core/ext tags to stay
+  # independent of the system under test), so the root job above never sweeps
+  # it. This job runs eval's own build, vet, and race tests.
+  eval:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: gopact-examples/eval
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          path: gopact-examples
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version: '1.27.0-rc.2'
+          cache-dependency-path: gopact-examples/eval/go.sum
+      - run: GOWORK=off go mod tidy -diff
+      - run: GOWORK=off go build ./...
+      - run: GOWORK=off go test -count=1 ./...
+      - run: GOWORK=off go test -race -count=1 ./...
+      - run: GOWORK=off go vet ./...
+
   # Keep this job ID stable: all three repository rulesets require the
   # "source-compatibility / test" check context.
   source-compatibility:
