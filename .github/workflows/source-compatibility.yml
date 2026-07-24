@@ -88,6 +88,11 @@ jobs:
         env:
           GOWORK: ${{ github.workspace }}/source/gopact-ext/go.work
         run: |
-          test -z "$(gofmt -l .)"
+          set -euo pipefail
+          files="$(gofmt -l .)"
+          [[ -z "${files}" ]] || {
+            printf 'files need gofmt:\n%s\n' "${files}" >&2
+            exit 1
+          }
           go mod tidy -diff
           go test -count=1 ./...
