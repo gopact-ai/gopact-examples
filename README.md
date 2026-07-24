@@ -11,6 +11,8 @@ Executable examples for the redesigned `gopact` API.
 Go 1.27.0 is not yet available from the public toolchain servers, so CI is
 temporarily pinned to `1.27.0-rc.2`. New gopact-examples releases use stable
 semantic versions; no further project RC releases will be published.
+Until the final toolchain is available, the local commands below select the
+public `go1.27rc2` toolchain explicitly.
 
 The manually dispatched source E2E workflow requires reviewed 40-character commit
 SHAs for all three repositories, checks out those exact commits, prints them, and
@@ -83,7 +85,7 @@ The deterministic example uses an offline response. To run the external smoke te
 
 ```bash
 set -a; [ ! -f .env ] || . ./.env; set +a
-MEM0_INTEGRATION=1 go test -tags=integration ./integrations/mem0 -run TestMem0Smoke -count=1 -v
+GOTOOLCHAIN=go1.27rc2 MEM0_INTEGRATION=1 go test -tags=integration ./integrations/mem0 -run TestMem0Smoke -count=1 -v
 ```
 
 `MEM0_BASE_URL` defaults to `http://localhost:8888`; `MEM0_API_KEY` is optional.
@@ -93,13 +95,13 @@ MEM0_INTEGRATION=1 go test -tags=integration ./integrations/mem0 -run TestMem0Sm
 From a published checkout:
 
 ```bash
-GOWORK=off go mod download
-GOWORK=off go test -count=1 ./...
+GOTOOLCHAIN=go1.27rc2 GOWORK=off go mod download
+GOTOOLCHAIN=go1.27rc2 GOWORK=off go test -count=1 ./...
 ```
 
 The pre-tag source E2E workflow instead creates a temporary workspace over the three
 coordinated source checkouts and runs:
 
 ```bash
-go test ./...
+GOTOOLCHAIN=go1.27rc2 go test ./...
 ```
