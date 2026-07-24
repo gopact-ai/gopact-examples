@@ -36,6 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: validate refs
+        shell: bash
         env:
           CORE_REF: ${{ inputs.core_ref }}
           EXT_REF: ${{ inputs.ext_ref }}
@@ -85,9 +86,15 @@ jobs:
         run: make fmt-check tidy test
       - name: test examples
         working-directory: source/gopact-examples
+        shell: bash
         env:
           GOWORK: ${{ github.workspace }}/source/gopact-ext/go.work
         run: |
-          test -z "$(gofmt -l .)"
+          set -euo pipefail
+          files="$(gofmt -l .)"
+          [[ -z "${files}" ]] || {
+            printf 'files need gofmt:\n%s\n' "${files}" >&2
+            exit 1
+          }
           go mod tidy -diff
           go test -count=1 ./...
