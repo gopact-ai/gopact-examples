@@ -32,6 +32,8 @@ permissions:
   contents: read
 
 jobs:
+  # Keep this job ID stable: together with the caller's source-compatibility
+  # job, it produces the required "source-compatibility / test" check context.
   test:
     runs-on: ubuntu-latest
     steps:
