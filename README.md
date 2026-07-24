@@ -6,7 +6,11 @@ Chinese documentation: [README_zh.md](README_zh.md)
 
 Executable examples for the redesigned `gopact` API.
 
-> **Go 1.27+ only.** This project is built around generic methods and celebrates what we see as one of Go's most consequential language changes of the past decade.
+> **Go 1.27+ only.** This project uses generic methods and therefore requires Go 1.27 or later.
+
+Go 1.27.0 is not yet available from the public toolchain servers, so CI is
+temporarily pinned to `1.27.0-rc.2`. New gopact-examples releases use stable
+semantic versions; no further project RC releases will be published.
 
 The manual source E2E workflow requires reviewed 40-character core and ext commit SHAs,
 checks out those exact commits, prints all three SHAs, and joins them with a temporary Go
@@ -73,7 +77,7 @@ The retrieval node reads SessionID and Workflow RunID from `workflow.RunInfoFrom
 
 Advantages: the I/O boundary is visible in the Workflow, provider policy stays in application code, and no Mem0 dependency enters core or ext. Limitations: role separation is defense in depth, not complete prompt-injection protection or authorization. The application still owns identity authentication, scope authorization, result selection, provenance validation, ranking, prompt construction, HTTP compatibility, and failure policy. The minimal client demonstrates one `POST /search` contract rather than a complete Mem0 SDK. To prevent API-key disclosure, it rejects every redirect, including same-origin redirects; configure the final endpoint URL directly.
 
-The deterministic example uses an offline response. To run the bounded external smoke test, optionally load the repository-local `.env` first:
+The deterministic example uses an offline response. To run the external smoke test with its 15-second timeout, optionally load the repository-local `.env` first:
 
 ```bash
 set -a; [ ! -f .env ] || . ./.env; set +a
