@@ -12,19 +12,23 @@ on:
       examples_ref:
         required: true
         type: string
+      allow_main_refs:
+        description: Allow moving main refs for required continuous integration
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       core_ref:
-        description: gopact main or reviewed 40-character commit SHA
+        description: Reviewed 40-character gopact commit SHA
         required: true
         type: string
       ext_ref:
-        description: gopact-ext main or reviewed 40-character commit SHA
+        description: Reviewed 40-character gopact-ext commit SHA
         required: true
         type: string
       examples_ref:
-        description: gopact-examples main or reviewed 40-character commit SHA
-        default: main
+        description: Reviewed 40-character gopact-examples commit SHA
         required: true
         type: string
 
@@ -43,13 +47,21 @@ jobs:
           CORE_REF: ${{ inputs.core_ref }}
           EXT_REF: ${{ inputs.ext_ref }}
           EXAMPLES_REF: ${{ inputs.examples_ref }}
+          ALLOW_MAIN_REFS: ${{ inputs.allow_main_refs }}
         run: |
           set -euo pipefail
           for ref in "${CORE_REF}" "${EXT_REF}" "${EXAMPLES_REF}"; do
-            [[ "${ref}" == "main" || "${ref}" =~ ^[0-9a-f]{40}$ ]] || {
-              echo "refs must be main or a 40-character lowercase commit SHA" >&2
-              exit 1
-            }
+            if [[ "${ALLOW_MAIN_REFS}" == "true" ]]; then
+              [[ "${ref}" == "main" || "${ref}" =~ ^[0-9a-f]{40}$ ]] || {
+                echo "CI refs must be main or a 40-character lowercase commit SHA" >&2
+                exit 1
+              }
+            else
+              [[ "${ref}" =~ ^[0-9a-f]{40}$ ]] || {
+                echo "reproducible runs require 40-character lowercase commit SHAs" >&2
+                exit 1
+              }
+            fi
           done
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:

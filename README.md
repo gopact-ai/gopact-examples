@@ -12,10 +12,12 @@ Go 1.27.0 is not yet available from the public toolchain servers, so CI is
 temporarily pinned to `1.27.0-rc.2`. New gopact-examples releases use stable
 semantic versions; no further project RC releases will be published.
 
-The manual source E2E workflow requires reviewed 40-character core and ext commit SHAs,
-checks out those exact commits, prints all three SHAs, and joins them with a temporary Go
-workspace. Ordinary CI consumes the immutable stable module versions declared by the
-examples module with `GOWORK=off`.
+The manually dispatched source E2E workflow requires reviewed 40-character commit
+SHAs for all three repositories, checks out those exact commits, prints them, and
+joins the repositories with a temporary Go workspace. The ordinary module test job
+consumes the immutable stable versions declared by the examples module with
+`GOWORK=off`; the required source-compatibility job separately tests the coordinated
+source tree.
 
 The release order is core → ext modules → examples. This module pins the approved immutable dependency tags and must pass with `GOWORK=off` before its own release tag is created.
 

@@ -56,3 +56,4 @@ jobs:
       core_ref: main
       ext_ref: main
       examples_ref: ${{ github.sha }}
+      allow_main_refs: true
