@@ -36,6 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: validate refs
+        shell: bash
         env:
           CORE_REF: ${{ inputs.core_ref }}
           EXT_REF: ${{ inputs.ext_ref }}
