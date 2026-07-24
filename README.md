@@ -6,9 +6,9 @@ Chinese documentation: [README_zh.md](README_zh.md)
 
 Executable examples for the redesigned `gopact` API.
 
-> **Requires Go 1.27 or newer.** This project uses generic methods and therefore requires Go 1.27 or later.
+> **Requires Go 1.27 or newer.** The examples use generic methods available only in that toolchain.
 
-The local commands below use your installed Go 1.27 toolchain. CI pins `setup-go` to the currently published Go 1.27 toolchain.
+The local commands below use your installed Go 1.27 toolchain. CI pins `setup-go` to a specific Go 1.27 toolchain version.
 
 The manually dispatched source E2E workflow requires reviewed 40-character commit
 SHAs for all three repositories, checks out those exact commits, prints them, and
